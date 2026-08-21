@@ -1,288 +1,1783 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#6750A4">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Super Rivelles Peris World - Adventure Platformer</title>
-  
-  <link rel="manifest" href="manifest.json">
+  <title>Super Rivelles Peris World: Anti-Gravity Galaxy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0b0a12;
+      font-family: 'Press Start 2P', 'Fredoka', monospace, sans-serif;
+      color: #fff;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 50% 50%, #1a162b 0%, #08060d 100%);
+    }
+
+    #canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #000;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+    }
+
+    /* SNES HUD Layer */
+    #hud {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 20;
+      font-size: 11px;
+      text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000;
+    }
+
+    .hud-box {
+      background: rgba(18, 14, 28, 0.85);
+      border: 2px solid #e2b024;
+      border-radius: 8px;
+      padding: 6px 12px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      pointer-events: auto;
+    }
+
+    .hud-title {
+      color: #ff5252;
+      letter-spacing: 1px;
+    }
+
+    .hud-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #ffd700;
+    }
+
+    .hud-gravity-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      background: #3949ab;
+      color: #fff;
+      border: 1px solid #7986cb;
+      animation: pulse-grav 2s infinite ease-in-out;
+    }
+
+    .hud-gravity-badge.g-zero {
+      background: #8e24aa;
+      border-color: #ba68c8;
+    }
+
+    .hud-gravity-badge.g-inv {
+      background: #d81b60;
+      border-color: #f48fb1;
+    }
+
+    @keyframes pulse-grav {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .hud-btn {
+      background: #2b2540;
+      border: 2px solid #ffd700;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 10px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.1s ease;
+    }
+
+    .hud-btn:active {
+      transform: scale(0.92);
+      background: #ffd700;
+      color: #000;
+    }
+
+    /* Virtual Touch Controls for Mobile */
+    #touch-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 30;
+      display: none;
+    }
+
+    .touch-group {
+      position: absolute;
+      bottom: 16px;
+      pointer-events: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .dpad-group {
+      left: 18px;
+    }
+
+    .actions-group {
+      right: 18px;
+    }
+
+    .touch-button {
+      background: rgba(30, 24, 46, 0.75);
+      border: 3px solid #ffd700;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      touch-action: none;
+      transition: transform 0.08s, background 0.08s;
+    }
+
+    .touch-button:active, .touch-button.active {
+      transform: scale(0.9);
+      background: #ffd700;
+      color: #000;
+    }
+
+    .dpad-btn {
+      width: 60px;
+      height: 60px;
+    }
+
+    .act-btn {
+      width: 66px;
+      height: 66px;
+    }
+
+    .act-btn-jump {
+      background: rgba(46, 125, 50, 0.8);
+      border-color: #81c784;
+      margin-bottom: 24px;
+    }
+
+    .act-btn-power {
+      background: rgba(198, 40, 40, 0.8);
+      border-color: #ef9a9a;
+    }
+
+    .act-sub {
+      font-size: 7px;
+      margin-top: 2px;
+    }
+
+    /* Screen UI Overlay (Menus / Victory) */
+    .overlay-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .overlay-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .snes-modal {
+      background: #241d3b;
+      border: 4px solid #ffd700;
+      border-radius: 12px;
+      padding: 24px 30px;
+      max-width: 520px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.35);
+      animation: pop-modal 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop-modal {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title {
+      color: #ffd700;
+      font-size: 16px;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .modal-text {
+      font-size: 10px;
+      line-height: 1.8;
+      color: #e0e0e0;
+      margin-bottom: 20px;
+    }
+
+    .snes-btn {
+      background: linear-gradient(180deg, #ffd700 0%, #ff9800 100%);
+      color: #000;
+      border: 3px solid #fff;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #b26a00;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .snes-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #b26a00;
+    }
+
+    /* Keyboard Instructions Banner */
+    #instructions-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 12, 24, 0.8);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 8px;
+      color: #aaa;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      #instructions-bar { display: none; }
+      .hud-box { padding: 4px 8px; font-size: 9px; }
+      .dpad-btn { width: 52px; height: 52px; }
+      .act-btn { width: 58px; height: 58px; }
+    }
+  </style>
 </head>
 <body>
-  <div id="game-app">
-    <div id="canvas-container">
+  <div id="game-container">
+    <div id="canvas-wrapper">
       <canvas id="game-canvas"></canvas>
-      <canvas id="confetti-canvas"></canvas>
 
-      <!-- Material 3 HUD Overlay -->
-      <div id="hud-layer">
-        <div class="hud-stats-group">
-          <div class="hud-pill">
-            <span class="hud-stat hud-score-counter">SCORE: <span id="hud-score">000000</span></span>
-          </div>
-          <div class="hud-pill">
-            <span class="hud-stat hud-star-counter"><span class="hud-stat-icon">🪙</span> <span id="hud-coins">x00</span></span>
-            <span class="hud-stat hud-star-counter" style="margin-left:8px;"><span id="hud-stars">★ 0</span></span>
-          </div>
-          <div class="hud-pill">
-            <span class="hud-stat hud-lives-counter"><span id="hud-lives">❤ x3</span></span>
-          </div>
-          <div class="hud-pill">
-            <span class="hud-stat" id="hud-world-name" style="color:#FFF;">1-1: Sunshine Valley</span>
-          </div>
-          <span class="kid-mode-badge" id="hud-kid-badge">🌟 KID MODE</span>
+      <!-- In-Game SNES HUD -->
+      <div id="hud" style="display: none;">
+        <div class="hud-box">
+          <span class="hud-title" id="hud-char-name">PA-PA</span>
+          <span class="hud-stat">🪙 <span id="hud-coins">00</span></span>
+          <span class="hud-stat">⭐ <span id="hud-stars">0</span></span>
         </div>
-
-        <div class="hud-controls-group">
-          <button class="icon-btn" id="btn-hud-sound" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
-          <button class="icon-btn" id="btn-hud-settings" title="Settings" aria-label="Settings">⚙️</button>
-          <button class="icon-btn" id="btn-hud-pause" title="Pause" aria-label="Pause">⏸️</button>
+        <div class="hud-box">
+          <span class="hud-gravity-badge" id="hud-gravity">1G NORMAL</span>
+          <button class="hud-btn" id="btn-switch-grav" title="Cambiar Gravedad (Tecla G)">🔄 G</button>
+          <button class="hud-btn" id="btn-char-menu" title="Elegir Personaje">👥 HERO</button>
+          <button class="hud-btn" id="btn-sound-toggle" title="Sonido">🔊</button>
         </div>
       </div>
 
-      <!-- Mobile / Android Material 3 Touch Controls (min 56dp) -->
+      <!-- Mobile Touch Controls -->
       <div id="touch-controls">
-        <div class="touch-cluster dpad-cluster">
-          <button class="touch-btn dpad-arrow" id="btn-left" aria-label="Left">◀</button>
-          <button class="touch-btn dpad-arrow" id="btn-down" aria-label="Down" style="font-size:1.4rem;">▼</button>
-          <button class="touch-btn dpad-arrow" id="btn-right" aria-label="Right">▶</button>
+        <div class="touch-group dpad-group">
+          <button class="touch-button dpad-btn" id="t-left">◀</button>
+          <button class="touch-button dpad-btn" id="t-down" style="font-size:10px;">▼<br><span style="font-size:6px;">SLAM</span></button>
+          <button class="touch-button dpad-btn" id="t-right">▶</button>
         </div>
-        <div class="touch-cluster actions-cluster">
-          <button class="touch-btn action-btn action-btn-action" id="btn-action" aria-label="Dash or Shoot">
-            <span>🔥</span>
-            <span class="btn-subtext">MAGIC</span>
+        <div class="touch-group actions-group">
+          <button class="touch-button act-btn act-btn-power" id="t-power">
+            <span>✨</span>
+            <span class="act-sub">PODER</span>
           </button>
-          <button class="touch-btn action-btn action-btn-jump" id="btn-jump" aria-label="Jump">
+          <button class="touch-button act-btn act-btn-jump" id="t-jump">
             <span>▲</span>
-            <span class="btn-subtext">JUMP</span>
+            <span class="act-sub">SALTO</span>
           </button>
         </div>
       </div>
 
-      <!-- Keyboard Controls Hint for Desktop -->
-      <div id="keyboard-hint">
-        🎮 <b>Controls:</b> Arrow Keys / WASD = Move | Space / Z = Jump | X = Magic Fireball / Dash
+      <!-- Controls Hint for PC -->
+      <div id="instructions-bar">
+        🎮 <b>Flechas / WASD</b>: Mover | <b>Espacio / Z</b>: Saltar / Volar | <b>X / Shift</b>: Habilidad | <b>Abajo / G</b>: Gravedad
       </div>
-    </div>
 
-    <!-- MODAL 1: Title & Main Menu -->
-    <div class="md-modal-scrim" id="modal-title-menu">
-      <div class="md-dialog" style="text-align:center; align-items:center;">
-        <div class="dialog-title" style="font-size:2.2rem; justify-content:center;">
-          🌟 Super Rivelles Peris World 🦁
-        </div>
-        <p class="dialog-subtitle">
-          An epic kid-friendly platformer adventure filled with magic stars, bouncy trampolines, and funny monsters!
-        </p>
-
-        <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:320px; margin-top:10px;">
-          <button class="md-btn md-btn-accent" id="btn-play-game">
-            <span>🚀</span> PLAY NOW!
-          </button>
-          <button class="md-btn md-btn-primary" id="btn-menu-char-select">
-            <span>🎭</span> Choose Hero
-          </button>
-          <button class="md-btn md-btn-tonal" id="btn-menu-level-select">
-            <span>🗺️</span> Worlds Map
-          </button>
-          <button class="md-btn md-btn-outlined" id="btn-menu-settings">
-            <span>⚙️</span> Game Settings
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 2: Character Selection -->
-    <div class="md-modal-scrim" id="modal-char-select">
-      <div class="md-dialog">
-        <div class="dialog-header">
-          <h2 class="dialog-title"><span>🎭</span> Choose Your Hero</h2>
-          <button class="icon-btn modal-close-btn">✕</button>
-        </div>
-        <p class="dialog-subtitle">Each hero has their own special kid-friendly superpower!</p>
-
-        <div class="character-grid">
-          <div class="character-card selected" id="char-card-leo">
-            <canvas class="char-preview-canvas" id="char-preview-leo"></canvas>
-            <div class="char-name">🦁 Leo the Lion</div>
-            <div class="char-perk">Balanced & Brave</div>
+      <!-- Victory / Zone Clear Modal -->
+      <div class="overlay-screen" id="modal-victory">
+        <div class="snes-modal">
+          <div class="modal-title">🎉 ¡ZONA COMPLETADA! 🎉</div>
+          <div class="modal-text" id="victory-desc">
+            ¡Has dominado la gravedad de la Catedral Cósmica!<br>
+            ¡Las estrellas de la familia Rivelles Peris brillan!
           </div>
-
-          <div class="character-card" id="char-card-mia">
-            <canvas class="char-preview-canvas" id="char-preview-mia"></canvas>
-            <div class="char-name">👑 Princess Mia</div>
-            <div class="char-perk">Floaty Star Jump</div>
-          </div>
-
-          <div class="character-card" id="char-card-dino">
-            <canvas class="char-preview-canvas" id="char-preview-dino"></canvas>
-            <div class="char-name">🦖 Speedy Dino</div>
-            <div class="char-perk">Super Runner</div>
-          </div>
-
-          <div class="character-card" id="char-card-sparky">
-            <canvas class="char-preview-canvas" id="char-preview-sparky"></canvas>
-            <div class="char-name">🤖 Sparky Robo</div>
-            <div class="char-perk">Double Rocket Jump</div>
-          </div>
-        </div>
-
-        <button class="md-btn md-btn-primary modal-close-btn" style="margin-top:10px;">
-          <span>✓</span> Select & Return
-        </button>
-      </div>
-    </div>
-
-    <!-- MODAL 3: Level / Worlds Selection -->
-    <div class="md-modal-scrim" id="modal-level-select">
-      <div class="md-dialog">
-        <div class="dialog-header">
-          <h2 class="dialog-title"><span>🗺️</span> Worlds Map</h2>
-          <button class="icon-btn modal-close-btn">✕</button>
-        </div>
-        <p class="dialog-subtitle">Explore all four unique adventure kingdoms!</p>
-
-        <div class="world-grid">
-          <div class="world-card active" data-level-index="0">
-            <div class="world-badge">🌻</div>
-            <div class="world-name">World 1: Sunshine Valley</div>
-            <div class="world-stars">★★★</div>
-          </div>
-
-          <div class="world-card" data-level-index="1">
-            <div class="world-badge">🍭</div>
-            <div class="world-name">World 2: Candy Wonderland</div>
-            <div class="world-stars">★★★</div>
-          </div>
-
-          <div class="world-card" data-level-index="2">
-            <div class="world-badge">☁️</div>
-            <div class="world-name">World 3: Cloud Castle Sky</div>
-            <div class="world-stars">★★★</div>
-          </div>
-
-          <div class="world-card" data-level-index="3">
-            <div class="world-badge">🌋</div>
-            <div class="world-name">World 4: Lava Lair & Boss</div>
-            <div class="world-stars">★★★</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 4: Settings -->
-    <div class="md-modal-scrim" id="modal-settings">
-      <div class="md-dialog">
-        <div class="dialog-header">
-          <h2 class="dialog-title"><span>⚙️</span> Game Settings</h2>
-          <button class="icon-btn modal-close-btn">✕</button>
-        </div>
-
-        <div class="setting-row">
-          <div class="setting-info">
-            <span class="setting-label">🌟 Kid Mode</span>
-            <span class="setting-desc">Infinite lives & friendly cloud balloon rescue from pits</span>
-          </div>
-          <label class="md-switch">
-            <input type="checkbox" id="switch-kid-mode" checked>
-            <span class="md-switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="setting-row">
-          <div class="setting-info">
-            <span class="setting-label">📳 Touch Vibration</span>
-            <span class="setting-desc">Haptic feedback on mobile jumps and hits</span>
-          </div>
-          <label class="md-switch">
-            <input type="checkbox" id="switch-vibration" checked>
-            <span class="md-switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="setting-row">
-          <div class="setting-info">
-            <span class="setting-label">🔊 Sound FX Volume</span>
-          </div>
-          <input type="range" class="md-range" id="slider-sfx" min="0" max="100" value="70">
-        </div>
-
-        <div class="setting-row">
-          <div class="setting-info">
-            <span class="setting-label">🎵 Music Volume</span>
-          </div>
-          <input type="range" class="md-range" id="slider-music" min="0" max="100" value="45">
-        </div>
-
-        <button class="md-btn md-btn-primary modal-close-btn" style="margin-top:10px;">
-          <span>✓</span> Save Settings
-        </button>
-      </div>
-    </div>
-
-    <!-- MODAL 5: Victory Fanfare Celebration -->
-    <div class="md-modal-scrim" id="modal-victory">
-      <div class="md-dialog" style="text-align:center; align-items:center;">
-        <div class="dialog-title" style="font-size:2.2rem; justify-content:center;">
-          🎉 STAGE CLEAR! 🎉
-        </div>
-        <p class="dialog-subtitle" style="font-size:1.1rem; color:#85F8CE;">
-          Awesome job, Super Hero! You conquered the world!
-        </p>
-
-        <div style="font-size:3rem; margin:10px 0;">⭐ ⭐ ⭐</div>
-
-        <button class="md-btn md-btn-success" id="btn-victory-next" style="width:100%; max-width:280px;">
-          <span>▶️</span> NEXT LEVEL!
-        </button>
-      </div>
-    </div>
-
-    <!-- MODAL 6: Game Over / Try Again -->
-    <div class="md-modal-scrim" id="modal-gameover">
-      <div class="md-dialog" style="text-align:center; align-items:center;">
-        <div class="dialog-title" style="justify-content:center;">
-          💪 Don't Give Up!
-        </div>
-        <p class="dialog-subtitle">
-          Every hero gets knocked down, but you can try again anytime!
-        </p>
-        <button class="md-btn md-btn-accent" id="btn-retry-game" style="width:100%; max-width:260px; margin-top:10px;">
-          <span>🔄</span> TRY AGAIN!
-        </button>
-      </div>
-    </div>
-
-    <!-- MODAL 7: Pause Menu -->
-    <div class="md-modal-scrim" id="modal-pause">
-      <div class="md-dialog" style="text-align:center; align-items:center;">
-        <div class="dialog-title" style="justify-content:center;">
-          ⏸️ Game Paused
-        </div>
-        <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:260px; margin-top:10px;">
-          <button class="md-btn md-btn-primary" id="btn-pause-resume">
-            <span>▶️</span> Resume
-          </button>
-          <button class="md-btn md-btn-outlined" id="btn-pause-quit">
-            <span>🏠</span> Quit to Menu
-          </button>
+          <button class="snes-btn" id="btn-next-zone">¡SIGUIENTE ZONA! 🚀</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Game Scripts -->
-  <script src="js/audio.js"></script>
-  <script src="js/engine.js"></script>
-  <script src="js/entities.js"></script>
-  <script src="js/levels.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
+  <script>
+    /**
+     * SUPER RIVELLES PERIS WORLD: ANTI-GRAVITY GALAXY
+     * Complete Autonomous 16-bit SNES Web Game Engine
+     */
+
+    // --- SOUND SYNTHESIZER (Web Audio API) ---
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) this.ctx = new AC();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(f, type = 'square', dur = 0.1, gainVal = 0.25, fEnd = null) {
+        this.init();
+        if (!this.ctx || this.muted) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = type;
+          osc.frequency.setValueAtTime(f, now);
+          if (fEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(10, fEnd), now + dur);
+          gain.gain.setValueAtTime(gainVal, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + dur);
+        } catch (e) {}
+      }
+      jump() { this.playTone(160, 'square', 0.15, 0.2, 480); }
+      floatJump() { this.playTone(320, 'triangle', 0.2, 0.25, 640); }
+      tripleJump() { this.playTone(400, 'triangle', 0.22, 0.25, 900); }
+      coin() {
+        this.playTone(987.77, 'square', 0.08, 0.2);
+        setTimeout(() => this.playTone(1318.51, 'square', 0.2, 0.2), 70);
+      }
+      star() {
+        [523, 659, 784, 1046, 1318].forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.15, 0.18), i * 55);
+        });
+      }
+      groundPound() { this.playTone(120, 'sawtooth', 0.3, 0.4, 30); }
+      gravityShift() { this.playTone(280, 'sine', 0.28, 0.3, 80); }
+      shield() { this.playTone(600, 'sine', 0.25, 0.25, 300); }
+      shellThrow() { this.playTone(350, 'sawtooth', 0.15, 0.25, 120); }
+      starPlatform() { this.playTone(800, 'triangle', 0.18, 0.25, 1200); }
+      lumaBounce() { this.playTone(440, 'sine', 0.25, 0.3, 880); }
+      win() {
+        const notes = [523, 659, 783, 1046, 880, 1046];
+        notes.forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'square', 0.2, 0.25), i * 140);
+        });
+      }
+      click() { this.playTone(600, 'sine', 0.04, 0.15, 900); }
+    }
+    const audio = new SoundFX();
+
+    // --- CHARACTER DEFINITIONS ---
+    const CHARACTERS = {
+      papa: {
+        id: 'papa',
+        fileNum: 'FILE 1',
+        name: 'PA-PA',
+        title: 'Papá: Líder de la Fuerza',
+        perk: 'Ground Pound & Anclaje 1G',
+        desc: 'Salto pesado. Pulsa ABAJO en el aire para golpear el suelo, romper bloques y forzar 1G en la sala con una onda expansiva.',
+        weight: 1.25,
+        speed: 4.8,
+        jumpForce: -10.5,
+        color: '#1565C0'
+      },
+      mama: {
+        id: 'mama',
+        fileNum: 'FILE 2',
+        name: 'MA-MA',
+        title: 'Mamá: Maga de la Luz',
+        perk: 'Vuelo Luma & Burbuja Escudo',
+        desc: 'Mantén SALTO para planear flotando con su vestido. Pulsa ACCIÓN para invocar una burbuja protectora.',
+        weight: 0.9,
+        speed: 4.6,
+        jumpForce: -10.8,
+        canGlide: true,
+        color: '#FFFFFF'
+      },
+      candela: {
+        id: 'candela',
+        fileNum: 'FILE 3',
+        name: 'CANDELA',
+        title: 'Candela: La Súper Estrella',
+        perk: 'Plataformas Estelares',
+        desc: 'Dispara su varita en el aire para crear plataformas doradas temporales sobre las que saltar en gravedad cero.',
+        weight: 0.95,
+        speed: 5.0,
+        jumpForce: -11.0,
+        canCreateStars: true,
+        color: '#FFD700'
+      },
+      cayetana: {
+        id: 'cayetana',
+        fileNum: 'FILE 4',
+        name: 'CAYETANA',
+        title: 'Cayetana: Tiradora Koopa',
+        perk: 'Lanzamiento & Órbita 0G',
+        desc: 'Lanza caparazones verdes rebotadores. En gravedad cero (0G), los caparazones orbitan como escudo antes de dispararse.',
+        weight: 0.95,
+        speed: 5.4,
+        jumpForce: -10.8,
+        hasShell: true,
+        color: '#4CAF50'
+      },
+      valentina: {
+        id: 'valentina',
+        fileNum: 'FILE 5',
+        name: 'VALENTINA',
+        title: 'Valentina: La Diminuta Veloz',
+        perk: 'Magnetismo Total & Triple Salto',
+        desc: 'Hitbox diminuta, triple salto para no atascarse y atracción magnética a gran distancia de todas las monedas.',
+        weight: 0.75,
+        speed: 5.8,
+        jumpForce: -10.2,
+        canTripleJump: true,
+        magnetic: true,
+        color: '#FF4081'
+      }
+    };
+
+    // --- PARTICLES & FX ---
+    class ParticleEngine {
+      constructor() {
+        this.particles = [];
+        this.floatingTexts = [];
+        this.starPlatforms = [];
+      }
+      emit(x, y, count = 6, cfg = {}) {
+        for (let i = 0; i < count; i++) {
+          const ang = cfg.angle !== undefined ? cfg.angle + (Math.random() - 0.5) * (cfg.spread || Math.PI) : Math.random() * Math.PI * 2;
+          const spd = (cfg.speed || 3) * (0.6 + Math.random() * 0.8);
+          this.particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd + (cfg.vx || 0),
+            vy: Math.sin(ang) * spd + (cfg.vy || 0),
+            color: cfg.colors ? cfg.colors[Math.floor(Math.random() * cfg.colors.length)] : (cfg.color || '#FFD700'),
+            size: (cfg.size || 4) * (0.7 + Math.random() * 0.6),
+            life: cfg.life || 30,
+            maxLife: cfg.life || 30,
+            shape: cfg.shape || 'star'
+          });
+        }
+      }
+      addText(txt, x, y, col = '#FFF') {
+        this.floatingTexts.push({ txt, x, y, vy: -1.8, life: 40, col });
+      }
+      addStarPlatform(x, y) {
+        this.starPlatforms.push({ x: x - 24, y: y - 6, w: 48, h: 12, life: 240, maxLife: 240 });
+      }
+      update() {
+        // Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx; p.y += p.vy;
+          p.life--;
+          if (p.life <= 0) this.particles.splice(i, 1);
+        }
+        // Floating Text
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const t = this.floatingTexts[i];
+          t.y += t.vy; t.vy *= 0.95;
+          t.life--;
+          if (t.life <= 0) this.floatingTexts.splice(i, 1);
+        }
+        // Star Platforms
+        for (let i = this.starPlatforms.length - 1; i >= 0; i--) {
+          const sp = this.starPlatforms[i];
+          sp.life--;
+          if (sp.life <= 0) this.starPlatforms.splice(i, 1);
+        }
+      }
+      render(ctx, camX, camY) {
+        ctx.save();
+        // Star Platforms
+        for (const sp of this.starPlatforms) {
+          const alpha = sp.life < 40 ? sp.life / 40 : 1;
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.roundRect(sp.x - camX, sp.y - camY, sp.w, sp.h, 6);
+          ctx.fill();
+          ctx.strokeStyle = '#FFF';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Star icons inside
+          ctx.fillStyle = '#FFF';
+          ctx.font = '10px sans-serif';
+          ctx.fillText('⭐', sp.x - camX + 4, sp.y - camY + 9);
+          ctx.fillText('⭐', sp.x - camX + 28, sp.y - camY + 9);
+        }
+
+        // Particles
+        for (const p of this.particles) {
+          ctx.globalAlpha = p.life / p.maxLife;
+          ctx.fillStyle = p.color;
+          const px = p.x - camX;
+          const py = p.y - camY;
+          if (p.shape === 'star') {
+            ctx.beginPath();
+            ctx.arc(px, py, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(px - p.size/2, py - p.size/2, p.size, p.size);
+          }
+        }
+
+        // Texts
+        ctx.textAlign = 'center';
+        ctx.font = '10px "Press Start 2P", monospace';
+        for (const t of this.floatingTexts) {
+          ctx.globalAlpha = t.life / 40;
+          ctx.fillStyle = '#000';
+          ctx.fillText(t.txt, t.x - camX + 1, t.y - camY + 1);
+          ctx.fillStyle = t.col;
+          ctx.fillText(t.txt, t.x - camX, t.y - camY);
+        }
+        ctx.restore();
+      }
+      clear() {
+        this.particles = [];
+        this.floatingTexts = [];
+        this.starPlatforms = [];
+      }
+    }
+
+    // --- GAME ENGINE & STATE MACHINE ---
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.width = 640;
+        this.height = 360;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.ctx.imageSmoothingEnabled = false;
+
+        this.particles = new ParticleEngine();
+        this.state = 'SAVE_MENU'; // 'SAVE_MENU', 'PLAYING', 'VICTORY'
+        this.selectedCharKey = 'papa';
+        this.selectedFileIndex = 0;
+
+        // Anti-Gravity State: 1 (1G Normal), -1 (-1G Inverted), 0 (0G Zero-G)
+        this.gravityState = 1;
+
+        // Player properties
+        this.player = {
+          x: 80, y: 240,
+          vx: 0, vy: 0,
+          w: 24, h: 32,
+          facingRight: true,
+          onGround: false,
+          jumpsLeft: 3,
+          glideTimer: 0,
+          isGliding: false,
+          isGroundPounding: false,
+          shieldTimer: 0,
+          shells: [], // Cayetana orbiting or thrown shells
+          frame: 0
+        };
+
+        // Camera
+        this.camX = 0;
+        this.camY = 0;
+
+        // Progression
+        this.coins = 0;
+        this.stars = 0;
+        this.score = 0;
+        this.currentZone = 1; // 1: Praderas, 2: Microgravedad, 3: Altar Espacial
+
+        // Inputs
+        this.keys = { left: false, right: false, up: false, down: false, jump: false, power: false };
+        this.prevKeys = { ...this.keys };
+
+        // Background Starfield
+        this.bgStars = Array.from({ length: 60 }, () => ({
+          x: Math.random() * this.width,
+          y: Math.random() * this.height,
+          size: Math.random() * 2.5 + 1,
+          speed: Math.random() * 0.5 + 0.2
+        }));
+
+        this.initLevels();
+        this.initControls();
+        this.lastTime = performance.now();
+        requestAnimationFrame(this.loop.bind(this));
+      }
+
+      initControls() {
+        // Keyboard listeners
+        window.addEventListener('keydown', e => {
+          audio.init();
+          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
+
+          if (this.state === 'SAVE_MENU') {
+            this.handleMenuInput(e.code);
+            return;
+          }
+
+          if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = true;
+          if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = true;
+          if (e.code === 'ArrowUp' || e.code === 'KeyW') this.keys.up = true;
+          if (e.code === 'ArrowDown' || e.code === 'KeyS') this.keys.down = true;
+          if (e.code === 'Space' || e.code === 'KeyZ') this.keys.jump = true;
+          if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.power = true;
+          if (e.code === 'KeyG') this.toggleGravity();
+        });
+
+        window.addEventListener('keyup', e => {
+          if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = false;
+          if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = false;
+          if (e.code === 'ArrowUp' || e.code === 'KeyW') this.keys.up = false;
+          if (e.code === 'ArrowDown' || e.code === 'KeyS') this.keys.down = false;
+          if (e.code === 'Space' || e.code === 'KeyZ') this.keys.jump = false;
+          if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.power = false;
+        });
+
+        // Touch Control bindings
+        const bindTouch = (id, key) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const onP = (e) => { e.preventDefault(); audio.init(); this.keys[key] = true; el.classList.add('active'); if (navigator.vibrate) navigator.vibrate(10); };
+          const onR = (e) => { e.preventDefault(); this.keys[key] = false; el.classList.remove('active'); };
+          el.addEventListener('touchstart', onP, { passive: false });
+          el.addEventListener('touchend', onR, { passive: false });
+          el.addEventListener('touchcancel', onR, { passive: false });
+          el.addEventListener('mousedown', onP);
+          el.addEventListener('mouseup', onR);
+          el.addEventListener('mouseleave', onR);
+        };
+
+        bindTouch('t-left', 'left');
+        bindTouch('t-right', 'right');
+        bindTouch('t-down', 'down');
+        bindTouch('t-jump', 'jump');
+        bindTouch('t-power', 'power');
+
+        // Touch device reveal
+        window.addEventListener('touchstart', () => {
+          const tc = document.getElementById('touch-controls');
+          if (tc && this.state === 'PLAYING') tc.style.display = 'block';
+        }, { once: true });
+
+        // HUD buttons
+        document.getElementById('btn-switch-grav').addEventListener('click', () => {
+          audio.init();
+          this.toggleGravity();
+        });
+
+        document.getElementById('btn-char-menu').addEventListener('click', () => {
+          audio.init();
+          this.state = 'SAVE_MENU';
+          document.getElementById('hud').style.display = 'none';
+          document.getElementById('touch-controls').style.display = 'none';
+        });
+
+        document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+          audio.muted = !audio.muted;
+          document.getElementById('btn-sound-toggle').textContent = audio.muted ? '🔇' : '🔊';
+        });
+
+        document.getElementById('btn-next-zone').addEventListener('click', () => {
+          audio.click();
+          document.getElementById('modal-victory').classList.remove('active');
+          this.currentZone = (this.currentZone % 3) + 1;
+          this.startLevel(this.currentZone);
+        });
+
+        // Click / Touch on Character Menu
+        this.canvas.addEventListener('click', (e) => {
+          if (this.state !== 'SAVE_MENU') return;
+          audio.init();
+          const rect = this.canvas.getBoundingClientRect();
+          const scaleX = this.width / rect.width;
+          const scaleY = this.height / rect.height;
+          const cx = (e.clientX - rect.left) * scaleX;
+          const cy = (e.clientY - rect.top) * scaleY;
+          this.handleMenuClick(cx, cy);
+        });
+      }
+
+      handleMenuInput(code) {
+        const charKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina'];
+        if (code === 'ArrowRight' || code === 'KeyD') {
+          audio.click();
+          this.selectedFileIndex = (this.selectedFileIndex + 1) % charKeys.length;
+        } else if (code === 'ArrowLeft' || code === 'KeyA') {
+          audio.click();
+          this.selectedFileIndex = (this.selectedFileIndex - 1 + charKeys.length) % charKeys.length;
+        } else if (code === 'ArrowDown' || code === 'ArrowUp') {
+          audio.click();
+          this.selectedFileIndex = (this.selectedFileIndex + 3) % charKeys.length;
+        } else if (code === 'Enter' || code === 'Space' || code === 'KeyZ') {
+          audio.star();
+          this.selectedCharKey = charKeys[this.selectedFileIndex];
+          this.startLevel(1);
+        }
+      }
+
+      handleMenuClick(cx, cy) {
+        // Menu cards coordinates (2 rows matching the visual screenshot)
+        // Row 1: Pa-Pa, Ma-Ma, Candela
+        // Row 2: Cayetana, Valentina
+        const cards = [
+          { key: 'papa', x: 70, y: 70, w: 150, h: 120 },
+          { key: 'mama', x: 245, y: 70, w: 150, h: 120 },
+          { key: 'candela', x: 420, y: 70, w: 150, h: 120 },
+          { key: 'cayetana', x: 150, y: 200, w: 150, h: 120 },
+          { key: 'valentina', x: 340, y: 200, w: 150, h: 120 }
+        ];
+
+        for (let i = 0; i < cards.length; i++) {
+          const c = cards[i];
+          if (cx >= c.x && cx <= c.x + c.w && cy >= c.y && cy <= c.y + c.h) {
+            audio.star();
+            this.selectedFileIndex = i;
+            this.selectedCharKey = c.key;
+            this.startLevel(1);
+            return;
+          }
+        }
+      }
+
+      initLevels() {
+        // Procedural level map definition (tiles: 1=Floor/Block, 2=Ceiling Magnet, 3=Question Block, 4=P-Switch, 5=Zero-G Bubble Zone)
+        this.tileSize = 32;
+        this.levelWidth = 120; // in tiles (~3840px)
+        this.levelHeight = 12;
+      }
+
+      startLevel(zoneNum) {
+        this.currentZone = zoneNum;
+        this.state = 'PLAYING';
+        this.gravityState = zoneNum === 2 ? 0 : 1; // Zone 2 starts in 0G!
+        this.particles.clear();
+
+        // Spawn player
+        this.player.x = 80;
+        this.player.y = 220;
+        this.player.vx = 0;
+        this.player.vy = 0;
+        this.player.isGroundPounding = false;
+        this.player.shieldTimer = 0;
+        this.player.shells = [];
+        this.player.w = this.selectedCharKey === 'valentina' ? 18 : 24;
+        this.player.h = this.selectedCharKey === 'valentina' ? 26 : 32;
+
+        this.buildZoneMap(zoneNum);
+
+        // Update HUD
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('hud-char-name').textContent = CHARACTERS[this.selectedCharKey].name;
+        this.updateGravityBadge();
+
+        if (window.matchMedia('(pointer: coarse)').matches) {
+          document.getElementById('touch-controls').style.display = 'block';
+        }
+      }
+
+      buildZoneMap(zone) {
+        this.map = new Array(this.levelWidth * this.levelHeight).fill(0);
+        this.coinsList = [];
+        this.enemies = [];
+        this.pSwitches = [];
+        this.goalGate = { x: (this.levelWidth - 6) * this.tileSize, y: 160 };
+
+        const setT = (c, r, t) => {
+          if (c >= 0 && c < this.levelWidth && r >= 0 && r < this.levelHeight) {
+            this.map[r * this.levelWidth + c] = t;
+          }
+        };
+
+        // Floor & Ceiling Magnet construction
+        for (let c = 0; c < this.levelWidth; c++) {
+          // Bottom floor (solid)
+          if (!(zone === 2 && (c >= 20 && c <= 40))) { // 0G gap in zone 2
+            setT(c, 10, 1);
+            setT(c, 11, 1);
+          }
+          // Top ceiling (magnetic running surface in -1G)
+          setT(c, 0, 2);
+          setT(c, 1, 2);
+        }
+
+        // Add fun level structures
+        for (let c = 8; c < this.levelWidth - 10; c += 12) {
+          // Question ? Blocks & Brick platforms
+          setT(c, 7, 3);
+          setT(c + 1, 7, 1);
+          setT(c + 2, 7, 3);
+
+          // Ceiling drop platforms
+          setT(c + 5, 4, 2);
+          setT(c + 6, 4, 2);
+
+          // P-Switch for gravity inversion
+          if (c % 24 === 8) {
+            this.pSwitches.push({ x: c * this.tileSize + 8, y: 9 * this.tileSize, active: false });
+          }
+
+          // Golden Goombas
+          this.enemies.push({
+            x: (c + 4) * this.tileSize,
+            y: 9 * this.tileSize,
+            vx: -1.2,
+            alive: true,
+            type: 'gold_goomba'
+          });
+        }
+
+        // Populate Floating Coins
+        for (let c = 4; c < this.levelWidth - 10; c += 2) {
+          this.coinsList.push({
+            x: c * this.tileSize + 12,
+            y: (Math.sin(c * 0.4) > 0 ? 5 : 8) * this.tileSize,
+            collected: false
+          });
+        }
+      }
+
+      toggleGravity(targetState = null) {
+        if (targetState !== null) {
+          this.gravityState = targetState;
+        } else {
+          // Cycle: 1G -> -1G -> 0G -> 1G
+          if (this.gravityState === 1) this.gravityState = -1;
+          else if (this.gravityState === -1) this.gravityState = 0;
+          else this.gravityState = 1;
+        }
+
+        audio.gravityShift();
+        this.updateGravityBadge();
+
+        // Screen particles in the direction of the new gravity
+        const pAngle = this.gravityState === 1 ? Math.PI / 2 : (this.gravityState === -1 ? -Math.PI / 2 : 0);
+        this.particles.emit(this.player.x + 12, this.player.y + 16, 20, {
+          angle: pAngle,
+          colors: ['#00E5FF', '#FFD700', '#E040FB'],
+          speed: 4
+        });
+        this.particles.addText(
+          this.gravityState === 1 ? "1G GRAVEDAD" : (this.gravityState === -1 ? "-1G INVERTIDA" : "0G CERO-GRAVEDAD"),
+          this.player.x + 12, this.player.y - 20, '#FFD700'
+        );
+      }
+
+      updateGravityBadge() {
+        const badge = document.getElementById('hud-gravity');
+        if (!badge) return;
+        badge.className = 'hud-gravity-badge';
+        if (this.gravityState === 1) {
+          badge.textContent = '1G NORMAL';
+        } else if (this.gravityState === -1) {
+          badge.textContent = '-1G INVERTIDA';
+          badge.classList.add('g-inv');
+        } else {
+          badge.textContent = '0G ESPACIAL';
+          badge.classList.add('g-zero');
+        }
+      }
+
+      triggerLumaRescue() {
+        // Child-friendly rescue net: bounce back with Luma sparkles
+        audio.lumaBounce();
+        this.player.vy = this.gravityState === -1 ? 8 : -8;
+        this.player.y = this.height / 2;
+        this.particles.emit(this.player.x, this.player.y, 25, {
+          colors: ['#FFD700', '#FF80AB', '#00E5FF'],
+          shape: 'star',
+          speed: 5
+        });
+        this.particles.addText("¡LUMA RESCUE!", this.player.x, this.player.y - 25, '#FFD700');
+      }
+
+      loop(currentTime) {
+        const dt = (currentTime - this.lastTime) / 1000;
+        this.lastTime = currentTime;
+
+        this.update();
+        this.render();
+
+        requestAnimationFrame(this.loop.bind(this));
+      }
+
+      update() {
+        this.particles.update();
+
+        if (this.state === 'PLAYING') {
+          this.updatePlayer();
+          this.updateEntities();
+          this.updateCamera();
+        }
+
+        this.prevKeys = { ...this.keys };
+      }
+
+      updatePlayer() {
+        const char = CHARACTERS[this.selectedCharKey];
+        const p = this.player;
+        p.frame++;
+
+        // Horizontal Movement
+        if (this.keys.left) {
+          p.vx = -char.speed;
+          p.facingRight = false;
+        } else if (this.keys.right) {
+          p.vx = char.speed;
+          p.facingRight = true;
+        } else {
+          p.vx *= 0.82; // Kid-friendly auto-braking
+          if (Math.abs(p.vx) < 0.1) p.vx = 0;
+        }
+
+        // Anti-Gravity Physics Application
+        if (this.gravityState === 1) {
+          // 1G Normal Gravity (Downwards)
+          p.vy += 0.48 * char.weight;
+          if (p.vy > 10) p.vy = 10;
+        } else if (this.gravityState === -1) {
+          // -1G Inverted Gravity (Upwards towards ceiling)
+          p.vy -= 0.48 * char.weight;
+          if (p.vy < -10) p.vy = -10;
+        } else {
+          // 0G Zero Gravity / Space Micro-Propulsion
+          if (this.keys.up) p.vy -= 0.35;
+          else if (this.keys.down) p.vy += 0.35;
+          else p.vy *= 0.88; // Smooth auto-braking in zero-G!
+        }
+
+        // Jump Handling & Asymmetric Character Powers
+        const jumpPressed = this.keys.jump && !this.prevKeys.jump;
+        const powerPressed = this.keys.power && !this.prevKeys.power;
+
+        if (jumpPressed) {
+          if (p.onGround) {
+            p.vy = this.gravityState === -1 ? -char.jumpForce : char.jumpForce;
+            p.onGround = false;
+            p.jumpsLeft = char.canTripleJump ? 2 : 1;
+            audio.jump();
+            this.particles.emit(p.x + p.w/2, p.y + (this.gravityState === -1 ? 0 : p.h), 6, { speed: 2 });
+          } else if (char.canTripleJump && p.jumpsLeft > 0) {
+            // Valentina Triple Jump
+            p.vy = this.gravityState === -1 ? -char.jumpForce * 0.9 : char.jumpForce * 0.9;
+            p.jumpsLeft--;
+            audio.tripleJump();
+            this.particles.emit(p.x + p.w/2, p.y + p.h/2, 8, {
+              colors: ['#FF4081', '#FF80AB', '#FFFFFF'],
+              shape: 'star',
+              speed: 3.5
+            });
+          }
+        }
+
+        // Mamá: Glide / Peach float
+        if (char.canGlide && this.keys.jump && (this.gravityState === 1 ? p.vy > 0 : p.vy < 0)) {
+          p.vy *= 0.65; // Gentle floaty descent
+          if (p.frame % 4 === 0) {
+            this.particles.emit(p.x + p.w/2, p.y + p.h, 2, { colors: ['#FFD700', '#FFF'], shape: 'star', size: 3 });
+          }
+        }
+
+        // Papá: Ground Pound (Down key in air)
+        if (this.selectedCharKey === 'papa' && this.keys.down && !p.onGround && !p.isGroundPounding) {
+          p.isGroundPounding = true;
+          p.vy = this.gravityState === -1 ? -14 : 14;
+          audio.groundPound();
+        }
+
+        // Action Powers
+        if (powerPressed) {
+          if (this.selectedCharKey === 'mama') {
+            // Mamá Luma Shield
+            p.shieldTimer = 180; // 3 seconds
+            audio.shield();
+            this.particles.emit(p.x + p.w/2, p.y + p.h/2, 16, { colors: ['#FFD700', '#85F8CE'], speed: 4 });
+          } else if (this.selectedCharKey === 'candela') {
+            // Candela Star Platform
+            audio.starPlatform();
+            this.particles.addStarPlatform(p.x + (p.facingRight ? 30 : -30), p.y + p.h + 8);
+          } else if (this.selectedCharKey === 'cayetana') {
+            // Cayetana Green Shell Throw
+            audio.shellThrow();
+            p.shells.push({
+              x: p.x + (p.facingRight ? p.w + 6 : -16),
+              y: p.y + 8,
+              vx: p.facingRight ? 7 : -7,
+              vy: 0,
+              life: 200
+            });
+          }
+        }
+
+        if (p.shieldTimer > 0) p.shieldTimer--;
+
+        // Execute Motion & Collisions
+        p.x += p.vx;
+        this.checkMapCollisions(true);
+
+        p.y += p.vy;
+        this.checkMapCollisions(false);
+
+        // Out of bounds rescue (No death!)
+        if (p.y > this.height + 40 || p.y < -40) {
+          this.triggerLumaRescue();
+        }
+
+        // Valentina Passive Coin Magnetism
+        if (char.magnetic) {
+          for (const c of this.coinsList) {
+            if (!c.collected) {
+              const dx = (p.x + p.w/2) - c.x;
+              const dy = (p.y + p.h/2) - c.y;
+              const dist = Math.hypot(dx, dy);
+              if (dist < 180) {
+                c.x += (dx / dist) * 5.5;
+                c.y += (dy / dist) * 5.5;
+              }
+            }
+          }
+        }
+      }
+
+      checkMapCollisions(horizontal) {
+        const p = this.player;
+        const ts = this.tileSize;
+
+        const left = Math.floor(p.x / ts);
+        const right = Math.floor((p.x + p.w - 1) / ts);
+        const top = Math.floor(p.y / ts);
+        const bottom = Math.floor((p.y + p.h - 1) / ts);
+
+        // Star platforms collision
+        for (const sp of this.particles.starPlatforms) {
+          if (p.x + p.w > sp.x && p.x < sp.x + sp.w) {
+            if (p.vy > 0 && p.y + p.h >= sp.y && p.y + p.h - p.vy <= sp.y + 10) {
+              p.y = sp.y - p.h;
+              p.vy = 0;
+              p.onGround = true;
+            }
+          }
+        }
+
+        for (let r = top; r <= bottom; r++) {
+          for (let c = left; c <= right; c++) {
+            const tile = this.getTile(c, r);
+            if (tile === 1 || tile === 2 || tile === 3) {
+              if (horizontal) {
+                if (p.vx > 0) p.x = c * ts - p.w;
+                else if (p.vx < 0) p.x = (c + 1) * ts;
+                p.vx = 0;
+              } else {
+                if (p.vy > 0) { // Moving Down
+                  p.y = r * ts - p.h;
+                  p.vy = 0;
+                  p.onGround = true;
+                  if (p.isGroundPounding) {
+                    p.isGroundPounding = false;
+                    audio.groundPound();
+                    this.toggleGravity(1); // Papá resets to 1G!
+                    this.particles.emit(p.x + p.w/2, p.y + p.h, 20, {
+                      colors: ['#FF5722', '#FFD700'],
+                      speed: 5
+                    });
+                  }
+                } else if (p.vy < 0) { // Moving Up
+                  p.y = (r + 1) * ts;
+                  p.vy = 0;
+                  if (this.gravityState === -1) p.onGround = true;
+
+                  // Hit ? Block
+                  if (tile === 3) {
+                    this.setTile(c, r, 1);
+                    audio.coin();
+                    this.coins++;
+                    this.score += 100;
+                    this.particles.emit(c * ts + 16, r * ts, 8, { colors: ['#FFD700', '#FFF'] });
+                    this.particles.addText("+100", c * ts + 16, r * ts - 10, '#FFD700');
+                    document.getElementById('hud-coins').textContent = this.coins.toString().padStart(2, '0');
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      getTile(c, r) {
+        if (c < 0 || c >= this.levelWidth || r < 0 || r >= this.levelHeight) return 0;
+        return this.map[r * this.levelWidth + c] || 0;
+      }
+
+      setTile(c, r, t) {
+        if (c >= 0 && c < this.levelWidth && r >= 0 && r < this.levelHeight) {
+          this.map[r * this.levelWidth + c] = t;
+        }
+      }
+
+      updateEntities() {
+        const p = this.player;
+
+        // P-Switches
+        for (const sw of this.pSwitches) {
+          if (!sw.active && Math.hypot((p.x + p.w/2) - (sw.x + 12), (p.y + p.h/2) - (sw.y + 12)) < 24) {
+            sw.active = true;
+            this.toggleGravity();
+          }
+        }
+
+        // Coins
+        for (const c of this.coinsList) {
+          if (!c.collected && Math.hypot((p.x + p.w/2) - c.x, (p.y + p.h/2) - c.y) < 22) {
+            c.collected = true;
+            audio.coin();
+            this.coins++;
+            this.score += 50;
+            this.particles.emit(c.x, c.y, 6, { colors: ['#FFD700', '#FFF9C4'], size: 3 });
+            document.getElementById('hud-coins').textContent = this.coins.toString().padStart(2, '0');
+          }
+        }
+
+        // Cayetana Shells
+        for (let i = p.shells.length - 1; i >= 0; i--) {
+          const sh = p.shells[i];
+          sh.x += sh.vx;
+          sh.life--;
+          // Bounce shells off enemies
+          for (const en of this.enemies) {
+            if (en.alive && Math.hypot(sh.x - en.x, sh.y - en.y) < 24) {
+              en.alive = false;
+              audio.win();
+              this.score += 200;
+              this.particles.emit(en.x, en.y, 12, { colors: ['#4CAF50', '#FFD700'] });
+              this.particles.addText("+200", en.x, en.y, '#85F8CE');
+            }
+          }
+          if (sh.life <= 0) p.shells.splice(i, 1);
+        }
+
+        // Enemies
+        for (const en of this.enemies) {
+          if (en.alive) {
+            en.x += en.vx;
+            if (Math.abs(en.x - p.x) < 400 && Math.random() < 0.02) en.vx *= -1;
+
+            if (Math.hypot((p.x + p.w/2) - (en.x + 14), (p.y + p.h/2) - (en.y + 14)) < 24) {
+              if (p.shieldTimer > 0 || (p.vy > 0 && p.y + p.h - p.vy <= en.y + 10)) {
+                // Stomp enemy
+                en.alive = false;
+                p.vy = this.gravityState === -1 ? 6 : -6;
+                audio.jump();
+                this.score += 100;
+                this.particles.emit(en.x + 14, en.y + 14, 10, { colors: ['#FFD700', '#FFA000'] });
+                this.particles.addText("+100", en.x + 14, en.y, '#FFD700');
+              }
+            }
+          }
+        }
+
+        // Goal Gate check
+        if (p.x >= this.goalGate.x) {
+          this.triggerVictory();
+        }
+      }
+
+      triggerVictory() {
+        this.state = 'VICTORY';
+        audio.win();
+        this.stars++;
+        document.getElementById('hud-stars').textContent = this.stars;
+        this.particles.emit(this.goalGate.x + 20, 160, 40, {
+          colors: ['#FFD700', '#FF4081', '#00E5FF', '#76FF03', '#FFFFFF'],
+          speed: 6
+        });
+        document.getElementById('modal-victory').classList.add('active');
+      }
+
+      updateCamera() {
+        const targetX = this.player.x - this.width * 0.35;
+        this.camX += (targetX - this.camX) * 0.1;
+        this.camX = Math.max(0, Math.min((this.levelWidth * this.tileSize) - this.width, this.camX));
+      }
+
+      render() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        if (this.state === 'SAVE_MENU') {
+          this.renderSaveFilesMenu();
+        } else {
+          this.renderGameWorld();
+        }
+      }
+
+      // --- SAVE FILES CATHEDRAL MENU RENDERER ---
+      renderSaveFilesMenu() {
+        const ctx = this.ctx;
+
+        // Cathedral Interior Background with Stained Glass
+        const grad = ctx.createLinearGradient(0, 0, 0, this.height);
+        grad.addColorStop(0, '#1c132b');
+        grad.addColorStop(0.6, '#38254c');
+        grad.addColorStop(1, '#180f24');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        // Cathedral Gothic Pillars
+        ctx.fillStyle = 'rgba(226, 176, 36, 0.15)';
+        for (let x = 30; x < this.width; x += 110) {
+          ctx.fillRect(x, 0, 14, this.height);
+        }
+
+        // Title Header
+        ctx.textAlign = 'center';
+        ctx.font = '16px "Press Start 2P", monospace';
+        ctx.fillStyle = '#000';
+        ctx.fillText("SUPER RIVELLES PERIS WORLD", this.width / 2 + 2, 34);
+        ctx.fillStyle = '#FFD700';
+        ctx.fillText("SUPER RIVELLES PERIS WORLD", this.width / 2, 32);
+
+        ctx.font = '11px "Press Start 2P", monospace';
+        ctx.fillStyle = '#FF80AB';
+        ctx.fillText("SAVE FILES", this.width / 2, 52);
+
+        // 5 Character Cards Layout
+        const cards = [
+          { key: 'papa', x: 70, y: 64, w: 150, h: 124 },
+          { key: 'mama', x: 245, y: 64, w: 150, h: 124 },
+          { key: 'candela', x: 420, y: 64, w: 150, h: 124 },
+          { key: 'cayetana', x: 150, y: 200, w: 150, h: 124 },
+          { key: 'valentina', x: 340, y: 200, w: 150, h: 124 }
+        ];
+
+        const charKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina'];
+
+        cards.forEach((c, idx) => {
+          const char = CHARACTERS[c.key];
+          const isSel = idx === this.selectedFileIndex;
+
+          // Golden SNES Frame
+          ctx.fillStyle = isSel ? 'rgba(103, 80, 164, 0.85)' : 'rgba(30, 24, 46, 0.8)';
+          ctx.beginPath();
+          ctx.roundRect(c.x, c.y, c.w, c.h, 8);
+          ctx.fill();
+
+          ctx.strokeStyle = isSel ? '#FFD700' : '#8D6E63';
+          ctx.lineWidth = isSel ? 3 : 2;
+          ctx.stroke();
+
+          // Selection Hand Cursor
+          if (isSel) {
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '14px sans-serif';
+            ctx.fillText('👉', c.x - 14, c.y + c.h / 2 + 6);
+          }
+
+          // Render Character Sprite in Card
+          this.drawCharacterSprite(ctx, c.x + c.w / 2, c.y + 46, c.key, true, 1.25);
+
+          // Card Label
+          ctx.fillStyle = '#000';
+          ctx.fillRect(c.x + 6, c.y + c.h - 32, c.w - 12, 26);
+          ctx.strokeStyle = '#FFD700';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(c.x + 6, c.y + c.h - 32, c.w - 12, 26);
+
+          ctx.font = '8px "Press Start 2P", monospace';
+          ctx.fillStyle = '#FF80AB';
+          ctx.fillText(char.fileNum, c.x + c.w / 2, c.y + c.h - 20);
+          ctx.fillStyle = '#FFF';
+          ctx.fillText(char.name, c.x + c.w / 2, c.y + c.h - 10);
+        });
+
+        // Bottom Selected Info Banner
+        const selChar = CHARACTERS[charKeys[this.selectedFileIndex]];
+        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+        ctx.fillRect(40, this.height - 28, this.width - 80, 24);
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(40, this.height - 28, this.width - 80, 24);
+
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillStyle = '#FFD700';
+        ctx.fillText(`HABILIDAD: ${selChar.perk} (Pulsa ESPACIO o Toca para Jugar)`, this.width / 2, this.height - 13);
+      }
+
+      // --- GAMEPLAY WORLD RENDERER ---
+      renderGameWorld() {
+        const ctx = this.ctx;
+        const cx = this.camX;
+        const cy = this.camY;
+
+        // Background Starfield & Space Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+        if (this.currentZone === 1) {
+          skyGrad.addColorStop(0, '#100e29');
+          skyGrad.addColorStop(1, '#2c1e4a');
+        } else if (this.currentZone === 2) {
+          skyGrad.addColorStop(0, '#1a0933');
+          skyGrad.addColorStop(1, '#4a148c');
+        } else {
+          skyGrad.addColorStop(0, '#260e1d');
+          skyGrad.addColorStop(1, '#5c1024');
+        }
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        // Parallax Stars with directional gravity drift
+        for (const s of this.bgStars) {
+          ctx.fillStyle = '#FFF';
+          ctx.fillRect(s.x, s.y, s.size, s.size);
+          // Drift stars based on gravity
+          if (this.gravityState === 1) s.y = (s.y + s.speed) % this.height;
+          else if (this.gravityState === -1) s.y = (s.y - s.speed + this.height) % this.height;
+          else s.x = (s.x - s.speed + this.width) % this.width;
+        }
+
+        // Cathedral Glass Windows in Background
+        for (let i = 0; i < 10; i++) {
+          const wx = i * 280 - (cx * 0.2) % 2800;
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+          ctx.beginPath();
+          ctx.arc(wx + 40, 100, 30, Math.PI, 0);
+          ctx.rect(wx + 10, 100, 60, 120);
+          ctx.fill();
+        }
+
+        // Render Map Tiles
+        const ts = this.tileSize;
+        const startC = Math.max(0, Math.floor(cx / ts));
+        const endC = Math.min(this.levelWidth, Math.ceil((cx + this.width) / ts) + 1);
+
+        for (let r = 0; r < this.levelHeight; r++) {
+          for (let c = startC; c < endC; c++) {
+            const tile = this.getTile(c, r);
+            const px = c * ts - cx;
+            const py = r * ts - cy;
+
+            if (tile === 1) { // Ground / Gold Grass
+              ctx.fillStyle = '#3E2723';
+              ctx.fillRect(px, py, ts, ts);
+              ctx.fillStyle = '#66BB6A';
+              ctx.fillRect(px, py, ts, 6);
+              ctx.fillStyle = '#81C784';
+              ctx.fillRect(px + 4, py + 2, 4, 3);
+            } else if (tile === 2) { // Magnetic Ceiling
+              ctx.fillStyle = '#283593';
+              ctx.fillRect(px, py, ts, ts);
+              ctx.fillStyle = '#5C6BC0';
+              ctx.fillRect(px, py + ts - 6, ts, 6);
+              ctx.fillStyle = '#9FA8DA';
+              ctx.fillRect(px + 6, py + ts - 4, 6, 2);
+            } else if (tile === 3) { // Question ? Block
+              ctx.fillStyle = '#FFB300';
+              ctx.fillRect(px, py, ts, ts);
+              ctx.strokeStyle = '#FF6F00';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(px + 1, py + 1, ts - 2, ts - 2);
+              ctx.fillStyle = '#FFF';
+              ctx.font = '14px "Press Start 2P", monospace';
+              ctx.fillText('?', px + 9, py + 22);
+            }
+          }
+        }
+
+        // Render P-Switches
+        for (const sw of this.pSwitches) {
+          ctx.fillStyle = sw.active ? '#757575' : '#1E88E5';
+          ctx.beginPath();
+          ctx.roundRect(sw.x - cx, sw.y - cy + (sw.active ? 10 : 0), 24, sw.active ? 8 : 18, 4);
+          ctx.fill();
+          ctx.fillStyle = '#FFF';
+          ctx.font = '8px "Press Start 2P", monospace';
+          ctx.fillText('P', sw.x - cx + 8, sw.y - cy + (sw.active ? 6 : 13));
+        }
+
+        // Render Coins
+        for (const c of this.coinsList) {
+          if (!c.collected) {
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.ellipse(c.x - cx, c.y - cy, 6, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFF9C4';
+            ctx.fillRect(c.x - cx - 1, c.y - cy - 5, 2, 10);
+          }
+        }
+
+        // Render Enemies (Gold Goombas)
+        for (const en of this.enemies) {
+          if (en.alive) {
+            const ex = en.x - cx;
+            const ey = en.y - cy;
+            ctx.fillStyle = '#FFB300';
+            ctx.beginPath();
+            ctx.arc(ex + 14, ey + 14, 12, Math.PI, 0);
+            ctx.fill();
+            ctx.fillStyle = '#424242';
+            ctx.fillRect(ex + 6, ey + 14, 16, 6);
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(ex + 8, ey + 8, 3, 4);
+            ctx.fillRect(ex + 17, ey + 8, 3, 4);
+          }
+        }
+
+        // Render Goal Gate
+        const gx = this.goalGate.x - cx;
+        const gy = this.goalGate.y - cy;
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(gx, gy - 60, 8, 120);
+        ctx.fillRect(gx + 40, gy - 60, 8, 120);
+        ctx.fillStyle = '#00E676';
+        ctx.fillRect(gx + 8, gy - 40, 32, 20);
+        ctx.fillStyle = '#FFF';
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText('GOAL', gx + 9, gy - 26);
+
+        // Render Cayetana Shells
+        for (const sh of this.player.shells) {
+          ctx.fillStyle = '#4CAF50';
+          ctx.beginPath();
+          ctx.arc(sh.x - cx + 8, sh.y - cy + 8, 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#FFF';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        // Render Player
+        const p = this.player;
+        const px = p.x - cx;
+        const py = p.y - cy;
+
+        ctx.save();
+        if (this.gravityState === -1) {
+          // Flip upside down for inverted gravity
+          ctx.translate(px + p.w/2, py + p.h/2);
+          ctx.scale(1, -1);
+          ctx.translate(-(px + p.w/2), -(py + p.h/2));
+        }
+
+        this.drawCharacterSprite(ctx, px + p.w/2, py + p.h/2, this.selectedCharKey, p.facingRight, 1.0);
+
+        // Mamá Bubble Shield
+        if (p.shieldTimer > 0) {
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+          ctx.fillStyle = 'rgba(255, 235, 59, 0.2)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(px + p.w/2, py + p.h/2, p.w + 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Render Particles & Floaters
+        this.particles.render(ctx, cx, cy);
+      }
+
+      // --- PROCEDURAL CHARACTER PIXEL ART RENDERER ---
+      drawCharacterSprite(ctx, x, y, charKey, facingRight, scale = 1.0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(facingRight ? scale : -scale, scale);
+
+        switch (charKey) {
+          case 'papa':
+            // PA-PA (Navy suit, RP cap, Beard, Tie)
+            ctx.fillStyle = '#1565C0'; // Navy Suit Body
+            ctx.beginPath();
+            ctx.roundRect(-10, -4, 20, 18, 4);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF'; // White Shirt
+            ctx.fillRect(-3, -4, 6, 8);
+            ctx.fillStyle = '#C62828'; // Red Tie
+            ctx.fillRect(-1.5, -2, 3, 10);
+
+            // Head & Beard
+            ctx.fillStyle = '#FFCC80';
+            ctx.beginPath();
+            ctx.arc(0, -12, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4E342E'; // Beard
+            ctx.beginPath();
+            ctx.arc(0, -9, 8, 0.2, Math.PI - 0.2);
+            ctx.fill();
+
+            // Blue RP Cap
+            ctx.fillStyle = '#0D47A1';
+            ctx.beginPath();
+            ctx.arc(0, -15, 10, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(0, -15, 12, 4); // Visor
+            ctx.fillStyle = '#FFF';
+            ctx.font = '5px sans-serif';
+            ctx.fillText('RP', -3, -15);
+
+            // Red Cap in Hand
+            ctx.fillStyle = '#D32F2F';
+            ctx.beginPath();
+            ctx.arc(10, 4, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(2, -14, 2, 2);
+
+            // Shoes
+            ctx.fillStyle = '#212121';
+            ctx.fillRect(-8, 14, 6, 5);
+            ctx.fillRect(2, 14, 6, 5);
+            break;
+
+          case 'mama':
+            // MA-MA (White wedding gown, crown, blonde hair, Luma aura)
+            // Golden Aura
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 10;
+
+            // White Dress
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.moveTo(0, -4);
+            ctx.lineTo(-12, 16);
+            ctx.lineTo(12, 16);
+            ctx.closePath();
+            ctx.fill();
+
+            // Blonde Hair
+            ctx.fillStyle = '#FFE082';
+            ctx.beginPath();
+            ctx.arc(0, -12, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Face
+            ctx.fillStyle = '#FFE0B2';
+            ctx.beginPath();
+            ctx.arc(0, -11, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#1976D2';
+            ctx.fillRect(2, -12, 2, 2);
+
+            // Tiara / Crown
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.moveTo(-5, -18); ctx.lineTo(-2, -22); ctx.lineTo(0, -19); ctx.lineTo(2, -22); ctx.lineTo(5, -18);
+            ctx.fill();
+
+            // Luma Star in Hand
+            ctx.fillStyle = '#FFF59D';
+            ctx.beginPath();
+            ctx.arc(12, 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 'candela':
+            // CANDELA (White communion lace dress, flower wreath, star wand, giant star behind)
+            // Giant Star behind head
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(0, -20, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // White Communion Dress
+            ctx.fillStyle = '#F5F5F5';
+            ctx.beginPath();
+            ctx.moveTo(0, -4);
+            ctx.lineTo(-11, 15);
+            ctx.lineTo(11, 15);
+            ctx.closePath();
+            ctx.fill();
+
+            // Brown Hair & Face
+            ctx.fillStyle = '#5D4037';
+            ctx.beginPath();
+            ctx.arc(0, -10, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFCC80';
+            ctx.beginPath();
+            ctx.arc(0, -10, 7.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Flower Wreath
+            ctx.fillStyle = '#E1BEE7';
+            ctx.beginPath();
+            ctx.arc(-4, -16, 2.5, 0, Math.PI * 2);
+            ctx.arc(0, -17, 2.5, 0, Math.PI * 2);
+            ctx.arc(4, -16, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#3E2723';
+            ctx.fillRect(2, -11, 2, 2);
+
+            // Star Wand
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(6, 4); ctx.lineTo(14, -6);
+            ctx.stroke();
+            ctx.fillStyle = '#FFEB3B';
+            ctx.beginPath();
+            ctx.arc(15, -7, 4, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 'cayetana':
+            // CAYETANA (White short-sleeve dress, blue hairband, green Koopa shell)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.roundRect(-8, -2, 16, 17, 4);
+            ctx.fill();
+
+            // Hair & Blue Headband
+            ctx.fillStyle = '#4E342E';
+            ctx.beginPath();
+            ctx.arc(0, -10, 8.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1E88E5'; // Blue Headband
+            ctx.beginPath();
+            ctx.arc(0, -10, 9, Math.PI * 0.8, Math.PI * 1.8);
+            ctx.stroke();
+
+            // Face
+            ctx.fillStyle = '#FFE0B2';
+            ctx.beginPath();
+            ctx.arc(0, -9, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(2, -10, 2, 2);
+
+            // Green Koopa Shell in hand
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.ellipse(8, 6, 6, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            break;
+
+          case 'valentina':
+            // VALENTINA (Blonde girl, frilly dress, "P" cross-body bag)
+            ctx.fillStyle = '#FFF8E1';
+            ctx.beginPath();
+            ctx.moveTo(0, -3); ctx.lineTo(-8, 13); ctx.lineTo(8, 13);
+            ctx.fill();
+
+            // Blonde Hair
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.arc(0, -9, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Face
+            ctx.fillStyle = '#FFE0B2';
+            ctx.beginPath();
+            ctx.arc(0, -8, 6.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes & Big Smile
+            ctx.fillStyle = '#1E88E5';
+            ctx.fillRect(2, -9, 2, 2);
+
+            // Cross-body Bag with "P" logo
+            ctx.strokeStyle = '#795548';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-5, -2); ctx.lineTo(6, 7);
+            ctx.stroke();
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(4, 5, 6, 5);
+            ctx.fillStyle = '#D32F2F';
+            ctx.font = '4px sans-serif';
+            ctx.fillText('P', 5.5, 9);
+            break;
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // Start game on load
+    window.addEventListener('DOMContentLoaded', () => {
+      window.gameInstance = new Game();
+    });
+  </script>
 </body>
 </html>
