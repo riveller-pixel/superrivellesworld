@@ -34,7 +34,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at 50% 50%, #1a162b 0%, #08060d 100%);
+      background: #08060d;
     }
 
     #canvas-wrapper {
@@ -55,7 +55,7 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       background: #000;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
     }
 
     /* SNES HUD Layer */
@@ -218,14 +218,14 @@
       margin-top: 2px;
     }
 
-    /* Screen UI Overlay (Menus / Victory) */
+    /* Screen UI Overlay (Victory) */
     .overlay-screen {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
       display: flex;
       flex-direction: column;
@@ -441,15 +441,15 @@
     }
     const audio = new SoundFX();
 
-    // --- CHARACTER DEFINITIONS ---
+    // --- CHARACTER DEFINITIONS (MATCHING USER ARTWORK) ---
     const CHARACTERS = {
       papa: {
         id: 'papa',
-        fileNum: 'FILE 1',
+        fileNum: 'FILE 1:',
         name: 'PA-PA',
-        title: 'Papá: Líder de la Fuerza',
+        title: 'Papá: El Líder Fuerza',
         perk: 'Ground Pound & Anclaje 1G',
-        desc: 'Salto pesado. Pulsa ABAJO en el aire para golpear el suelo, romper bloques y forzar 1G en la sala con una onda expansiva.',
+        desc: 'Salto potente. Pulsa ABAJO en el aire para impacto sísmico.',
         weight: 1.25,
         speed: 4.8,
         jumpForce: -10.5,
@@ -457,11 +457,11 @@
       },
       mama: {
         id: 'mama',
-        fileNum: 'FILE 2',
+        fileNum: 'FILE 2:',
         name: 'MA-MA',
-        title: 'Mamá: Maga de la Luz',
-        perk: 'Vuelo Luma & Burbuja Escudo',
-        desc: 'Mantén SALTO para planear flotando con su vestido. Pulsa ACCIÓN para invocar una burbuja protectora.',
+        title: 'Mamá: La Maga Soporte',
+        perk: 'Vuelo Luma & Escudo Protector',
+        desc: 'Mantén SALTO para planear. Pulsa ACCIÓN para escudo Luma.',
         weight: 0.9,
         speed: 4.6,
         jumpForce: -10.8,
@@ -470,11 +470,11 @@
       },
       candela: {
         id: 'candela',
-        fileNum: 'FILE 3',
+        fileNum: 'FILE 3:',
         name: 'CANDELA',
         title: 'Candela: La Súper Estrella',
         perk: 'Plataformas Estelares',
-        desc: 'Dispara su varita en el aire para crear plataformas doradas temporales sobre las que saltar en gravedad cero.',
+        desc: 'Dispara su varita en el aire para crear plataformas doradas.',
         weight: 0.95,
         speed: 5.0,
         jumpForce: -11.0,
@@ -483,11 +483,11 @@
       },
       cayetana: {
         id: 'cayetana',
-        fileNum: 'FILE 4',
+        fileNum: 'FILE 4:',
         name: 'CAYETANA',
-        title: 'Cayetana: Tiradora Koopa',
-        perk: 'Lanzamiento & Órbita 0G',
-        desc: 'Lanza caparazones verdes rebotadores. En gravedad cero (0G), los caparazones orbitan como escudo antes de dispararse.',
+        title: 'Cayetana: Tiradora de Caparazones',
+        perk: 'Lanzamiento & Órbita Koopa',
+        desc: 'Lanza caparazones verdes rebotadores que limpian el camino.',
         weight: 0.95,
         speed: 5.4,
         jumpForce: -10.8,
@@ -496,11 +496,11 @@
       },
       valentina: {
         id: 'valentina',
-        fileNum: 'FILE 5',
+        fileNum: 'FILE 5:',
         name: 'VALENTINA',
         title: 'Valentina: La Diminuta Veloz',
         perk: 'Magnetismo Total & Triple Salto',
-        desc: 'Hitbox diminuta, triple salto para no atascarse y atracción magnética a gran distancia de todas las monedas.',
+        desc: 'Hitbox pequeña, triple salto y atracción magnética de monedas.',
         weight: 0.75,
         speed: 5.8,
         jumpForce: -10.2,
@@ -574,7 +574,6 @@
           ctx.strokeStyle = '#FFF';
           ctx.lineWidth = 2;
           ctx.stroke();
-          // Star icons inside
           ctx.fillStyle = '#FFF';
           ctx.font = '10px sans-serif';
           ctx.fillText('⭐', sp.x - camX + 4, sp.y - camY + 9);
@@ -615,13 +614,14 @@
       }
     }
 
-    // --- GAME ENGINE & STATE MACHINE ---
+    // --- GAME ENGINE ---
     class Game {
       constructor() {
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.width = 640;
-        this.height = 360;
+        // Portrait SNES Ratio matching the user's artwork (480 x 720 virtual resolution)
+        this.width = 480;
+        this.height = 720;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.ctx.imageSmoothingEnabled = false;
@@ -636,9 +636,9 @@
 
         // Player properties
         this.player = {
-          x: 80, y: 240,
+          x: 80, y: 560,
           vx: 0, vy: 0,
-          w: 24, h: 32,
+          w: 26, h: 36,
           facingRight: true,
           onGround: false,
           jumpsLeft: 3,
@@ -646,7 +646,7 @@
           isGliding: false,
           isGroundPounding: false,
           shieldTimer: 0,
-          shells: [], // Cayetana orbiting or thrown shells
+          shells: [],
           frame: 0
         };
 
@@ -658,14 +658,14 @@
         this.coins = 0;
         this.stars = 0;
         this.score = 0;
-        this.currentZone = 1; // 1: Praderas, 2: Microgravedad, 3: Altar Espacial
+        this.currentZone = 1;
 
         // Inputs
         this.keys = { left: false, right: false, up: false, down: false, jump: false, power: false };
         this.prevKeys = { ...this.keys };
 
         // Background Starfield
-        this.bgStars = Array.from({ length: 60 }, () => ({
+        this.bgStars = Array.from({ length: 70 }, () => ({
           x: Math.random() * this.width,
           y: Math.random() * this.height,
           size: Math.random() * 2.5 + 1,
@@ -727,7 +727,7 @@
         bindTouch('t-jump', 'jump');
         bindTouch('t-power', 'power');
 
-        // Touch device reveal
+        // Touch reveal
         window.addEventListener('touchstart', () => {
           const tc = document.getElementById('touch-controls');
           if (tc && this.state === 'PLAYING') tc.style.display = 'block';
@@ -758,7 +758,7 @@
           this.startLevel(this.currentZone);
         });
 
-        // Click / Touch on Character Menu
+        // Click on 6-Card Save Files Menu
         this.canvas.addEventListener('click', (e) => {
           if (this.state !== 'SAVE_MENU') return;
           audio.init();
@@ -772,41 +772,54 @@
       }
 
       handleMenuInput(code) {
-        const charKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina'];
+        const charKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina', 'papa'];
         if (code === 'ArrowRight' || code === 'KeyD') {
           audio.click();
-          this.selectedFileIndex = (this.selectedFileIndex + 1) % charKeys.length;
+          this.selectedFileIndex = (this.selectedFileIndex + 1) % 6;
         } else if (code === 'ArrowLeft' || code === 'KeyA') {
           audio.click();
-          this.selectedFileIndex = (this.selectedFileIndex - 1 + charKeys.length) % charKeys.length;
+          this.selectedFileIndex = (this.selectedFileIndex - 1 + 6) % 6;
         } else if (code === 'ArrowDown' || code === 'ArrowUp') {
           audio.click();
-          this.selectedFileIndex = (this.selectedFileIndex + 3) % charKeys.length;
+          this.selectedFileIndex = (this.selectedFileIndex + 3) % 6;
         } else if (code === 'Enter' || code === 'Space' || code === 'KeyZ') {
           audio.star();
-          this.selectedCharKey = charKeys[this.selectedFileIndex];
+          const selIdx = this.selectedFileIndex >= 5 ? Math.floor(Math.random() * 5) : this.selectedFileIndex;
+          this.selectedCharKey = ['papa', 'mama', 'candela', 'cayetana', 'valentina'][selIdx];
           this.startLevel(1);
         }
       }
 
       handleMenuClick(cx, cy) {
-        // Menu cards coordinates (2 rows matching the visual screenshot)
-        // Row 1: Pa-Pa, Ma-Ma, Candela
-        // Row 2: Cayetana, Valentina
+        // Exactly 6 cards (3 in top row, 3 in bottom row) matching the reference screenshot
+        const colW = 136;
+        const cardH = 200;
+        const startX = 24;
+        const gapX = 14;
+
+        const row1Y = 120;
+        const row2Y = 380;
+
         const cards = [
-          { key: 'papa', x: 70, y: 70, w: 150, h: 120 },
-          { key: 'mama', x: 245, y: 70, w: 150, h: 120 },
-          { key: 'candela', x: 420, y: 70, w: 150, h: 120 },
-          { key: 'cayetana', x: 150, y: 200, w: 150, h: 120 },
-          { key: 'valentina', x: 340, y: 200, w: 150, h: 120 }
+          { key: 'papa', x: startX, y: row1Y, w: colW, h: cardH },
+          { key: 'mama', x: startX + colW + gapX, y: row1Y, w: colW, h: cardH },
+          { key: 'candela', x: startX + (colW + gapX) * 2, y: row1Y, w: colW, h: cardH },
+          { key: 'cayetana', x: startX, y: row2Y, w: colW, h: cardH },
+          { key: 'valentina', x: startX + colW + gapX, y: row2Y, w: colW, h: cardH },
+          { key: 'new', x: startX + (colW + gapX) * 2, y: row2Y, w: colW, h: cardH }
         ];
 
         for (let i = 0; i < cards.length; i++) {
           const c = cards[i];
-          if (cx >= c.x && cx <= c.x + c.w && cy >= c.y && cy <= c.y + c.h) {
+          if (cx >= c.x && cx <= c.x + c.w && cy >= c.y && cy <= c.y + c.h + 40) {
             audio.star();
             this.selectedFileIndex = i;
-            this.selectedCharKey = c.key;
+            if (c.key === 'new') {
+              const rKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina'];
+              this.selectedCharKey = rKeys[Math.floor(Math.random() * rKeys.length)];
+            } else {
+              this.selectedCharKey = c.key;
+            }
             this.startLevel(1);
             return;
           }
@@ -814,28 +827,26 @@
       }
 
       initLevels() {
-        // Procedural level map definition (tiles: 1=Floor/Block, 2=Ceiling Magnet, 3=Question Block, 4=P-Switch, 5=Zero-G Bubble Zone)
         this.tileSize = 32;
-        this.levelWidth = 120; // in tiles (~3840px)
-        this.levelHeight = 12;
+        this.levelWidth = 140; // in tiles
+        this.levelHeight = 24;
       }
 
       startLevel(zoneNum) {
         this.currentZone = zoneNum;
         this.state = 'PLAYING';
-        this.gravityState = zoneNum === 2 ? 0 : 1; // Zone 2 starts in 0G!
+        this.gravityState = zoneNum === 2 ? 0 : 1;
         this.particles.clear();
 
-        // Spawn player
         this.player.x = 80;
-        this.player.y = 220;
+        this.player.y = 560;
         this.player.vx = 0;
         this.player.vy = 0;
         this.player.isGroundPounding = false;
         this.player.shieldTimer = 0;
         this.player.shells = [];
-        this.player.w = this.selectedCharKey === 'valentina' ? 18 : 24;
-        this.player.h = this.selectedCharKey === 'valentina' ? 26 : 32;
+        this.player.w = this.selectedCharKey === 'valentina' ? 20 : 26;
+        this.player.h = this.selectedCharKey === 'valentina' ? 28 : 36;
 
         this.buildZoneMap(zoneNum);
 
@@ -854,7 +865,7 @@
         this.coinsList = [];
         this.enemies = [];
         this.pSwitches = [];
-        this.goalGate = { x: (this.levelWidth - 6) * this.tileSize, y: 160 };
+        this.goalGate = { x: (this.levelWidth - 8) * this.tileSize, y: 520 };
 
         const setT = (c, r, t) => {
           if (c >= 0 && c < this.levelWidth && r >= 0 && r < this.levelHeight) {
@@ -864,47 +875,41 @@
 
         // Floor & Ceiling Magnet construction
         for (let c = 0; c < this.levelWidth; c++) {
-          // Bottom floor (solid)
-          if (!(zone === 2 && (c >= 20 && c <= 40))) { // 0G gap in zone 2
-            setT(c, 10, 1);
-            setT(c, 11, 1);
+          if (!(zone === 2 && (c >= 30 && c <= 55))) {
+            setT(c, 21, 1);
+            setT(c, 22, 1);
+            setT(c, 23, 1);
           }
-          // Top ceiling (magnetic running surface in -1G)
           setT(c, 0, 2);
           setT(c, 1, 2);
         }
 
-        // Add fun level structures
-        for (let c = 8; c < this.levelWidth - 10; c += 12) {
-          // Question ? Blocks & Brick platforms
-          setT(c, 7, 3);
-          setT(c + 1, 7, 1);
-          setT(c + 2, 7, 3);
+        // Add platforms, ? Blocks & P-Switches
+        for (let c = 10; c < this.levelWidth - 12; c += 14) {
+          setT(c, 16, 3);
+          setT(c + 1, 16, 1);
+          setT(c + 2, 16, 3);
 
-          // Ceiling drop platforms
-          setT(c + 5, 4, 2);
-          setT(c + 6, 4, 2);
+          setT(c + 6, 8, 2);
+          setT(c + 7, 8, 2);
 
-          // P-Switch for gravity inversion
-          if (c % 24 === 8) {
-            this.pSwitches.push({ x: c * this.tileSize + 8, y: 9 * this.tileSize, active: false });
+          if (c % 28 === 10) {
+            this.pSwitches.push({ x: c * this.tileSize + 8, y: 20 * this.tileSize, active: false });
           }
 
-          // Golden Goombas
           this.enemies.push({
             x: (c + 4) * this.tileSize,
-            y: 9 * this.tileSize,
+            y: 20 * this.tileSize,
             vx: -1.2,
-            alive: true,
-            type: 'gold_goomba'
+            alive: true
           });
         }
 
         // Populate Floating Coins
-        for (let c = 4; c < this.levelWidth - 10; c += 2) {
+        for (let c = 6; c < this.levelWidth - 10; c += 2) {
           this.coinsList.push({
             x: c * this.tileSize + 12,
-            y: (Math.sin(c * 0.4) > 0 ? 5 : 8) * this.tileSize,
+            y: (14 + Math.sin(c * 0.4) * 4) * this.tileSize,
             collected: false
           });
         }
@@ -914,7 +919,6 @@
         if (targetState !== null) {
           this.gravityState = targetState;
         } else {
-          // Cycle: 1G -> -1G -> 0G -> 1G
           if (this.gravityState === 1) this.gravityState = -1;
           else if (this.gravityState === -1) this.gravityState = 0;
           else this.gravityState = 1;
@@ -923,7 +927,6 @@
         audio.gravityShift();
         this.updateGravityBadge();
 
-        // Screen particles in the direction of the new gravity
         const pAngle = this.gravityState === 1 ? Math.PI / 2 : (this.gravityState === -1 ? -Math.PI / 2 : 0);
         this.particles.emit(this.player.x + 12, this.player.y + 16, 20, {
           angle: pAngle,
@@ -952,7 +955,6 @@
       }
 
       triggerLumaRescue() {
-        // Child-friendly rescue net: bounce back with Luma sparkles
         audio.lumaBounce();
         this.player.vy = this.gravityState === -1 ? 8 : -8;
         this.player.y = this.height / 2;
@@ -999,27 +1001,23 @@
           p.vx = char.speed;
           p.facingRight = true;
         } else {
-          p.vx *= 0.82; // Kid-friendly auto-braking
+          p.vx *= 0.82;
           if (Math.abs(p.vx) < 0.1) p.vx = 0;
         }
 
-        // Anti-Gravity Physics Application
+        // Anti-Gravity Physics
         if (this.gravityState === 1) {
-          // 1G Normal Gravity (Downwards)
-          p.vy += 0.48 * char.weight;
-          if (p.vy > 10) p.vy = 10;
+          p.vy += 0.50 * char.weight;
+          if (p.vy > 11) p.vy = 11;
         } else if (this.gravityState === -1) {
-          // -1G Inverted Gravity (Upwards towards ceiling)
-          p.vy -= 0.48 * char.weight;
-          if (p.vy < -10) p.vy = -10;
+          p.vy -= 0.50 * char.weight;
+          if (p.vy < -11) p.vy = -11;
         } else {
-          // 0G Zero Gravity / Space Micro-Propulsion
-          if (this.keys.up) p.vy -= 0.35;
-          else if (this.keys.down) p.vy += 0.35;
-          else p.vy *= 0.88; // Smooth auto-braking in zero-G!
+          if (this.keys.up) p.vy -= 0.4;
+          else if (this.keys.down) p.vy += 0.4;
+          else p.vy *= 0.88;
         }
 
-        // Jump Handling & Asymmetric Character Powers
         const jumpPressed = this.keys.jump && !this.prevKeys.jump;
         const powerPressed = this.keys.power && !this.prevKeys.power;
 
@@ -1031,7 +1029,6 @@
             audio.jump();
             this.particles.emit(p.x + p.w/2, p.y + (this.gravityState === -1 ? 0 : p.h), 6, { speed: 2 });
           } else if (char.canTripleJump && p.jumpsLeft > 0) {
-            // Valentina Triple Jump
             p.vy = this.gravityState === -1 ? -char.jumpForce * 0.9 : char.jumpForce * 0.9;
             p.jumpsLeft--;
             audio.tripleJump();
@@ -1043,15 +1040,15 @@
           }
         }
 
-        // Mamá: Glide / Peach float
+        // Mamá: Glide
         if (char.canGlide && this.keys.jump && (this.gravityState === 1 ? p.vy > 0 : p.vy < 0)) {
-          p.vy *= 0.65; // Gentle floaty descent
+          p.vy *= 0.65;
           if (p.frame % 4 === 0) {
             this.particles.emit(p.x + p.w/2, p.y + p.h, 2, { colors: ['#FFD700', '#FFF'], shape: 'star', size: 3 });
           }
         }
 
-        // Papá: Ground Pound (Down key in air)
+        // Papá: Ground Pound
         if (this.selectedCharKey === 'papa' && this.keys.down && !p.onGround && !p.isGroundPounding) {
           p.isGroundPounding = true;
           p.vy = this.gravityState === -1 ? -14 : 14;
@@ -1061,16 +1058,13 @@
         // Action Powers
         if (powerPressed) {
           if (this.selectedCharKey === 'mama') {
-            // Mamá Luma Shield
-            p.shieldTimer = 180; // 3 seconds
+            p.shieldTimer = 180;
             audio.shield();
             this.particles.emit(p.x + p.w/2, p.y + p.h/2, 16, { colors: ['#FFD700', '#85F8CE'], speed: 4 });
           } else if (this.selectedCharKey === 'candela') {
-            // Candela Star Platform
             audio.starPlatform();
             this.particles.addStarPlatform(p.x + (p.facingRight ? 30 : -30), p.y + p.h + 8);
           } else if (this.selectedCharKey === 'cayetana') {
-            // Cayetana Green Shell Throw
             audio.shellThrow();
             p.shells.push({
               x: p.x + (p.facingRight ? p.w + 6 : -16),
@@ -1084,19 +1078,17 @@
 
         if (p.shieldTimer > 0) p.shieldTimer--;
 
-        // Execute Motion & Collisions
         p.x += p.vx;
         this.checkMapCollisions(true);
 
         p.y += p.vy;
         this.checkMapCollisions(false);
 
-        // Out of bounds rescue (No death!)
         if (p.y > this.height + 40 || p.y < -40) {
           this.triggerLumaRescue();
         }
 
-        // Valentina Passive Coin Magnetism
+        // Valentina Magnetism
         if (char.magnetic) {
           for (const c of this.coinsList) {
             if (!c.collected) {
@@ -1121,7 +1113,7 @@
         const top = Math.floor(p.y / ts);
         const bottom = Math.floor((p.y + p.h - 1) / ts);
 
-        // Star platforms collision
+        // Star platforms
         for (const sp of this.particles.starPlatforms) {
           if (p.x + p.w > sp.x && p.x < sp.x + sp.w) {
             if (p.vy > 0 && p.y + p.h >= sp.y && p.y + p.h - p.vy <= sp.y + 10) {
@@ -1141,25 +1133,24 @@
                 else if (p.vx < 0) p.x = (c + 1) * ts;
                 p.vx = 0;
               } else {
-                if (p.vy > 0) { // Moving Down
+                if (p.vy > 0) {
                   p.y = r * ts - p.h;
                   p.vy = 0;
                   p.onGround = true;
                   if (p.isGroundPounding) {
                     p.isGroundPounding = false;
                     audio.groundPound();
-                    this.toggleGravity(1); // Papá resets to 1G!
+                    this.toggleGravity(1);
                     this.particles.emit(p.x + p.w/2, p.y + p.h, 20, {
                       colors: ['#FF5722', '#FFD700'],
                       speed: 5
                     });
                   }
-                } else if (p.vy < 0) { // Moving Up
+                } else if (p.vy < 0) {
                   p.y = (r + 1) * ts;
                   p.vy = 0;
                   if (this.gravityState === -1) p.onGround = true;
 
-                  // Hit ? Block
                   if (tile === 3) {
                     this.setTile(c, r, 1);
                     audio.coin();
@@ -1215,7 +1206,6 @@
           const sh = p.shells[i];
           sh.x += sh.vx;
           sh.life--;
-          // Bounce shells off enemies
           for (const en of this.enemies) {
             if (en.alive && Math.hypot(sh.x - en.x, sh.y - en.y) < 24) {
               en.alive = false;
@@ -1236,7 +1226,6 @@
 
             if (Math.hypot((p.x + p.w/2) - (en.x + 14), (p.y + p.h/2) - (en.y + 14)) < 24) {
               if (p.shieldTimer > 0 || (p.vy > 0 && p.y + p.h - p.vy <= en.y + 10)) {
-                // Stomp enemy
                 en.alive = false;
                 p.vy = this.gravityState === -1 ? 6 : -6;
                 audio.jump();
@@ -1248,7 +1237,7 @@
           }
         }
 
-        // Goal Gate check
+        // Goal Gate
         if (p.x >= this.goalGate.x) {
           this.triggerVictory();
         }
@@ -1259,7 +1248,7 @@
         audio.win();
         this.stars++;
         document.getElementById('hud-stars').textContent = this.stars;
-        this.particles.emit(this.goalGate.x + 20, 160, 40, {
+        this.particles.emit(this.goalGate.x + 20, 520, 40, {
           colors: ['#FFD700', '#FF4081', '#00E5FF', '#76FF03', '#FFFFFF'],
           speed: 6
         });
@@ -1282,105 +1271,479 @@
         }
       }
 
-      // --- SAVE FILES CATHEDRAL MENU RENDERER ---
+      // --- SAVE FILES EXACT SCREEN RENDERER (AS SHOWN IN IMAGE) ---
       renderSaveFilesMenu() {
         const ctx = this.ctx;
 
-        // Cathedral Interior Background with Stained Glass
-        const grad = ctx.createLinearGradient(0, 0, 0, this.height);
-        grad.addColorStop(0, '#1c132b');
-        grad.addColorStop(0.6, '#38254c');
-        grad.addColorStop(1, '#180f24');
-        ctx.fillStyle = grad;
+        // Cathedral Architectural Background
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+        bgGrad.addColorStop(0, '#E8C59A');
+        bgGrad.addColorStop(0.3, '#F5E1C8');
+        bgGrad.addColorStop(0.7, '#E5CAA6');
+        bgGrad.addColorStop(1, '#CBB08C');
+        ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, this.width, this.height);
 
-        // Cathedral Gothic Pillars
-        ctx.fillStyle = 'rgba(226, 176, 36, 0.15)';
-        for (let x = 30; x < this.width; x += 110) {
-          ctx.fillRect(x, 0, 14, this.height);
-        }
+        // Cathedral Vault Arches in Background
+        ctx.strokeStyle = 'rgba(141, 110, 99, 0.4)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(this.width / 2, 80, 160, Math.PI, 0);
+        ctx.stroke();
 
-        // Title Header
+        // 3D SNES Title "SUPER RIVELLES PERIS WORLD"
         ctx.textAlign = 'center';
-        ctx.font = '16px "Press Start 2P", monospace';
-        ctx.fillStyle = '#000';
-        ctx.fillText("SUPER RIVELLES PERIS WORLD", this.width / 2 + 2, 34);
-        ctx.fillStyle = '#FFD700';
-        ctx.fillText("SUPER RIVELLES PERIS WORLD", this.width / 2, 32);
+        ctx.font = '14px "Press Start 2P", monospace';
 
-        ctx.font = '11px "Press Start 2P", monospace';
-        ctx.fillStyle = '#FF80AB';
-        ctx.fillText("SAVE FILES", this.width / 2, 52);
-
-        // 5 Character Cards Layout
-        const cards = [
-          { key: 'papa', x: 70, y: 64, w: 150, h: 124 },
-          { key: 'mama', x: 245, y: 64, w: 150, h: 124 },
-          { key: 'candela', x: 420, y: 64, w: 150, h: 124 },
-          { key: 'cayetana', x: 150, y: 200, w: 150, h: 124 },
-          { key: 'valentina', x: 340, y: 200, w: 150, h: 124 }
+        const titleLetters = [
+          { l: 'S', c: '#29B6F6' }, { l: 'U', c: '#42A5F5' }, { l: 'P', c: '#E53935' }, { l: 'E', c: '#43A047' }, { l: 'R', c: '#FBC02D' },
+          { l: ' ', c: '' },
+          { l: 'R', c: '#1E88E5' }, { l: 'I', c: '#8E24AA' }, { l: 'V', c: '#43A047' }, { l: 'E', c: '#FB8C00' }, { l: 'L', c: '#00ACC1' }, { l: 'L', c: '#E53935' }, { l: 'E', c: '#8E24AA' }, { l: 'S', c: '#FDD835' },
+          { l: ' ', c: '' },
+          { l: 'P', c: '#E53935' }, { l: 'E', c: '#43A047' }, { l: 'R', c: '#1E88E5' }, { l: 'I', c: '#FBC02D' }, { l: 'S', c: '#8E24AA' },
+          { l: ' ', c: '' },
+          { l: 'W', c: '#43A047' }, { l: 'O', c: '#E53935' }, { l: 'R', c: '#00ACC1' }, { l: 'L', c: '#FBC02D' }, { l: 'D', c: '#1E88E5' }
         ];
 
-        const charKeys = ['papa', 'mama', 'candela', 'cayetana', 'valentina'];
+        let curX = 22;
+        const letterSpacing = 17;
+        for (const item of titleLetters) {
+          if (item.l !== ' ') {
+            ctx.fillStyle = '#000';
+            ctx.fillText(item.l, curX + 2, 54);
+            ctx.fillStyle = item.c;
+            ctx.fillText(item.l, curX, 52);
+          }
+          curX += (item.l === ' ' ? 8 : letterSpacing);
+        }
+
+        // Subtitle "SAVE FILES"
+        ctx.font = '16px "Press Start 2P", monospace';
+        ctx.fillStyle = '#000';
+        ctx.fillText("SAVE FILES", this.width / 2 + 2, 88);
+        ctx.fillStyle = '#FFE082';
+        ctx.fillText("SAVE FILES", this.width / 2, 86);
+
+        // 6 Character Cards Setup
+        const colW = 136;
+        const cardH = 200;
+        const startX = 24;
+        const gapX = 14;
+
+        const row1Y = 110;
+        const row2Y = 380;
+
+        const cards = [
+          { key: 'papa', x: startX, y: row1Y, w: colW, h: cardH, label: 'FILE 1: PA-PA' },
+          { key: 'mama', x: startX + colW + gapX, y: row1Y, w: colW, h: cardH, label: 'FILE 2: MA-MA' },
+          { key: 'candela', x: startX + (colW + gapX) * 2, y: row1Y, w: colW, h: cardH, label: 'FILE 3: CANDELA' },
+          { key: 'cayetana', x: startX, y: row2Y, w: colW, h: cardH, label: 'FILE 4: CAYETANA' },
+          { key: 'valentina', x: startX + colW + gapX, y: row2Y, w: colW, h: cardH, label: 'FILE 5: VALENTINA' },
+          { key: 'new', x: startX + (colW + gapX) * 2, y: row2Y, w: colW, h: cardH, label: 'NEW FILE' }
+        ];
 
         cards.forEach((c, idx) => {
-          const char = CHARACTERS[c.key];
           const isSel = idx === this.selectedFileIndex;
 
-          // Golden SNES Frame
-          ctx.fillStyle = isSel ? 'rgba(103, 80, 164, 0.85)' : 'rgba(30, 24, 46, 0.8)';
-          ctx.beginPath();
-          ctx.roundRect(c.x, c.y, c.w, c.h, 8);
-          ctx.fill();
+          // Ornate Wooden/Gold Frame Exterior
+          ctx.fillStyle = '#5D4037';
+          ctx.fillRect(c.x - 4, c.y - 4, c.w + 8, c.h + 8);
+          ctx.fillStyle = '#8D6E63';
+          ctx.fillRect(c.x - 2, c.y - 2, c.w + 4, c.h + 4);
 
-          ctx.strokeStyle = isSel ? '#FFD700' : '#8D6E63';
-          ctx.lineWidth = isSel ? 3 : 2;
-          ctx.stroke();
+          // Golden Corner Accents
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(c.x - 4, c.y - 4, 8, 8);
+          ctx.fillRect(c.x + c.w - 4, c.y - 4, 8, 8);
+          ctx.fillRect(c.x - 4, c.y + c.h - 4, 8, 8);
+          ctx.fillRect(c.x + c.w - 4, c.y + c.h - 4, 8, 8);
+
+          // Card Inner Canvas
+          ctx.fillStyle = '#FFF8E1';
+          ctx.fillRect(c.x, c.y, c.w, c.h);
+
+          // Render Custom Card Artwork
+          this.renderCardArtwork(ctx, c.key, c.x, c.y, c.w, c.h);
 
           // Selection Hand Cursor
           if (isSel) {
-            ctx.fillStyle = '#FFD700';
-            ctx.font = '14px sans-serif';
-            ctx.fillText('👉', c.x - 14, c.y + c.h / 2 + 6);
+            // Mario Glove Cursor
+            const hx = c.x - 20;
+            const hy = c.y + c.h + 16;
+            ctx.fillStyle = '#D32F2F'; // Red cuff
+            ctx.fillRect(hx - 4, hy - 4, 6, 12);
+            ctx.fillStyle = '#FFFFFF'; // White glove
+            ctx.beginPath();
+            ctx.arc(hx + 8, hy + 2, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(hx + 8, hy - 2, 10, 5); // Pointing finger
           }
 
-          // Render Character Sprite in Card
-          this.drawCharacterSprite(ctx, c.x + c.w / 2, c.y + 46, c.key, true, 1.25);
+          // Bottom Wooden Plaque Label
+          ctx.fillStyle = '#6D4C41';
+          ctx.beginPath();
+          ctx.roundRect(c.x + 2, c.y + c.h + 6, c.w - 4, 30, 6);
+          ctx.fill();
+          ctx.strokeStyle = isSel ? '#FFD700' : '#8D6E63';
+          ctx.lineWidth = isSel ? 2 : 1;
+          ctx.stroke();
 
-          // Card Label
-          ctx.fillStyle = '#000';
-          ctx.fillRect(c.x + 6, c.y + c.h - 32, c.w - 12, 26);
-          ctx.strokeStyle = '#FFD700';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(c.x + 6, c.y + c.h - 32, c.w - 12, 26);
-
-          ctx.font = '8px "Press Start 2P", monospace';
-          ctx.fillStyle = '#FF80AB';
-          ctx.fillText(char.fileNum, c.x + c.w / 2, c.y + c.h - 20);
+          // Plaque Text
+          ctx.font = '7px "Press Start 2P", monospace';
           ctx.fillStyle = '#FFF';
-          ctx.fillText(char.name, c.x + c.w / 2, c.y + c.h - 10);
+          if (c.key === 'new') {
+            ctx.fillText(c.label, c.x + c.w / 2, c.y + c.h + 24);
+          } else {
+            const char = CHARACTERS[c.key];
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText(char.fileNum, c.x + c.w / 2, c.y + c.h + 18);
+            ctx.fillStyle = '#FFF';
+            ctx.fillText(char.name, c.x + c.w / 2, c.y + c.h + 28);
+          }
         });
 
-        // Bottom Selected Info Banner
-        const selChar = CHARACTERS[charKeys[this.selectedFileIndex]];
-        ctx.fillStyle = 'rgba(0,0,0,0.85)';
-        ctx.fillRect(40, this.height - 28, this.width - 80, 24);
-        ctx.strokeStyle = '#FFD700';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(40, this.height - 28, this.width - 80, 24);
-
-        ctx.font = '7px "Press Start 2P", monospace';
-        ctx.fillStyle = '#FFD700';
-        ctx.fillText(`HABILIDAD: ${selChar.perk} (Pulsa ESPACIO o Toca para Jugar)`, this.width / 2, this.height - 13);
+        // Bottom Winged Altar Crest
+        const cx = this.width / 2;
+        const cy = this.height - 40;
+        ctx.fillStyle = 'rgba(216, 170, 70, 0.4)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#D4AF37';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       }
 
-      // --- GAMEPLAY WORLD RENDERER ---
+      renderCardArtwork(ctx, key, x, y, w, h) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+
+        if (key === 'papa') {
+          // Spanish flag on left background
+          ctx.fillStyle = '#C62828';
+          ctx.fillRect(x + 8, y + 20, 14, 80);
+          ctx.fillStyle = '#FBC02D';
+          ctx.fillRect(x + 12, y + 20, 6, 80);
+
+          // Cathedral wall
+          ctx.fillStyle = '#E0C9A6';
+          ctx.fillRect(x + 26, y, w - 26, h);
+
+          // PA-PA in navy suit with blue RP cap
+          this.drawFullPaPa(ctx, x + w / 2 + 4, y + 110);
+        } else if (key === 'mama') {
+          // Altar column background with 2 golden armored goombas
+          ctx.fillStyle = '#D7CCC8';
+          ctx.fillRect(x, y, w, h);
+
+          // Giant Yellow Star
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.arc(x + w / 2, y + 36, 22, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Golden Goombas
+          this.drawArmorGoomba(ctx, x + 20, y + 60);
+          this.drawArmorGoomba(ctx, x + w - 20, y + 60);
+
+          // MA-MA in wedding gown with yellow crescent
+          this.drawFullMaMa(ctx, x + w / 2, y + 125);
+        } else if (key === 'candela') {
+          // Stained glass cathedral arch
+          ctx.fillStyle = '#BBDEFB';
+          ctx.fillRect(x, y, w, h);
+          ctx.fillStyle = '#42A5F5';
+          ctx.fillRect(x + 10, y + 20, 16, 50);
+          ctx.fillRect(x + w - 26, y + 20, 16, 50);
+
+          // Super Star behind Candela
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.arc(x + w / 2, y + 42, 24, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Candela in communion dress with flower wreath and wand
+          this.drawFullCandela(ctx, x + w / 2, y + 130);
+        } else if (key === 'cayetana') {
+          // Chequered Cathedral Floor
+          ctx.fillStyle = '#EFEBE9';
+          ctx.fillRect(x, y, w, h);
+          for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 6; col++) {
+              if ((row + col) % 2 === 0) {
+                ctx.fillStyle = '#BCAAA4';
+                ctx.fillRect(x + col * (w / 6), y + 130 + row * 12, w / 6, 12);
+              }
+            }
+          }
+
+          // Cayetana holding green Koopa shell
+          this.drawFullCayetana(ctx, x + w / 2, y + 120);
+        } else if (key === 'valentina') {
+          // Cathedral Altar Background
+          ctx.fillStyle = '#F5EBE6';
+          ctx.fillRect(x, y, w, h);
+          ctx.fillStyle = '#D7CCC8';
+          ctx.fillRect(x + 20, y + 20, w - 40, 100);
+
+          // Valentina waving hand with "P" bag
+          this.drawFullValentina(ctx, x + w / 2, y + 120);
+        } else if (key === 'new') {
+          // Empty Cathedral Room with Altar
+          ctx.fillStyle = '#E8D5B5';
+          ctx.fillRect(x, y, w, h);
+          ctx.fillStyle = '#C5A059';
+          ctx.fillRect(x + 20, y + 40, w - 40, 120);
+          ctx.fillStyle = '#8D6E63';
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText("?", x + w / 2, y + h / 2);
+        }
+
+        ctx.restore();
+      }
+
+      // --- FULL ARTWORK PIXEL PORTRAITS ---
+      drawFullPaPa(ctx, x, y) {
+        // Suit Body
+        ctx.fillStyle = '#1A237E'; // Navy Suit
+        ctx.beginPath();
+        ctx.roundRect(x - 22, y - 10, 44, 55, 6);
+        ctx.fill();
+
+        // White Shirt & Dark Tie
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(x - 6, y - 10, 12, 20);
+        ctx.fillStyle = '#0D47A1';
+        ctx.fillRect(x - 3, y - 6, 6, 25);
+
+        // Head & Beard
+        ctx.fillStyle = '#FFCC80';
+        ctx.beginPath();
+        ctx.arc(x, y - 30, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#4E342E';
+        ctx.beginPath();
+        ctx.arc(x, y - 24, 16, 0.2, Math.PI - 0.2);
+        ctx.fill();
+
+        // Blue RP Cap
+        ctx.fillStyle = '#1565C0';
+        ctx.beginPath();
+        ctx.arc(x, y - 38, 18, Math.PI, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(x - 2, y - 38, 24, 6);
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath();
+        ctx.arc(x + 6, y - 42, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#D32F2F';
+        ctx.font = '6px sans-serif';
+        ctx.fillText('RP', x + 3, y - 40);
+
+        // Eyes & Smile
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x + 2, y - 32, 3, 3);
+
+        // Red Mario Cap in Hand
+        ctx.fillStyle = '#D32F2F';
+        ctx.beginPath();
+        ctx.arc(x - 22, y + 15, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath();
+        ctx.arc(x - 22, y + 15, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#D32F2F';
+        ctx.font = '7px sans-serif';
+        ctx.fillText('M', x - 25, y + 18);
+      }
+
+      drawFullMaMa(ctx, x, y) {
+        // White Sweetheart Gown
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.moveTo(x, y - 10);
+        ctx.lineTo(x - 28, y + 55);
+        ctx.lineTo(x + 28, y + 55);
+        ctx.closePath();
+        ctx.fill();
+
+        // Golden Tiara
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.moveTo(x - 10, y - 46);
+        ctx.lineTo(x - 5, y - 54);
+        ctx.lineTo(x, y - 48);
+        ctx.lineTo(x + 5, y - 54);
+        ctx.lineTo(x + 10, y - 46);
+        ctx.fill();
+
+        // Blonde Hair & Face
+        ctx.fillStyle = '#FFE082';
+        ctx.beginPath();
+        ctx.arc(x, y - 30, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFE0B2';
+        ctx.beginPath();
+        ctx.arc(x, y - 28, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = '#1976D2';
+        ctx.fillRect(x + 3, y - 30, 3, 3);
+
+        // Crescent Luma in hand
+        ctx.fillStyle = '#FFF59D';
+        ctx.beginPath();
+        ctx.arc(x + 26, y + 10, 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      drawFullCandela(ctx, x, y) {
+        // White Communion Dress
+        ctx.fillStyle = '#F5F5F5';
+        ctx.beginPath();
+        ctx.moveTo(x, y - 10);
+        ctx.lineTo(x - 24, y + 50);
+        ctx.lineTo(x + 24, y + 50);
+        ctx.closePath();
+        ctx.fill();
+
+        // Long Brown Hair
+        ctx.fillStyle = '#4E342E';
+        ctx.beginPath();
+        ctx.arc(x, y - 26, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Face
+        ctx.fillStyle = '#FFE0B2';
+        ctx.beginPath();
+        ctx.arc(x, y - 25, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Flower Wreath Tiara
+        ctx.fillStyle = '#E1BEE7';
+        for (let i = -10; i <= 10; i += 5) {
+          ctx.beginPath();
+          ctx.arc(x + i, y - 38, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Eyes & Smile
+        ctx.fillStyle = '#3E2723';
+        ctx.fillRect(x + 3, y - 26, 3, 3);
+
+        // Star Wand
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x - 18, y + 20); ctx.lineTo(x - 26, y - 10);
+        ctx.stroke();
+        ctx.fillStyle = '#FFEB3B';
+        ctx.beginPath();
+        ctx.arc(x - 28, y - 14, 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      drawFullCayetana(ctx, x, y) {
+        // White Smocked Dress
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(x - 18, y - 8, 36, 45, 6);
+        ctx.fill();
+
+        // Dark Hair & Blue Headband
+        ctx.fillStyle = '#3E2723';
+        ctx.beginPath();
+        ctx.arc(x, y - 24, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1E88E5';
+        ctx.beginPath();
+        ctx.arc(x, y - 24, 17, Math.PI * 0.8, Math.PI * 1.8);
+        ctx.stroke();
+
+        // Face
+        ctx.fillStyle = '#FFE0B2';
+        ctx.beginPath();
+        ctx.arc(x, y - 22, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Big Eyes
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x + 2, y - 24, 3, 3);
+
+        // Green Koopa Shell in hands
+        ctx.fillStyle = '#4CAF50';
+        ctx.beginPath();
+        ctx.ellipse(x + 12, y + 16, 12, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      drawFullValentina(ctx, x, y) {
+        // White Frilly Dress
+        ctx.fillStyle = '#FFFDE7';
+        ctx.beginPath();
+        ctx.moveTo(x, y - 10);
+        ctx.lineTo(x - 20, y + 45);
+        ctx.lineTo(x + 20, y + 45);
+        ctx.closePath();
+        ctx.fill();
+
+        // Blonde Hair & Face
+        ctx.fillStyle = '#FFD54F';
+        ctx.beginPath();
+        ctx.arc(x, y - 24, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFE0B2';
+        ctx.beginPath();
+        ctx.arc(x, y - 22, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes & Big Smile
+        ctx.fillStyle = '#1E88E5';
+        ctx.fillRect(x + 2, y - 24, 3, 3);
+
+        // Crossbody Bag with "P" logo
+        ctx.strokeStyle = '#8D6E63';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x - 10, y - 8); ctx.lineTo(x + 12, y + 16);
+        ctx.stroke();
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(x + 6, y + 10, 12, 10);
+        ctx.fillStyle = '#D32F2F';
+        ctx.font = '7px sans-serif';
+        ctx.fillText('P', x + 9, y + 18);
+
+        // Waving Hand
+        ctx.fillStyle = '#FFE0B2';
+        ctx.beginPath();
+        ctx.arc(x + 22, y - 16, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      drawArmorGoomba(ctx, x, y) {
+        ctx.fillStyle = '#FFD700'; // Golden Armor
+        ctx.beginPath();
+        ctx.arc(x, y, 10, Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = '#795548';
+        ctx.fillRect(x - 6, y, 12, 8);
+      }
+
+      // --- GAMEPLAY RENDERER ---
       renderGameWorld() {
         const ctx = this.ctx;
         const cx = this.camX;
         const cy = this.camY;
 
-        // Background Starfield & Space Gradient
+        // Background Atmosphere
         const skyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
         if (this.currentZone === 1) {
           skyGrad.addColorStop(0, '#100e29');
@@ -1395,11 +1758,10 @@
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, this.width, this.height);
 
-        // Parallax Stars with directional gravity drift
+        // Parallax Stars
         for (const s of this.bgStars) {
           ctx.fillStyle = '#FFF';
           ctx.fillRect(s.x, s.y, s.size, s.size);
-          // Drift stars based on gravity
           if (this.gravityState === 1) s.y = (s.y + s.speed) % this.height;
           else if (this.gravityState === -1) s.y = (s.y - s.speed + this.height) % this.height;
           else s.x = (s.x - s.speed + this.width) % this.width;
@@ -1407,11 +1769,11 @@
 
         // Cathedral Glass Windows in Background
         for (let i = 0; i < 10; i++) {
-          const wx = i * 280 - (cx * 0.2) % 2800;
+          const wx = i * 240 - (cx * 0.2) % 2400;
           ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
           ctx.beginPath();
-          ctx.arc(wx + 40, 100, 30, Math.PI, 0);
-          ctx.rect(wx + 10, 100, 60, 120);
+          ctx.arc(wx + 40, 200, 30, Math.PI, 0);
+          ctx.rect(wx + 10, 200, 60, 220);
           ctx.fill();
         }
 
@@ -1426,21 +1788,17 @@
             const px = c * ts - cx;
             const py = r * ts - cy;
 
-            if (tile === 1) { // Ground / Gold Grass
+            if (tile === 1) {
               ctx.fillStyle = '#3E2723';
               ctx.fillRect(px, py, ts, ts);
               ctx.fillStyle = '#66BB6A';
               ctx.fillRect(px, py, ts, 6);
-              ctx.fillStyle = '#81C784';
-              ctx.fillRect(px + 4, py + 2, 4, 3);
-            } else if (tile === 2) { // Magnetic Ceiling
+            } else if (tile === 2) {
               ctx.fillStyle = '#283593';
               ctx.fillRect(px, py, ts, ts);
               ctx.fillStyle = '#5C6BC0';
               ctx.fillRect(px, py + ts - 6, ts, 6);
-              ctx.fillStyle = '#9FA8DA';
-              ctx.fillRect(px + 6, py + ts - 4, 6, 2);
-            } else if (tile === 3) { // Question ? Block
+            } else if (tile === 3) {
               ctx.fillStyle = '#FFB300';
               ctx.fillRect(px, py, ts, ts);
               ctx.strokeStyle = '#FF6F00';
@@ -1471,12 +1829,10 @@
             ctx.beginPath();
             ctx.ellipse(c.x - cx, c.y - cy, 6, 8, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#FFF9C4';
-            ctx.fillRect(c.x - cx - 1, c.y - cy - 5, 2, 10);
           }
         }
 
-        // Render Enemies (Gold Goombas)
+        // Render Enemies
         for (const en of this.enemies) {
           if (en.alive) {
             const ex = en.x - cx;
@@ -1485,11 +1841,6 @@
             ctx.beginPath();
             ctx.arc(ex + 14, ey + 14, 12, Math.PI, 0);
             ctx.fill();
-            ctx.fillStyle = '#424242';
-            ctx.fillRect(ex + 6, ey + 14, 16, 6);
-            ctx.fillStyle = '#FFF';
-            ctx.fillRect(ex + 8, ey + 8, 3, 4);
-            ctx.fillRect(ex + 17, ey + 8, 3, 4);
           }
         }
 
@@ -1497,13 +1848,13 @@
         const gx = this.goalGate.x - cx;
         const gy = this.goalGate.y - cy;
         ctx.fillStyle = '#FFD700';
-        ctx.fillRect(gx, gy - 60, 8, 120);
-        ctx.fillRect(gx + 40, gy - 60, 8, 120);
+        ctx.fillRect(gx, gy - 120, 8, 200);
+        ctx.fillRect(gx + 40, gy - 120, 8, 200);
         ctx.fillStyle = '#00E676';
-        ctx.fillRect(gx + 8, gy - 40, 32, 20);
+        ctx.fillRect(gx + 8, gy - 100, 32, 20);
         ctx.fillStyle = '#FFF';
         ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText('GOAL', gx + 9, gy - 26);
+        ctx.fillText('GOAL', gx + 9, gy - 86);
 
         // Render Cayetana Shells
         for (const sh of this.player.shells) {
@@ -1523,258 +1874,34 @@
 
         ctx.save();
         if (this.gravityState === -1) {
-          // Flip upside down for inverted gravity
           ctx.translate(px + p.w/2, py + p.h/2);
           ctx.scale(1, -1);
           ctx.translate(-(px + p.w/2), -(py + p.h/2));
         }
 
-        this.drawCharacterSprite(ctx, px + p.w/2, py + p.h/2, this.selectedCharKey, p.facingRight, 1.0);
+        if (this.selectedCharKey === 'papa') this.drawFullPaPa(ctx, px + p.w/2, py + p.h/2);
+        else if (this.selectedCharKey === 'mama') this.drawFullMaMa(ctx, px + p.w/2, py + p.h/2);
+        else if (this.selectedCharKey === 'candela') this.drawFullCandela(ctx, px + p.w/2, py + p.h/2);
+        else if (this.selectedCharKey === 'cayetana') this.drawFullCayetana(ctx, px + p.w/2, py + p.h/2);
+        else if (this.selectedCharKey === 'valentina') this.drawFullValentina(ctx, px + p.w/2, py + p.h/2);
 
-        // Mamá Bubble Shield
         if (p.shieldTimer > 0) {
           ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
           ctx.fillStyle = 'rgba(255, 235, 59, 0.2)';
           ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.arc(px + p.w/2, py + p.h/2, p.w + 6, 0, Math.PI * 2);
+          ctx.arc(px + p.w/2, py + p.h/2, p.w + 10, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
         }
         ctx.restore();
 
-        // Render Particles & Floaters
+        // Render Particles
         this.particles.render(ctx, cx, cy);
-      }
-
-      // --- PROCEDURAL CHARACTER PIXEL ART RENDERER ---
-      drawCharacterSprite(ctx, x, y, charKey, facingRight, scale = 1.0) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(facingRight ? scale : -scale, scale);
-
-        switch (charKey) {
-          case 'papa':
-            // PA-PA (Navy suit, RP cap, Beard, Tie)
-            ctx.fillStyle = '#1565C0'; // Navy Suit Body
-            ctx.beginPath();
-            ctx.roundRect(-10, -4, 20, 18, 4);
-            ctx.fill();
-            ctx.fillStyle = '#FFFFFF'; // White Shirt
-            ctx.fillRect(-3, -4, 6, 8);
-            ctx.fillStyle = '#C62828'; // Red Tie
-            ctx.fillRect(-1.5, -2, 3, 10);
-
-            // Head & Beard
-            ctx.fillStyle = '#FFCC80';
-            ctx.beginPath();
-            ctx.arc(0, -12, 10, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#4E342E'; // Beard
-            ctx.beginPath();
-            ctx.arc(0, -9, 8, 0.2, Math.PI - 0.2);
-            ctx.fill();
-
-            // Blue RP Cap
-            ctx.fillStyle = '#0D47A1';
-            ctx.beginPath();
-            ctx.arc(0, -15, 10, Math.PI, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(0, -15, 12, 4); // Visor
-            ctx.fillStyle = '#FFF';
-            ctx.font = '5px sans-serif';
-            ctx.fillText('RP', -3, -15);
-
-            // Red Cap in Hand
-            ctx.fillStyle = '#D32F2F';
-            ctx.beginPath();
-            ctx.arc(10, 4, 5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.fillRect(2, -14, 2, 2);
-
-            // Shoes
-            ctx.fillStyle = '#212121';
-            ctx.fillRect(-8, 14, 6, 5);
-            ctx.fillRect(2, 14, 6, 5);
-            break;
-
-          case 'mama':
-            // MA-MA (White wedding gown, crown, blonde hair, Luma aura)
-            // Golden Aura
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 10;
-
-            // White Dress
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.moveTo(0, -4);
-            ctx.lineTo(-12, 16);
-            ctx.lineTo(12, 16);
-            ctx.closePath();
-            ctx.fill();
-
-            // Blonde Hair
-            ctx.fillStyle = '#FFE082';
-            ctx.beginPath();
-            ctx.arc(0, -12, 10, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Face
-            ctx.fillStyle = '#FFE0B2';
-            ctx.beginPath();
-            ctx.arc(0, -11, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes
-            ctx.fillStyle = '#1976D2';
-            ctx.fillRect(2, -12, 2, 2);
-
-            // Tiara / Crown
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.moveTo(-5, -18); ctx.lineTo(-2, -22); ctx.lineTo(0, -19); ctx.lineTo(2, -22); ctx.lineTo(5, -18);
-            ctx.fill();
-
-            // Luma Star in Hand
-            ctx.fillStyle = '#FFF59D';
-            ctx.beginPath();
-            ctx.arc(12, 2, 4, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-
-          case 'candela':
-            // CANDELA (White communion lace dress, flower wreath, star wand, giant star behind)
-            // Giant Star behind head
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.arc(0, -20, 10, 0, Math.PI * 2);
-            ctx.fill();
-
-            // White Communion Dress
-            ctx.fillStyle = '#F5F5F5';
-            ctx.beginPath();
-            ctx.moveTo(0, -4);
-            ctx.lineTo(-11, 15);
-            ctx.lineTo(11, 15);
-            ctx.closePath();
-            ctx.fill();
-
-            // Brown Hair & Face
-            ctx.fillStyle = '#5D4037';
-            ctx.beginPath();
-            ctx.arc(0, -10, 9, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#FFCC80';
-            ctx.beginPath();
-            ctx.arc(0, -10, 7.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Flower Wreath
-            ctx.fillStyle = '#E1BEE7';
-            ctx.beginPath();
-            ctx.arc(-4, -16, 2.5, 0, Math.PI * 2);
-            ctx.arc(0, -17, 2.5, 0, Math.PI * 2);
-            ctx.arc(4, -16, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes
-            ctx.fillStyle = '#3E2723';
-            ctx.fillRect(2, -11, 2, 2);
-
-            // Star Wand
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(6, 4); ctx.lineTo(14, -6);
-            ctx.stroke();
-            ctx.fillStyle = '#FFEB3B';
-            ctx.beginPath();
-            ctx.arc(15, -7, 4, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-
-          case 'cayetana':
-            // CAYETANA (White short-sleeve dress, blue hairband, green Koopa shell)
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.roundRect(-8, -2, 16, 17, 4);
-            ctx.fill();
-
-            // Hair & Blue Headband
-            ctx.fillStyle = '#4E342E';
-            ctx.beginPath();
-            ctx.arc(0, -10, 8.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#1E88E5'; // Blue Headband
-            ctx.beginPath();
-            ctx.arc(0, -10, 9, Math.PI * 0.8, Math.PI * 1.8);
-            ctx.stroke();
-
-            // Face
-            ctx.fillStyle = '#FFE0B2';
-            ctx.beginPath();
-            ctx.arc(0, -9, 7, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.fillRect(2, -10, 2, 2);
-
-            // Green Koopa Shell in hand
-            ctx.fillStyle = '#4CAF50';
-            ctx.beginPath();
-            ctx.ellipse(8, 6, 6, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            break;
-
-          case 'valentina':
-            // VALENTINA (Blonde girl, frilly dress, "P" cross-body bag)
-            ctx.fillStyle = '#FFF8E1';
-            ctx.beginPath();
-            ctx.moveTo(0, -3); ctx.lineTo(-8, 13); ctx.lineTo(8, 13);
-            ctx.fill();
-
-            // Blonde Hair
-            ctx.fillStyle = '#FFD54F';
-            ctx.beginPath();
-            ctx.arc(0, -9, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Face
-            ctx.fillStyle = '#FFE0B2';
-            ctx.beginPath();
-            ctx.arc(0, -8, 6.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes & Big Smile
-            ctx.fillStyle = '#1E88E5';
-            ctx.fillRect(2, -9, 2, 2);
-
-            // Cross-body Bag with "P" logo
-            ctx.strokeStyle = '#795548';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-5, -2); ctx.lineTo(6, 7);
-            ctx.stroke();
-            ctx.fillStyle = '#FFF';
-            ctx.fillRect(4, 5, 6, 5);
-            ctx.fillStyle = '#D32F2F';
-            ctx.font = '4px sans-serif';
-            ctx.fillText('P', 5.5, 9);
-            break;
-        }
-
-        ctx.restore();
       }
     }
 
-    // Start game on load
+    // Start on DOM Ready
     window.addEventListener('DOMContentLoaded', () => {
       window.gameInstance = new Game();
     });
