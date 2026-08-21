@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6750A4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Super Rivelles Peris World - Adventure Platformer</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-app">
+    <div id="canvas-container">
+      <canvas id="game-canvas"></canvas>
+      <canvas id="confetti-canvas"></canvas>
+
+      <!-- Material 3 HUD Overlay -->
+      <div id="hud-layer">
+        <div class="hud-stats-group">
+          <div class="hud-pill">
+            <span class="hud-stat hud-score-counter">SCORE: <span id="hud-score">000000</span></span>
+          </div>
+          <div class="hud-pill">
+            <span class="hud-stat hud-star-counter"><span class="hud-stat-icon">🪙</span> <span id="hud-coins">x00</span></span>
+            <span class="hud-stat hud-star-counter" style="margin-left:8px;"><span id="hud-stars">★ 0</span></span>
+          </div>
+          <div class="hud-pill">
+            <span class="hud-stat hud-lives-counter"><span id="hud-lives">❤ x3</span></span>
+          </div>
+          <div class="hud-pill">
+            <span class="hud-stat" id="hud-world-name" style="color:#FFF;">1-1: Sunshine Valley</span>
+          </div>
+          <span class="kid-mode-badge" id="hud-kid-badge">🌟 KID MODE</span>
+        </div>
+
+        <div class="hud-controls-group">
+          <button class="icon-btn" id="btn-hud-sound" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+          <button class="icon-btn" id="btn-hud-settings" title="Settings" aria-label="Settings">⚙️</button>
+          <button class="icon-btn" id="btn-hud-pause" title="Pause" aria-label="Pause">⏸️</button>
+        </div>
+      </div>
+
+      <!-- Mobile / Android Material 3 Touch Controls (min 56dp) -->
+      <div id="touch-controls">
+        <div class="touch-cluster dpad-cluster">
+          <button class="touch-btn dpad-arrow" id="btn-left" aria-label="Left">◀</button>
+          <button class="touch-btn dpad-arrow" id="btn-down" aria-label="Down" style="font-size:1.4rem;">▼</button>
+          <button class="touch-btn dpad-arrow" id="btn-right" aria-label="Right">▶</button>
+        </div>
+        <div class="touch-cluster actions-cluster">
+          <button class="touch-btn action-btn action-btn-action" id="btn-action" aria-label="Dash or Shoot">
+            <span>🔥</span>
+            <span class="btn-subtext">MAGIC</span>
+          </button>
+          <button class="touch-btn action-btn action-btn-jump" id="btn-jump" aria-label="Jump">
+            <span>▲</span>
+            <span class="btn-subtext">JUMP</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Keyboard Controls Hint for Desktop -->
+      <div id="keyboard-hint">
+        🎮 <b>Controls:</b> Arrow Keys / WASD = Move | Space / Z = Jump | X = Magic Fireball / Dash
+      </div>
+    </div>
+
+    <!-- MODAL 1: Title & Main Menu -->
+    <div class="md-modal-scrim" id="modal-title-menu">
+      <div class="md-dialog" style="text-align:center; align-items:center;">
+        <div class="dialog-title" style="font-size:2.2rem; justify-content:center;">
+          🌟 Super Rivelles Peris World 🦁
+        </div>
+        <p class="dialog-subtitle">
+          An epic kid-friendly platformer adventure filled with magic stars, bouncy trampolines, and funny monsters!
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:320px; margin-top:10px;">
+          <button class="md-btn md-btn-accent" id="btn-play-game">
+            <span>🚀</span> PLAY NOW!
+          </button>
+          <button class="md-btn md-btn-primary" id="btn-menu-char-select">
+            <span>🎭</span> Choose Hero
+          </button>
+          <button class="md-btn md-btn-tonal" id="btn-menu-level-select">
+            <span>🗺️</span> Worlds Map
+          </button>
+          <button class="md-btn md-btn-outlined" id="btn-menu-settings">
+            <span>⚙️</span> Game Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Character Selection -->
+    <div class="md-modal-scrim" id="modal-char-select">
+      <div class="md-dialog">
+        <div class="dialog-header">
+          <h2 class="dialog-title"><span>🎭</span> Choose Your Hero</h2>
+          <button class="icon-btn modal-close-btn">✕</button>
+        </div>
+        <p class="dialog-subtitle">Each hero has their own special kid-friendly superpower!</p>
+
+        <div class="character-grid">
+          <div class="character-card selected" id="char-card-leo">
+            <canvas class="char-preview-canvas" id="char-preview-leo"></canvas>
+            <div class="char-name">🦁 Leo the Lion</div>
+            <div class="char-perk">Balanced & Brave</div>
+          </div>
+
+          <div class="character-card" id="char-card-mia">
+            <canvas class="char-preview-canvas" id="char-preview-mia"></canvas>
+            <div class="char-name">👑 Princess Mia</div>
+            <div class="char-perk">Floaty Star Jump</div>
+          </div>
+
+          <div class="character-card" id="char-card-dino">
+            <canvas class="char-preview-canvas" id="char-preview-dino"></canvas>
+            <div class="char-name">🦖 Speedy Dino</div>
+            <div class="char-perk">Super Runner</div>
+          </div>
+
+          <div class="character-card" id="char-card-sparky">
+            <canvas class="char-preview-canvas" id="char-preview-sparky"></canvas>
+            <div class="char-name">🤖 Sparky Robo</div>
+            <div class="char-perk">Double Rocket Jump</div>
+          </div>
+        </div>
+
+        <button class="md-btn md-btn-primary modal-close-btn" style="margin-top:10px;">
+          <span>✓</span> Select & Return
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 3: Level / Worlds Selection -->
+    <div class="md-modal-scrim" id="modal-level-select">
+      <div class="md-dialog">
+        <div class="dialog-header">
+          <h2 class="dialog-title"><span>🗺️</span> Worlds Map</h2>
+          <button class="icon-btn modal-close-btn">✕</button>
+        </div>
+        <p class="dialog-subtitle">Explore all four unique adventure kingdoms!</p>
+
+        <div class="world-grid">
+          <div class="world-card active" data-level-index="0">
+            <div class="world-badge">🌻</div>
+            <div class="world-name">World 1: Sunshine Valley</div>
+            <div class="world-stars">★★★</div>
+          </div>
+
+          <div class="world-card" data-level-index="1">
+            <div class="world-badge">🍭</div>
+            <div class="world-name">World 2: Candy Wonderland</div>
+            <div class="world-stars">★★★</div>
+          </div>
+
+          <div class="world-card" data-level-index="2">
+            <div class="world-badge">☁️</div>
+            <div class="world-name">World 3: Cloud Castle Sky</div>
+            <div class="world-stars">★★★</div>
+          </div>
+
+          <div class="world-card" data-level-index="3">
+            <div class="world-badge">🌋</div>
+            <div class="world-name">World 4: Lava Lair & Boss</div>
+            <div class="world-stars">★★★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: Settings -->
+    <div class="md-modal-scrim" id="modal-settings">
+      <div class="md-dialog">
+        <div class="dialog-header">
+          <h2 class="dialog-title"><span>⚙️</span> Game Settings</h2>
+          <button class="icon-btn modal-close-btn">✕</button>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">🌟 Kid Mode</span>
+            <span class="setting-desc">Infinite lives & friendly cloud balloon rescue from pits</span>
+          </div>
+          <label class="md-switch">
+            <input type="checkbox" id="switch-kid-mode" checked>
+            <span class="md-switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">📳 Touch Vibration</span>
+            <span class="setting-desc">Haptic feedback on mobile jumps and hits</span>
+          </div>
+          <label class="md-switch">
+            <input type="checkbox" id="switch-vibration" checked>
+            <span class="md-switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">🔊 Sound FX Volume</span>
+          </div>
+          <input type="range" class="md-range" id="slider-sfx" min="0" max="100" value="70">
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">🎵 Music Volume</span>
+          </div>
+          <input type="range" class="md-range" id="slider-music" min="0" max="100" value="45">
+        </div>
+
+        <button class="md-btn md-btn-primary modal-close-btn" style="margin-top:10px;">
+          <span>✓</span> Save Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 5: Victory Fanfare Celebration -->
+    <div class="md-modal-scrim" id="modal-victory">
+      <div class="md-dialog" style="text-align:center; align-items:center;">
+        <div class="dialog-title" style="font-size:2.2rem; justify-content:center;">
+          🎉 STAGE CLEAR! 🎉
+        </div>
+        <p class="dialog-subtitle" style="font-size:1.1rem; color:#85F8CE;">
+          Awesome job, Super Hero! You conquered the world!
+        </p>
+
+        <div style="font-size:3rem; margin:10px 0;">⭐ ⭐ ⭐</div>
+
+        <button class="md-btn md-btn-success" id="btn-victory-next" style="width:100%; max-width:280px;">
+          <span>▶️</span> NEXT LEVEL!
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 6: Game Over / Try Again -->
+    <div class="md-modal-scrim" id="modal-gameover">
+      <div class="md-dialog" style="text-align:center; align-items:center;">
+        <div class="dialog-title" style="justify-content:center;">
+          💪 Don't Give Up!
+        </div>
+        <p class="dialog-subtitle">
+          Every hero gets knocked down, but you can try again anytime!
+        </p>
+        <button class="md-btn md-btn-accent" id="btn-retry-game" style="width:100%; max-width:260px; margin-top:10px;">
+          <span>🔄</span> TRY AGAIN!
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 7: Pause Menu -->
+    <div class="md-modal-scrim" id="modal-pause">
+      <div class="md-dialog" style="text-align:center; align-items:center;">
+        <div class="dialog-title" style="justify-content:center;">
+          ⏸️ Game Paused
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:260px; margin-top:10px;">
+          <button class="md-btn md-btn-primary" id="btn-pause-resume">
+            <span>▶️</span> Resume
+          </button>
+          <button class="md-btn md-btn-outlined" id="btn-pause-quit">
+            <span>🏠</span> Quit to Menu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
