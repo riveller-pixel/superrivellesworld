@@ -21,7 +21,7 @@
   canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges;
     position:absolute; top:0; left:0; width:100%; height:100%; }
 
-  /* ── Character Select ── */
+  /* ── Character Select Modal ── */
   .screen-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.93); backdrop-filter:blur(6px);
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     z-index:100; opacity:0; pointer-events:none; transition:opacity 0.25s ease; padding:12px;
@@ -118,8 +118,8 @@
       <div class="tommy-banner">
         <img src="tommy.png" alt="Tommy" class="tommy-banner-img" onerror="this.src='assets/tommy.png'">
         <div class="tommy-banner-text">
-          <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO FIEL IA</div>
-          Tommy te acompaña siempre: junta estrellas lejanas, ladra ante enemigos y te rescata de los fosos.
+          <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO SUPER-CARGADO</div>
+          Ladrido sónico que aturde enemigos, súper trampolín de salto, recolección de estrellas y rescate en fosos.
         </div>
       </div>
 
@@ -131,8 +131,12 @@
 <script>
 'use strict';
 /**
- * SUPER RIVELLES PERIS WORLD v3.5 - 3-LEVEL WORLD & AI COMPANION TOMMY
- * Nintendo-grade World Map + 3 Multi-stage levels + Ultimate Dog AI
+ * SUPER RIVELLES PERIS WORLD v4.0 - ANTI-GRAVITY 2.0 & GALAXY BOSS
+ * Features:
+ * - Anti-Gravity 2.0: Smooth lunar physics, cosmic ascending dust, Zero-G bubbles.
+ * - Supercharged Tommy AI: Sonic stun bark + canine bounce trampoline.
+ * - Level Overhaul: Inverted geometry, stalactites, floating crystal platforms.
+ * - Epic Boss Battle in 1-3: Giga Koopa Cósmico with multi-phase mechanics & gravity shifts.
  */
 
 // ── Polyfill: roundRect ──────────────────────────────────────
@@ -175,8 +179,26 @@ class SoundFX {
   platformSpawn(){ this.playTone(700,'triangle',0.15,0.25,1100); }
   shellShoot(){ this.playTone(340,'sawtooth',0.14,0.25,120); }
   shellBounce(){ this.playTone(450,'square',0.08,0.2,700); }
-  bark(){ this.playTone(360,'sawtooth',0.1,0.3,140); }
-  gravityShift(){ this.playTone(280,'sine',0.28,0.35,80); setTimeout(()=>this.playTone(560,'triangle',0.18,0.25,980),60); }
+  bark(){
+    this.playTone(420,'sawtooth',0.12,0.35,160);
+    setTimeout(()=>this.playTone(240,'sawtooth',0.18,0.3,80),40);
+  }
+  gravityShift(){
+    this.playTone(280,'sine',0.28,0.35,80);
+    setTimeout(()=>this.playTone(560,'triangle',0.22,0.28,1100),60);
+    setTimeout(()=>this.playTone(880,'sine',0.25,0.22,1400),120);
+  }
+  zeroGBubble(){
+    this.playTone(600,'sine',0.18,0.25,900);
+    setTimeout(()=>this.playTone(800,'triangle',0.2,0.2,1200),60);
+  }
+  bossHit(){
+    this.playTone(140,'sawtooth',0.25,0.45,40);
+    setTimeout(()=>this.playTone(280,'square',0.15,0.3,60),80);
+  }
+  bossDefeat(){
+    [220, 330, 440, 550, 660, 880].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.2, 0.4, f*1.5), i * 100));
+  }
   starCollect(){ this.playTone(987.77,'square',0.07,0.2); setTimeout(()=>this.playTone(1318.51,'square',0.14,0.22),65); }
   mountUnicorn(){ [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.14,0.25),i*55)); }
   armorBreak(){ this.playTone(300,'sawtooth',0.15,0.35,100); setTimeout(()=>this.playTone(520,'sine',0.2,0.25,800),80); }
@@ -201,7 +223,7 @@ const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
-// ── 5 Playable Character Definitions ───────────────────────
+// ── 5 Playable Characters ───────────────────────────────────
 const CHARACTERS = {
   papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
               baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.4, weight:1.0, w:20, h:30,
@@ -220,7 +242,6 @@ const CHARACTERS = {
               canDoubleJump:true, perk:'Doble Salto: A en el aire' }
 };
 
-// Preload Images
 const loadedImages = {};
 for(const [key,char] of Object.entries(CHARACTERS)){
   const img=new Image(); img.src=char.imgSrc; img.onerror=()=>{ img.src=char.fallback; };
@@ -234,7 +255,7 @@ tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 const LEVEL_CONFIGS = [
   { id: 1, name: "1-1: El Jardín de las Rosas", width: 2800, theme: "garden", sky: ["#5C94FC","#89b8ff","#d4eaff"] },
   { id: 2, name: "1-2: Caverna Anti-Gravedad",   width: 3200, theme: "cave",   sky: ["#150626","#2d0d4e","#4a148c"] },
-  { id: 3, name: "1-3: Castillo de Cristal",   width: 3500, theme: "castle", sky: ["#0b0410","#1c0b2b","#31124d"] }
+  { id: 3, name: "1-3: Castillo & Jefe Cósmico", width: 3600, theme: "castle", sky: ["#0b0410","#1c0b2b","#31124d"] }
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -335,7 +356,7 @@ class TouchController {
 }
 
 // ════════════════════════════════════════════════════════════
-// ENEMY — FSM
+// ENEMY — FSM (Koopa & Bat with stun and panic)
 // ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
@@ -347,11 +368,13 @@ class Enemy {
     this.alertTimer=0; this.frame=0; this.facingRight=false;
     this.baseX=x; this.baseY=y;
     this.patrolMin=patrolMin||x-120; this.patrolMax=patrolMax||x+120;
-    this.fleeTimer=0;
+    this.fleeTimer=0; this.stunTimer=0;
   }
   update(player,allPlatforms,globalGravity,game){
     this.frame++;
     if(this.dead){ this.deadTimer--; this.y+=this.deadVy; this.deadVy+=0.4*globalGravity; return; }
+    if(this.stunTimer>0){ this.stunTimer--; return; }
+
     const dx=player.x-this.x, dy=player.y-this.y;
     const distToPlayer=Math.sqrt(dx*dx+dy*dy);
     if(this.type==='koopa') this._updateKoopa(player,allPlatforms,globalGravity,distToPlayer,game);
@@ -367,8 +390,9 @@ class Enemy {
       else if(this.alertTimer>0){this.alertTimer--;if(this.alertTimer<=0)this.state='patrol';}
     }
     if(grav===1) this.vy=Math.min(this.vy+GRAVITY*1.0,MAX_FALL);
-    else         this.vy=Math.max(this.vy-GRAVITY*1.0,-MAX_FALL);
-    const spd=this.state==='alert'?1.9:(this.state==='flee'?0.4:1.1);
+    else         this.vy=Math.max(this.vy-GRAVITY*0.68,-MAX_FALL);
+
+    const spd=this.state==='alert'?1.9:(this.state==='flee'?0.5:1.1);
     if(this.state==='flee'){
       this.vx=Math.sin(this.frame*0.08)*1.5;
       if(grav===1) this.vy=Math.max(this.vy-0.5,-4); else this.vy=Math.min(this.vy+0.5,4);
@@ -401,7 +425,7 @@ class Enemy {
     const targetX=dist<140?player.x:this.baseX+Math.cos(this.frame*0.025)*70;
     const targetY=dist<140?player.y:this.baseY+Math.sin(this.frame*0.04)*28;
     this.x+=(targetX-this.x)*0.025; this.y+=(targetY-this.y)*0.025;
-    this.x=Math.max(14,Math.min(3500,this.x)); this.y=Math.max(20,Math.min(VIRT_H-30,this.y));
+    this.x=Math.max(14,Math.min(3600,this.x)); this.y=Math.max(20,Math.min(VIRT_H-30,this.y));
     this.facingRight=player.x>this.x;
   }
   die(game){
@@ -418,6 +442,13 @@ class Enemy {
     ctx.translate(s.x+this.w/2,s.y+this.h/2);
     if(!this.facingRight)ctx.scale(-1,1);
     if(this.dead)ctx.globalAlpha=0.7;
+
+    if(this.stunTimer>0){
+      ctx.strokeStyle='#FFD700'; ctx.lineWidth=1;
+      const sa=Math.sin(now*0.02)*4;
+      ctx.strokeRect(-this.w/2-2,-this.h/2-4+sa,this.w+4,this.h+8);
+    }
+
     if(this.type==='koopa') this._drawKoopa(ctx,now);
     else this._drawBat(ctx,now);
     ctx.restore();
@@ -445,125 +476,329 @@ class Enemy {
 }
 
 // ════════════════════════════════════════════════════════════
-// TOMMY DEDICATED AI COMPANION (Fiel Acompañante Canino)
+// GIGA KOOPA CÓSMICO (Boss en Nivel 1-3)
 // ════════════════════════════════════════════════════════════
-class TommyAI {
-  constructor(startX,startY){
-    this.x=startX; this.y=startY;
-    this.vx=0; this.vy=0;
-    this.w=16; this.h=16;
-    this.onGround=false; this.facingRight=true;
-    this.mode='follow'; // 'follow', 'collect', 'warn', 'rescue'
-    this.targetItem=null; this.barkTimer=0; this.frame=0;
-    this.jumpCooldown=0; this.rescueCooldown=0;
+class GalaxyBoss {
+  constructor(x, y){
+    this.x = x; this.y = y;
+    this.w = 52; this.h = 56;
+    this.hp = 3; this.maxHp = 3;
+    this.state = 'idle'; // 'idle', 'charge', 'fire', 'vulnerable', 'defeated'
+    this.phase = 1;
+    this.frame = 0;
+    this.timer = 0;
+    this.vx = -1.5; this.vy = 0;
+    this.facingRight = false;
+    this.invincTimer = 0;
+    this.fireballs = [];
+    this.active = false;
   }
-  update(player,starDustItems,enemies,allPlatforms,globalGravity,game){
-    this.frame++; if(this.barkTimer>0)this.barkTimer--; if(this.jumpCooldown>0)this.jumpCooldown--; if(this.rescueCooldown>0)this.rescueCooldown--;
+  update(player, game){
+    if(this.state === 'defeated') return;
+    this.frame++;
+    if(this.invincTimer > 0) this.invincTimer--;
 
-    if(globalGravity===1) this.vy=Math.min(this.vy+GRAVITY*0.85,MAX_FALL);
-    else                   this.vy=Math.max(this.vy-GRAVITY*0.85,-MAX_FALL);
-
-    // 1. Check danger warning
-    const danger=enemies.find(e=>!e.dead&&Math.hypot(e.x-player.x,e.y-player.y)<90);
-    if(danger&&this.barkTimer<=0){
-      this.mode='warn'; this.barkTimer=80; audio.bark();
-      game.addFloatingText('¡WOOF! ⚠️',this.x+this.w/2,this.y-16,'#FFD700');
+    // Activate when player approaches arena
+    if(!this.active && player.x > this.x - 300){
+      this.active = true;
+      audio.bossHit();
+      game.camera.shake(12);
+      game.addFloatingText('¡ALERTA: GIGA KOOPA CÓSMICO!', this.x, this.y - 30, '#FF1744');
     }
+    if(!this.active) return;
 
-    // 2. Check rescue opportunity (if player falls below lowest platform)
-    if(player.y>VIRT_H-20 && this.rescueCooldown<=0 && Math.abs(player.x-this.x)<100){
-      this.mode='rescue'; this.rescueCooldown=300;
-      this.x=player.x; this.y=VIRT_H-10; this.vy=-12;
-      player.y=VIRT_H-40; player.vy=-11; // Rescue jump boost!
-      audio.bark(); audio.jump();
-      game.addFloatingText('¡RESCATE DE TOMMY! 🐶✨',player.x,player.y-20,'#00E5FF');
-      game.addParticles(player.x,player.y,16,['#FFD700','#00E5FF','#FFF'],4);
-    }
-
-    // 3. Check star collection
-    let nearStar=null, nearDist=160;
-    for(const sd of starDustItems){
-      if(sd.collected)continue;
-      const d=Math.hypot(sd.x-this.x,sd.y-this.y);
-      if(d<nearDist){nearDist=d;nearStar=sd;}
-    }
-    if(this.mode!=='warn'&&this.mode!=='rescue'){
-      if(nearStar&&Math.hypot(player.x-this.x,player.y-this.y)<280){
-        this.mode='collect'; this.targetItem=nearStar;
+    // Movement & Attack Cycle
+    this.timer++;
+    if(this.timer > 160){
+      this.timer = 0;
+      this.facingRight = player.x > this.x;
+      // Attack choice
+      const roll = Math.random();
+      if(roll < 0.5){
+        // Fire meteors
+        for(let i=0; i<3; i++){
+          setTimeout(()=>{
+            if(this.state!=='defeated'){
+              const dir = this.facingRight ? 1 : -1;
+              this.fireballs.push({
+                x: this.x + (this.facingRight ? this.w : 0),
+                y: this.y + 20,
+                vx: dir * (3.5 + i*0.8),
+                vy: (i - 1) * 1.5,
+                life: 140
+              });
+              audio.shellShoot();
+              game.addParticles(this.x + 20, this.y + 20, 8, ['#FF1744','#FF9800'], 3);
+            }
+          }, i * 220);
+        }
       } else {
-        this.mode='follow'; this.targetItem=null;
+        // Shift gravity periodically in later phases
+        if(this.hp <= 2 && Math.random() < 0.6){
+          game.triggerGravityShift();
+        }
       }
     }
 
-    // Target movement X
-    let targetX=player.x+(player.facingRight?-24:player.w+8);
-    if(this.mode==='collect'&&this.targetItem) targetX=this.targetItem.x;
-    const dx=targetX-this.x;
-    if(Math.abs(dx)>8){
-      this.vx+=(Math.sign(dx)*0.5);
-      this.vx=Math.max(-4.2,Math.min(4.2,this.vx));
-      this.facingRight=dx>0;
-    } else { this.vx*=0.72; }
+    // Boss patrol within arena
+    this.x += this.vx;
+    if(this.x < 3000){ this.x = 3000; this.vx = 2.0; this.facingRight = true; }
+    if(this.x > 3420){ this.x = 3420; this.vx = -2.0; this.facingRight = false; }
 
-    // Auto-jump to follow or get stars
-    if(this.onGround&&this.jumpCooldown<=0&&(player.y<this.y-20||(this.targetItem&&this.targetItem.y<this.y-20))){
-      this.vy=globalGravity===1?-8.8:8.8; this.jumpCooldown=35;
+    // Update fireballs
+    for(let i = this.fireballs.length - 1; i >= 0; i--){
+      const fb = this.fireballs[i];
+      fb.x += fb.vx; fb.y += fb.vy;
+      fb.life--;
+      // Player hit check
+      if(player.invincibleTimer <= 0 && Math.hypot(player.x - fb.x, player.y - fb.y) < 18){
+        player.invincibleTimer = 90;
+        player.vx = Math.sign(fb.vx) * 5;
+        player.vy = -5;
+        game.starDust = Math.max(0, game.starDust - 6);
+        audio.hazardScatter();
+        game.camera.shake(6);
+        game.addFloatingText('-6 STAR-DUST', player.x, player.y - 12, '#FF1744');
+      }
+      if(fb.life <= 0) this.fireballs.splice(i, 1);
+    }
+
+    // Player Jump / Stomp Damage on Boss
+    if(this.invincTimer <= 0 && player.x < this.x + this.w && player.x + player.w > this.x && player.y < this.y + this.h && player.y + player.h > this.y){
+      const stomped = (game.globalGravity === 1 && player.vy > 0 && player.y + player.h < this.y + 24) ||
+                      (game.globalGravity === -1 && player.vy < 0 && player.y > this.y + this.h - 24);
+      if(stomped || player.isGroundPounding){
+        this.hp--;
+        this.invincTimer = 70;
+        player.vy = game.globalGravity === 1 ? -9 : 9;
+        audio.bossHit();
+        game.camera.shake(14);
+        game.hitStopFrames = 5;
+        game.addParticles(this.x + this.w/2, this.y + this.h/2, 28, ['#FF1744','#FFD700','#FFF'], 5);
+        game.addFloatingText(`¡IMPACTO! HP: ${this.hp}/${this.maxHp}`, this.x + this.w/2, this.y - 16, '#FFD700');
+
+        if(this.hp <= 0){
+          this.state = 'defeated';
+          audio.bossDefeat();
+          game.score += 2500;
+          game.addFloatingText('¡JEFE DERROTADO! +2500', this.x + this.w/2, this.y - 30, '#00E5FF');
+          for(let i=0; i<15; i++){
+            setTimeout(()=>{
+              game.addParticles(this.x + Math.random()*this.w, this.y + Math.random()*this.h, 24, ['#FFD700','#FF4081','#00E5FF','#FFF'], 6);
+            }, i * 150);
+          }
+          setTimeout(() => { game.completeLevel(); }, 3600);
+        }
+      } else if(player.invincibleTimer <= 0){
+        player.invincibleTimer = 90;
+        player.vx = (player.x < this.x ? -5 : 5);
+        player.vy = -6;
+        game.starDust = Math.max(0, game.starDust - 8);
+        audio.hazardScatter();
+        game.camera.shake(8);
+        game.addFloatingText('-8 STAR-DUST', player.x, player.y - 14, '#FF1744');
+      }
+    }
+  }
+
+  draw(ctx, cam, now){
+    if(!this.active || this.state === 'defeated') return;
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x, this.y, this.w, this.h)) return;
+
+    ctx.save();
+    ctx.translate(s.x + this.w/2, s.y + this.h/2);
+    if(!this.facingRight) ctx.scale(-1, 1);
+    if(this.invincTimer > 0 && Math.floor(now / 80) % 2 === 0) ctx.globalAlpha = 0.4;
+
+    // Shell Body (Gigantic Dark Red & Gold)
+    ctx.fillStyle = '#B71C1C';
+    ctx.beginPath(); ctx.ellipse(0, 4, 24, 22, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3; ctx.stroke();
+
+    // Spikes on Shell
+    ctx.fillStyle = '#FFD700';
+    [-14, 0, 14].forEach(off => {
+      ctx.beginPath(); ctx.moveTo(off - 4, -14); ctx.lineTo(off, -26); ctx.lineTo(off + 4, -14); ctx.closePath(); ctx.fill();
+    });
+
+    // Head
+    ctx.fillStyle = '#4A148C';
+    ctx.beginPath(); ctx.ellipse(18, -8, 14, 12, 0, 0, Math.PI*2); ctx.fill();
+    // Glowing Eyes
+    ctx.fillStyle = '#FF1744'; ctx.fillRect(20, -12, 5, 4);
+    ctx.fillStyle = '#FFF'; ctx.fillRect(22, -11, 2, 2);
+    // Horns
+    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(14, -16); ctx.lineTo(24, -28); ctx.lineTo(20, -14); ctx.closePath(); ctx.fill();
+
+    // Legs
+    const walk = Math.sin(this.frame * 0.2) * 5;
+    ctx.fillStyle = '#31124D';
+    ctx.fillRect(-16 + walk, 18, 10, 12); ctx.fillRect(6 - walk, 18, 10, 12);
+
+    ctx.restore();
+
+    // Draw fireballs
+    for(const fb of this.fireballs){
+      const fs = cam.toScreen(fb.x, fb.y);
+      ctx.save(); ctx.translate(fs.x, fs.y);
+      ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// TOMMY SUPER-CARGADO (Sonic Stun Bark & Bounce Trampoline)
+// ════════════════════════════════════════════════════════════
+class TommyAI {
+  constructor(startX, startY){
+    this.x = startX; this.y = startY;
+    this.vx = 0; this.vy = 0;
+    this.w = 18; this.h = 18;
+    this.onGround = false; this.facingRight = true;
+    this.mode = 'follow';
+    this.targetItem = null; this.barkTimer = 0; this.frame = 0;
+    this.jumpCooldown = 0; this.rescueCooldown = 0;
+    this.sonicWaves = [];
+  }
+  update(player, starDustItems, enemies, allPlatforms, globalGravity, game){
+    this.frame++;
+    if(this.barkTimer > 0) this.barkTimer--;
+    if(this.jumpCooldown > 0) this.jumpCooldown--;
+    if(this.rescueCooldown > 0) this.rescueCooldown--;
+
+    // Gravity
+    if(globalGravity === 1) this.vy = Math.min(this.vy + GRAVITY * 0.85, MAX_FALL);
+    else                    this.vy = Math.max(this.vy - GRAVITY * 0.68, -MAX_FALL);
+
+    // 1. Sonic Stun Bark when enemy is nearby
+    const danger = enemies.find(e => !e.dead && Math.hypot(e.x - player.x, e.y - player.y) < 110);
+    if(danger && this.barkTimer <= 0){
+      this.mode = 'warn'; this.barkTimer = 90; audio.bark();
+      game.addFloatingText('¡LADRIDO SÓNICO! 🔊🐶', this.x, this.y - 18, '#00E5FF');
+      this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 4, maxR: 70 });
+      // Stun all nearby enemies!
+      enemies.forEach(en => {
+        if(!en.dead && Math.hypot(en.x - this.x, en.y - this.y) < 120){
+          en.stunTimer = 90; // Stun for 1.5 seconds!
+          game.addFloatingText('¡ATURDIDO! 💫', en.x, en.y - 12, '#FFD700');
+        }
+      });
+    }
+
+    // 2. Canine Bounce Trampoline: Player can bounce off Tommy for super high jump!
+    if(player.x + player.w > this.x - 2 && player.x < this.x + this.w + 2 && player.y + player.h >= this.y - 4 && player.y + player.h <= this.y + 10 && player.vy > 0){
+      player.vy = globalGravity === 1 ? -10.5 : 10.5;
+      player.squashX = 0.7; player.squashY = 1.4;
+      audio.jump(); audio.bark();
+      game.addFloatingText('¡SUPER SALTO CANINO! 🚀', this.x, this.y - 20, '#FFD700');
+      game.addParticles(this.x + this.w/2, this.y, 14, ['#FFD700','#00E5FF','#FFF'], 3.5);
+    }
+
+    // 3. Failsafe Rescue Jump
+    if(player.y > VIRT_H - 18 && this.rescueCooldown <= 0 && Math.abs(player.x - this.x) < 120){
+      this.mode = 'rescue'; this.rescueCooldown = 320;
+      this.x = player.x; this.y = VIRT_H - 10; this.vy = -12;
+      player.y = VIRT_H - 40; player.vy = -11;
+      audio.bark(); audio.jump();
+      game.addFloatingText('¡RESCATE HEROICO! 🐶✨', player.x, player.y - 20, '#00E5FF');
+      game.addParticles(player.x, player.y, 18, ['#FFD700','#00E5FF','#FFF'], 4);
+    }
+
+    // 4. Star Collection Seek
+    let nearStar = null, nearDist = 180;
+    for(const sd of starDustItems){
+      if(sd.collected) continue;
+      const d = Math.hypot(sd.x - this.x, sd.y - this.y);
+      if(d < nearDist){ nearDist = d; nearStar = sd; }
+    }
+    if(this.mode !== 'warn' && this.mode !== 'rescue'){
+      if(nearStar && Math.hypot(player.x - this.x, player.y - this.y) < 300){
+        this.mode = 'collect'; this.targetItem = nearStar;
+      } else {
+        this.mode = 'follow'; this.targetItem = null;
+      }
+    }
+
+    // Target Movement
+    let targetX = player.x + (player.facingRight ? -26 : player.w + 8);
+    if(this.mode === 'collect' && this.targetItem) targetX = this.targetItem.x;
+    const dx = targetX - this.x;
+    if(Math.abs(dx) > 8){
+      this.vx += (Math.sign(dx) * 0.52);
+      this.vx = Math.max(-4.4, Math.min(4.4, this.vx));
+      this.facingRight = dx > 0;
+    } else { this.vx *= 0.72; }
+
+    if(this.onGround && this.jumpCooldown <= 0 && (player.y < this.y - 20 || (this.targetItem && this.targetItem.y < this.y - 20))){
+      this.vy = globalGravity === 1 ? -9.0 : 9.0; this.jumpCooldown = 35;
     }
 
     // Physics
-    this.x+=this.vx;
+    this.x += this.vx;
     for(const p of allPlatforms){
-      if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y){
-        if(this.vx>0)this.x=p.x-this.w; else this.x=p.x+p.w; this.vx=0;
+      if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
+        if(this.vx > 0) this.x = p.x - this.w; else this.x = p.x + p.w; this.vx = 0;
       }
     }
-    this.y+=this.vy; this.onGround=false;
+    this.y += this.vy; this.onGround = false;
     for(const p of allPlatforms){
-      if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y){
-        if(globalGravity===1&&this.vy>=0){this.y=p.y-this.h;this.vy=0;this.onGround=true;}
-        else if(globalGravity===-1&&this.vy<=0){this.y=p.y+p.h;this.vy=0;this.onGround=true;}
+      if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
+        if(globalGravity === 1 && this.vy >= 0){ this.y = p.y - this.h; this.vy = 0; this.onGround = true; }
+        else if(globalGravity === -1 && this.vy <= 0){ this.y = p.y + p.h; this.vy = 0; this.onGround = true; }
       }
     }
 
-    // Collect star item on contact
-    if(this.targetItem&&!this.targetItem.collected){
-      if(Math.hypot(this.targetItem.x-this.x,this.targetItem.y-this.y)<22){
-        this.targetItem.collected=true; game.starDust+=1; audio.starCollect();
-        game.addFloatingText('+1 (Tommy)',this.x+this.w/2,this.y-14,'#FFD700');
-        game.addParticles(this.x+this.w/2,this.y,8,['#FFD700','#FFF'],2.5);
-        this.targetItem=null; this.mode='follow';
+    if(this.targetItem && !this.targetItem.collected){
+      if(Math.hypot(this.targetItem.x - this.x, this.targetItem.y - this.y) < 22){
+        this.targetItem.collected = true; game.starDust += 1; audio.starCollect();
+        game.addFloatingText('+1 (Tommy)', this.x + this.w/2, this.y - 14, '#FFD700');
+        this.targetItem = null; this.mode = 'follow';
       }
     }
 
-    if(this.y>VIRT_H+40){this.y=player.y;this.x=player.x+20;this.vy=0;}
+    if(this.y > VIRT_H + 40){ this.y = player.y; this.x = player.x + 20; this.vy = 0; }
+
+    // Sonic wave expand
+    for(let i = this.sonicWaves.length - 1; i >= 0; i--){
+      const sw = this.sonicWaves[i];
+      sw.r += 3.5;
+      if(sw.r >= sw.maxR) this.sonicWaves.splice(i, 1);
+    }
   }
 
-  draw(ctx,cam,now){
-    const s=cam.toScreen(this.x,this.y);
-    if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
-    ctx.save();
-    ctx.translate(s.x+this.w/2,s.y+this.h/2);
-    if(!this.facingRight)ctx.scale(-1,1);
-    
-    if(tommyImg&&tommyImg.complete&&tommyImg.naturalWidth>0){
-      const dw=this.w*1.8, dh=this.h*1.5;
-      ctx.drawImage(tommyImg,-dw/2,-dh/2,dw,dh);
-    } else {
-      // Procedural Tommy fallback
-      ctx.fillStyle='#FFFFFF'; ctx.fillRect(-7,-3,14,9);
-      ctx.fillStyle='#8D6E63'; ctx.fillRect(-7,-3,6,5);
-      ctx.fillStyle='#FFFFFF'; ctx.fillRect(3,-8,9,8);
-      ctx.fillStyle='#1A1A1A'; ctx.fillRect(9,-6,2,2); // Eye
-      ctx.fillStyle='#1A1A1A'; ctx.fillRect(0,-4,2,3); // Bowtie
-    }
+  draw(ctx, cam, now){
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x, this.y, this.w, this.h)) return;
 
-    if(this.mode==='warn'){
-      ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.5;
-      const pr=14+Math.sin(this.frame*0.4)*3;
-      ctx.globalAlpha=0.7+Math.sin(this.frame*0.4)*0.3;
-      ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);ctx.stroke();
+    ctx.save();
+    ctx.translate(s.x + this.w/2, s.y + this.h/2);
+    if(!this.facingRight) ctx.scale(-1, 1);
+    
+    if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
+      const dw = this.w * 1.8, dh = this.h * 1.5;
+      ctx.drawImage(tommyImg, -dw/2, -dh/2, dw, dh);
+    } else {
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-8, -4, 16, 10);
+      ctx.fillStyle = '#8D6E63'; ctx.fillRect(-8, -4, 7, 6);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(4, -9, 10, 9);
+      ctx.fillStyle = '#1A1A1A'; ctx.fillRect(10, -7, 2, 2);
+      ctx.fillStyle = '#1A1A1A'; ctx.fillRect(1, -5, 2, 3);
     }
     ctx.restore();
+
+    // Draw sonic waves
+    for(const sw of this.sonicWaves){
+      const ws = cam.toScreen(sw.x, sw.y);
+      ctx.save();
+      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2;
+      ctx.globalAlpha = Math.max(0, 1 - sw.r / sw.maxR);
+      ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -677,7 +912,7 @@ class FlagPole {
 }
 
 // ════════════════════════════════════════════════════════════
-// MAIN GAME ENGINE (3-Level World Map System)
+// MAIN GAME ENGINE
 // ════════════════════════════════════════════════════════════
 class PlatformerGame {
   constructor(){
@@ -687,9 +922,9 @@ class PlatformerGame {
     this.ctx.imageSmoothingEnabled=false;
     
     this.selectedCharId='papa';
-    this.currentLevelIdx=0; // 0 = 1-1, 1 = 1-2, 2 = 1-3
+    this.currentLevelIdx=0;
     this.unlockedLevels=[true, false, false];
-    this.state='MENU'; // 'MENU', 'WORLD_MAP', 'PLAYING', 'LEVEL_COMPLETE'
+    this.state='MENU';
 
     this.globalGravity=1; this.flashTimer=0;
     this.starDust=0; this.score=0;
@@ -701,17 +936,20 @@ class PlatformerGame {
       x:80,y:210,w:20,h:30,vx:0,vy:0,onGround:false,facingRight:true,
       lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity,jumpHeld:false,
       isRiding:false,isGroundPounding:false,hasDoubleJumped:false,isGliding:false,
-      invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0
+      invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
+      inZeroG: false
     };
 
     this.camera=new Camera();
     this.touchCtrl=new TouchController(this);
     this.dda=new DDA();
     this.tommyAI=new TommyAI(50,210);
+    this.galaxyBoss=null;
 
     this.staticPlatforms=[]; this.spawnedPlatforms=[]; this.enemies=[];
     this.questionBlocks=[]; this.destructibleBlocks=[]; this.starDustItems=[];
     this.hazardBlocks=[]; this.gSwitches=[]; this.unicorns=[]; this.flagPole=null;
+    this.zeroGBubbles=[];
     this.projectiles=[]; this.particles=[]; this.scatterDust=[]; this.floatingTexts=[];
 
     this.input={left:false,right:false,up:false,down:false,jump:false,action:false};
@@ -799,7 +1037,6 @@ class PlatformerGame {
       const cx=(clientX-rect.left)*(VIRT_W/rect.width);
       const cy=(clientY-rect.top)*(VIRT_H/rect.height);
 
-      // Map Nodes coords: 1-1 (120, 140), 1-2 (256, 140), 1-3 (390, 140)
       const nodes=[{x:120,y:140},{x:256,y:140},{x:390,y:140}];
       nodes.forEach((n,idx)=>{
         const dist=Math.hypot(cx-n.x,cy-n.y);
@@ -831,6 +1068,7 @@ class PlatformerGame {
       onGround:true,isRiding:false,isGroundPounding:false,
       hasDoubleJumped:false,isGliding:false,invincibleTimer:0,
       facingRight:true,jumpHeld:false,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
+      inZeroG: false,
       lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity
     });
 
@@ -856,6 +1094,7 @@ class PlatformerGame {
       ];
       this.hazardBlocks=[{x:480,y:236,w:32,h:20},{x:1000,y:188,w:26,h:16},{x:1540,y:148,w:26,h:16},{x:2350,y:172,w:26,h:16}];
       this.gSwitches=[{x:320,y:242,w:24,h:14,pressed:0,cooldown:0},{x:1140,y:158,w:24,h:14,pressed:0,cooldown:0}];
+      this.zeroGBubbles=[{x:1250, y:120, r:36}];
       this.questionBlocks=[
         new QuestionBlock(180,160,'stardust'), new QuestionBlock(620,140,'mushroom'),
         new QuestionBlock(1150,124,'trampoline'), new QuestionBlock(1700,88,'stardust'), new QuestionBlock(2470,108,'mushroom')
@@ -871,16 +1110,17 @@ class PlatformerGame {
         {x:780,y:142,collected:false},{x:1370,y:182,collected:false},{x:1870,y:162,collected:false},{x:2470,y:138,collected:false}
       ];
       this.flagPole=new FlagPole(2660,lw);
+      this.galaxyBoss = null;
 
     } else if(cfg.id===2){
-      // 🔮 LEVEL 1-2: Caverna Anti-Gravedad (3200px)
+      // 🔮 LEVEL 1-2: Caverna Anti-Gravedad (Inverted Geometry, Stalactites & Zero-G Bubbles)
       this.staticPlatforms=[
         P(0,0,lw,16,'#4A148C','#AB47BC'), P(0,0,12,VIRT_H), P(lw-12,0,12,VIRT_H),
         P(0,256,900,32,'#2A085C','#7B1FA2'), P(1000,256,1200,32,'#2A085C','#7B1FA2'), P(2300,256,900,32,'#2A085C','#7B1FA2'),
-        // Ceiling floors for inverted running
-        P(200,44,120,12,'#4A148C','#AB47BC'), P(450,60,140,12,'#4A148C','#AB47BC'), P(750,40,130,12,'#4A148C','#AB47BC'),
-        P(1100,50,150,12,'#4A148C','#AB47BC'), P(1400,35,160,12,'#4A148C','#AB47BC'), P(1800,55,140,12,'#4A148C','#AB47BC'),
-        // Mid platforms
+        // Bóvedas de techo para correr invertido
+        P(200,44,140,14,'#4A148C','#CE93D8'), P(450,60,160,14,'#4A148C','#CE93D8'), P(750,40,150,14,'#4A148C','#CE93D8'),
+        P(1100,50,180,14,'#4A148C','#CE93D8'), P(1400,35,180,14,'#4A148C','#CE93D8'), P(1800,55,160,14,'#4A148C','#CE93D8'),
+        // Estalactitas y plataformas en zigzag
         P(150,190,80,12), P(350,160,90,12), P(600,180,100,12), P(850,140,80,12),
         P(1200,180,110,12), P(1500,150,100,12), P(1750,190,90,12), P(2000,160,100,12), P(2400,180,110,12)
       ];
@@ -888,6 +1128,10 @@ class PlatformerGame {
       this.gSwitches=[
         {x:220,y:242,w:24,h:14,pressed:0,cooldown:0},{x:620,y:166,w:24,h:14,pressed:0,cooldown:0},
         {x:1220,y:166,w:24,h:14,pressed:0,cooldown:0},{x:1820,y:176,w:24,h:14,pressed:0,cooldown:0}
+      ];
+      // 🌟 3 Cosmic Zero-G Bubbles in Level 1-2!
+      this.zeroGBubbles=[
+        {x:550, y:100, r:40}, {x:1320, y:110, r:44}, {x:2180, y:95, r:40}
       ];
       this.questionBlocks=[
         new QuestionBlock(220,150,'stardust'), new QuestionBlock(640,130,'trampoline'),
@@ -904,21 +1148,30 @@ class PlatformerGame {
         {x:1140,y:32,collected:false},{x:1450,y:18,collected:false},{x:1830,y:37,collected:false}
       ];
       this.flagPole=new FlagPole(3060,lw);
+      this.galaxyBoss = null;
 
     } else {
-      // 🏰 LEVEL 1-3: Castillo de Cristal (3500px)
+      // 🏰 LEVEL 1-3: Castillo & Boss Arena "Giga Koopa Cósmico" (3600px)
       this.staticPlatforms=[
         P(0,0,lw,16,'#1A237E','#3F51B5'), P(0,0,12,VIRT_H), P(lw-12,0,12,VIRT_H),
-        P(0,256,1000,32,'#0D47A1','#1E88E5'), P(1100,256,1200,32,'#0D47A1','#1E88E5'), P(2400,256,1100,32,'#0D47A1','#1E88E5'),
+        P(0,256,1000,32,'#0D47A1','#1E88E5'), P(1100,256,1200,32,'#0D47A1','#1E88E5'), P(2400,256,1200,32,'#0D47A1','#1E88E5'),
         P(140,200,90,12), P(300,160,90,12), P(480,125,100,12), P(680,165,110,12), P(880,205,100,12),
         P(1150,175,100,12), P(1350,135,110,12), P(1580,175,100,12), P(1800,135,110,12), P(2020,185,100,12),
-        P(2250,145,110,12), P(2480,185,100,12), P(2700,145,110,12), P(2920,185,120,12), P(3150,210,120,12)
+        P(2250,145,110,12), P(2480,185,100,12), P(2700,145,110,12),
+        // Boss Arena (2900 - 3500)
+        P(2900,256,650,32,'#1A0033','#E040FB'), // Arena floor
+        P(2900,16,650,16,'#1A0033','#E040FB'),  // Arena ceiling floor
+        P(3020,190,90,12,'#4A148C','#E040FB'), P(3320,190,90,12,'#4A148C','#E040FB'),
+        P(3170,70,100,12,'#4A148C','#E040FB')  // Top perch for inverted ground pound on boss
       ];
       this.hazardBlocks=[{x:320,y:140,w:26,h:16},{x:1370,y:115,w:26,h:16},{x:1820,y:115,w:26,h:16},{x:2720,y:125,w:26,h:16}];
       this.gSwitches=[
         {x:500,y:109,w:24,h:14,pressed:0,cooldown:0},{x:1370,y:119,w:24,h:14,pressed:0,cooldown:0},
-        {x:2270,y:129,w:24,h:14,pressed:0,cooldown:0}
+        {x:2270,y:129,w:24,h:14,pressed:0,cooldown:0},
+        {x:2940,y:242,w:24,h:14,pressed:0,cooldown:0}, // Boss Arena Switches
+        {x:3480,y:242,w:24,h:14,pressed:0,cooldown:0}
       ];
+      this.zeroGBubbles=[{x:1700, y:100, r:45}];
       this.questionBlocks=[
         new QuestionBlock(320,120,'stardust'), new QuestionBlock(700,125,'mushroom'),
         new QuestionBlock(1600,135,'trampoline'), new QuestionBlock(2500,145,'mushroom')
@@ -927,15 +1180,15 @@ class PlatformerGame {
       this.enemies=[
         new Enemy('koopa',320,140,300,420), new Enemy('bat',720,80,600,850),
         new Enemy('koopa',1380,115,1300,1480), new Enemy('bat',1820,70,1700,1950),
-        new Enemy('koopa',2270,125,2200,2380), new Enemy('bat',2750,80,2650,2850)
+        new Enemy('koopa',2270,125,2200,2380)
       ];
       this.unicorns=[{x:1810,y:95,w:26,h:22,collected:false}];
       this.starDustItems=[
         {x:160,y:170,collected:false},{x:500,y:95,collected:false},{x:900,y:175,collected:false},
-        {x:1370,y:105,collected:false},{x:1820,y:105,collected:false},{x:2270,y:115,collected:false},
-        {x:2720,y:115,collected:false},{x:3180,y:180,collected:false}
+        {x:1370,y:105,collected:false},{x:1820,y:105,collected:false},{x:2270,y:115,collected:false}
       ];
-      this.flagPole=new FlagPole(3320,lw);
+      this.galaxyBoss = new GalaxyBoss(3220, 200);
+      this.flagPole = new FlagPole(3540, lw);
     }
 
     this.spawnedPlatforms=[]; this.projectiles=[]; this.particles=[];
@@ -951,7 +1204,7 @@ class PlatformerGame {
 
   triggerGravityShift(){
     this.globalGravity*=-1; this.flashTimer=7; audio.gravityShift();
-    this.addFloatingText(this.globalGravity===-1?'ANTI-GRAVEDAD -1G!':'GRAVEDAD NORMAL 1G',
+    this.addFloatingText(this.globalGravity===-1?'ANTI-GRAVEDAD FLOTANTE -1G!':'GRAVEDAD NORMAL 1G',
       this.player.x+this.player.w/2,this.player.y-20,this.globalGravity===-1?'#E040FB':'#00E5FF');
     this.addParticles(this.player.x+this.player.w/2,this.player.y+this.player.h/2,28,['#00E5FF','#E040FB','#FFD700','#FFF','#76FF03'],4.5);
     this.camera.shake(8);
@@ -983,6 +1236,7 @@ class PlatformerGame {
       this.camera.update(this.player,LEVEL_CONFIGS[this.currentLevelIdx].width);
       this.updateEntities(now);
       this.updateEnemies();
+      if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
       this.tommyAI.update(this.player,this.starDustItems,this.enemies,this.getAllSolidPlatforms(),this.globalGravity,this);
       this.dda.evaluate(this.frameCount);
       if(this.dda.magnetRadius>0){
@@ -998,6 +1252,7 @@ class PlatformerGame {
     this.prevAction=this.input.action;
   }
 
+  // ── Player Movement & Anti-Gravity 2.0 ─────────────────────
   updatePlayer(now){
     const char=CHARACTERS[this.selectedCharId];
     const p=this.player; p.frame++;
@@ -1010,62 +1265,100 @@ class PlatformerGame {
     const actionEdge=(this.input.action&&!this.prevAction);
     if(jumpEdge)p.lastJumpPressAt=now;
 
-    const speedMult=(p.superSpeedTimer>0?1.7:1)*(p.isRiding?1.25:1);
-    let baseSpd=char.baseSpeed*speedMult;
-    let sprintSpd=char.sprintSpeed*speedMult;
-    const topSpd=this.input.action&&!char.canShootBouncingShell&&!char.canSpawnPlatform&&!p.isRiding?sprintSpd:baseSpd;
-    if(this.input.left){p.vx=Math.max(p.vx-ACCEL,-topSpd);p.facingRight=false;}
-    else if(this.input.right){p.vx=Math.min(p.vx+ACCEL,topSpd);p.facingRight=true;}
-    else{if(p.vx>0)p.vx=Math.max(0,p.vx-DECEL);else if(p.vx<0)p.vx=Math.min(0,p.vx+DECEL);}
+    // Check Zero-G Bubbles
+    p.inZeroG = false;
+    for(const zb of this.zeroGBubbles){
+      if(Math.hypot(p.x + p.w/2 - zb.x, p.y + p.h/2 - zb.y) < zb.r){
+        p.inZeroG = true;
+        if(p.frame % 12 === 0){
+          this.addParticles(p.x + p.w/2, p.y + p.h/2, 2, ['#E040FB','#00E5FF','#FFF'], 1.2);
+        }
+        break;
+      }
+    }
 
-    if(this.globalGravity===1){
-      p.isGliding=false;
-      if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy>0&&!p.isRiding){
-        p.isGliding=true; p.vy=Math.min(p.vy,1.2);
-        if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y+p.h,2,['#FFD700','#FFF','#85F8CE'],1.5);}
-      } else if(!p.isGroundPounding){ p.vy=Math.min(p.vy+GRAVITY*char.weight,MAX_FALL); }
-      if(char.id==='papa'&&this.input.down&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
-        p.isGroundPounding=true; p.vy=13; p.vx=0;
-        audio.groundPoundStart(); this.camera.shake(3);
-        this.addFloatingText('GROUND POUND!',p.x+p.w/2,p.y-12,'#FF5252');
+    if(p.inZeroG){
+      // 🌟 Zero-G Swimming Physics
+      p.vy *= 0.88;
+      p.vx *= 0.88;
+      if(this.input.up) p.vy -= 0.6;
+      if(this.input.down) p.vy += 0.6;
+      if(this.input.left) { p.vx -= 0.6; p.facingRight = false; }
+      if(this.input.right) { p.vx += 0.6; p.facingRight = true; }
+      if(jumpEdge){
+        p.vy = this.input.up ? -6 : (this.input.down ? 6 : -3.5);
+        p.vx = p.facingRight ? 5.5 : -5.5;
+        audio.zeroGBubble();
+        this.addParticles(p.x + p.w/2, p.y + p.h/2, 10, ['#00E5FF','#E040FB','#FFF'], 2.5);
       }
     } else {
-      p.isGliding=false;
-      if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy<0&&!p.isRiding){
-        p.isGliding=true; p.vy=Math.max(p.vy,-1.2);
-        if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y,2,['#FFD700','#FFF','#E040FB'],1.5);}
-      } else if(!p.isGroundPounding){ p.vy=Math.max(p.vy-GRAVITY*char.weight,-MAX_FALL); }
-      if(char.id==='papa'&&(this.input.down||this.input.up)&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
-        p.isGroundPounding=true; p.vy=-13; p.vx=0;
-        audio.groundPoundStart(); this.camera.shake(3);
-        this.addFloatingText('CEILING POUND!',p.x+p.w/2,p.y+p.h+12,'#FF5252');
+      // Normal / Anti-Gravity 2.0 Physics
+      const speedMult=(p.superSpeedTimer>0?1.7:1)*(p.isRiding?1.25:1);
+      let baseSpd=char.baseSpeed*speedMult;
+      let sprintSpd=char.sprintSpeed*speedMult;
+      const topSpd=this.input.action&&!char.canShootBouncingShell&&!char.canSpawnPlatform&&!p.isRiding?sprintSpd:baseSpd;
+      
+      if(this.input.left){ p.vx=Math.max(p.vx-ACCEL,-topSpd); p.facingRight=false; }
+      else if(this.input.right){ p.vx=Math.min(p.vx+ACCEL,topSpd); p.facingRight=true; }
+      else {
+        if(p.vx>0) p.vx=Math.max(0,p.vx-DECEL);
+        else if(p.vx<0) p.vx=Math.min(0,p.vx+DECEL);
       }
-    }
 
-    if(p.onGround){ p.lastGroundedAt=now; p.hasDoubleJumped=false; }
+      // Anti-Gravity 2.0 Lunar Float Physics
+      if(this.globalGravity===1){
+        p.isGliding=false;
+        if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy>0&&!p.isRiding){
+          p.isGliding=true; p.vy=Math.min(p.vy,1.2);
+          if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y+p.h,2,['#FFD700','#FFF','#85F8CE'],1.5);}
+        } else if(!p.isGroundPounding){ p.vy=Math.min(p.vy+GRAVITY*char.weight,MAX_FALL); }
+        if(char.id==='papa'&&this.input.down&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
+          p.isGroundPounding=true; p.vy=13; p.vx=0;
+          audio.groundPoundStart(); this.camera.shake(3);
+          this.addFloatingText('GROUND POUND!',p.x+p.w/2,p.y-12,'#FF5252');
+        }
+      } else {
+        // -1G: Smooth Lunar Float
+        p.isGliding=false;
+        if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy<0&&!p.isRiding){
+          p.isGliding=true; p.vy=Math.max(p.vy,-1.2);
+          if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y,2,['#FFD700','#FFF','#E040FB'],1.5);}
+        } else if(!p.isGroundPounding){
+          // Floatier upward gravity (68% magnitude)
+          p.vy=Math.max(p.vy - GRAVITY * 0.68 * char.weight, -MAX_FALL);
+        }
+        if(char.id==='papa'&&(this.input.down||this.input.up)&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
+          p.isGroundPounding=true; p.vy=-13; p.vx=0;
+          audio.groundPoundStart(); this.camera.shake(3);
+          this.addFloatingText('CEILING POUND!',p.x+p.w/2,p.y+p.h+12,'#FF5252');
+        }
+      }
 
-    const coyoteOk=(now-p.lastGroundedAt)<=COYOTE_MS;
-    const bufferOk=(now-p.lastJumpPressAt)<=BUFFER_MS;
-    if((jumpEdge&&coyoteOk)||(bufferOk&&p.onGround)){
-      p.vy=this.globalGravity===1?char.jumpForce:-char.jumpForce;
-      p.onGround=false; p.jumpHeld=true; p.isGroundPounding=false;
-      p.lastGroundedAt=-Infinity; p.lastJumpPressAt=-Infinity;
-      p.squashX=0.82; p.squashY=1.2; audio.jump();
-      this.addParticles(p.x+p.w/2,this.globalGravity===1?p.y+p.h:p.y,7,['#FFF','#E0E0E0']);
-    } else if(jumpEdge&&p.isRiding&&!p.onGround){
-      p.vy=this.globalGravity===1?-6.2:6.2; p.jumpHeld=true; audio.flutter();
-      this.addFloatingText('FLUTTER!',p.x+p.w/2,p.y-12,'#E040FB');
-      this.addParticles(p.x+p.w/2,p.y+p.h/2,7,['#E040FB','#00E5FF','#FFD700'],2.5);
-    } else if(jumpEdge&&char.id==='valentina'&&!p.onGround&&!p.hasDoubleJumped&&!p.isRiding){
-      p.vy=this.globalGravity===1?char.jumpForce*0.92:-char.jumpForce*0.92;
-      p.hasDoubleJumped=true; p.jumpHeld=true; audio.doubleJump();
-      this.addFloatingText('DOUBLE JUMP!',p.x+p.w/2,p.y-12,'#FF4081');
-      this.addParticles(p.x+p.w/2,p.y+p.h/2,10,['#FF4081','#FF80AB','#FFF'],3);
-    }
-    if(p.jumpHeld&&!this.input.jump){
-      if(this.globalGravity===1&&p.vy<0)p.vy*=JUMP_CUT_MULT;
-      else if(this.globalGravity===-1&&p.vy>0)p.vy*=JUMP_CUT_MULT;
-      p.jumpHeld=false;
+      if(p.onGround){ p.lastGroundedAt=now; p.hasDoubleJumped=false; }
+
+      const coyoteOk=(now-p.lastGroundedAt)<=COYOTE_MS;
+      const bufferOk=(now-p.lastJumpPressAt)<=BUFFER_MS;
+      if((jumpEdge&&coyoteOk)||(bufferOk&&p.onGround)){
+        p.vy=this.globalGravity===1?char.jumpForce:-char.jumpForce*0.88;
+        p.onGround=false; p.jumpHeld=true; p.isGroundPounding=false;
+        p.lastGroundedAt=-Infinity; p.lastJumpPressAt=-Infinity;
+        p.squashX=0.82; p.squashY=1.2; audio.jump();
+        this.addParticles(p.x+p.w/2,this.globalGravity===1?p.y+p.h:p.y,7,['#FFF','#E0E0E0']);
+      } else if(jumpEdge&&p.isRiding&&!p.onGround){
+        p.vy=this.globalGravity===1?-6.2:6.2; p.jumpHeld=true; audio.flutter();
+        this.addFloatingText('FLUTTER!',p.x+p.w/2,p.y-12,'#E040FB');
+        this.addParticles(p.x+p.w/2,p.y+p.h/2,7,['#E040FB','#00E5FF','#FFD700'],2.5);
+      } else if(jumpEdge&&char.id==='valentina'&&!p.onGround&&!p.hasDoubleJumped&&!p.isRiding){
+        p.vy=this.globalGravity===1?char.jumpForce*0.92:-char.jumpForce*0.82;
+        p.hasDoubleJumped=true; p.jumpHeld=true; audio.doubleJump();
+        this.addFloatingText('DOUBLE JUMP!',p.x+p.w/2,p.y-12,'#FF4081');
+        this.addParticles(p.x+p.w/2,p.y+p.h/2,10,['#FF4081','#FF80AB','#FFF'],3);
+      }
+      if(p.jumpHeld&&!this.input.jump){
+        if(this.globalGravity===1&&p.vy<0)p.vy*=JUMP_CUT_MULT;
+        else if(this.globalGravity===-1&&p.vy>0)p.vy*=JUMP_CUT_MULT;
+        p.jumpHeld=false;
+      }
     }
 
     if(actionEdge){
@@ -1194,7 +1487,7 @@ class PlatformerGame {
       if(!en.dead||en.deadTimer>0) en.update(p,allPlats,this.globalGravity,this);
       if(!en.dead&&p.invincibleTimer<=0&&p.x<en.x+en.w&&p.x+p.w>en.x&&p.y<en.y+en.h&&p.y+p.h>en.y){
         const stompCondition=(this.globalGravity===1&&p.vy>0&&p.y+p.h<en.y+en.h*0.55)||(this.globalGravity===-1&&p.vy<0&&p.y>en.y+en.h*0.45);
-        if(stompCondition){
+        if(stompCondition || en.stunTimer > 0){
           en.die(this); p.vy=this.globalGravity===1?-6:6; p.squashX=0.75;p.squashY=1.3;
         } else {
           const kd=(p.x+p.w/2)<(en.x+en.w/2)?-1:1;
@@ -1221,7 +1514,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════
-  // RENDERING (World Map + Playing + Complete)
+  // RENDERING (World Map + Playing + Boss + Zero-G)
   // ════════════════════════════════════════════════════════
   render(now){
     const ctx=this.ctx;
@@ -1242,13 +1535,11 @@ class PlatformerGame {
     }
   }
 
-  // 🗺️ World Map Renderer
   renderWorldMap(ctx,now){
     const bg=ctx.createLinearGradient(0,0,0,VIRT_H);
     bg.addColorStop(0,'#0d1b2a'); bg.addColorStop(1,'#1b263b');
     ctx.fillStyle=bg; ctx.fillRect(0,0,VIRT_W,VIRT_H);
 
-    // Grid details
     ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
     for(let x=0;x<VIRT_W;x+=32){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,VIRT_H);ctx.stroke(); }
     for(let y=0;y<VIRT_H;y+=32){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(VIRT_W,y);ctx.stroke(); }
@@ -1260,7 +1551,7 @@ class PlatformerGame {
     ctx.fillStyle='#85f8ce'; ctx.font='7px "Press Start 2P",monospace';
     ctx.fillText('Selecciona un nivel desbloqueado para jugar',VIRT_W/2,56);
 
-    // Map Path
+    // Path
     ctx.strokeStyle='#FFD700'; ctx.lineWidth=4; ctx.setLineDash([8,6]);
     ctx.beginPath(); ctx.moveTo(120,140); ctx.lineTo(256,140); ctx.lineTo(390,140); ctx.stroke();
     ctx.setLineDash([]);
@@ -1289,7 +1580,6 @@ class PlatformerGame {
       ctx.restore();
     });
 
-    // Draw selected player icon on map
     const curNode=nodes[this.currentLevelIdx];
     const img=loadedImages[this.selectedCharId];
     ctx.save(); ctx.translate(curNode.x,curNode.y-34+Math.sin(now*0.006)*4);
@@ -1300,7 +1590,6 @@ class PlatformerGame {
     }
     ctx.restore();
 
-    // Bottom prompt
     const pulse=Math.sin(now*0.006)*0.2+0.8;
     ctx.globalAlpha=pulse; ctx.fillStyle='#FFD700'; ctx.font='8px "Press Start 2P",monospace';
     ctx.fillText('¡TOCA UN NIVEL PARA JUGAR!',VIRT_W/2,240);
@@ -1317,6 +1606,16 @@ class PlatformerGame {
     }
     ctx.fillStyle=sky; ctx.fillRect(0,0,VIRT_W,VIRT_H);
 
+    // 🌟 Anti-Gravity 2.0: Ascending Cosmic Dust Particles in -1G
+    if(this.globalGravity === -1){
+      ctx.fillStyle = 'rgba(224, 64, 251, 0.4)';
+      for(let i=0; i<30; i++){
+        const px = (i * 73 + now * 0.02) % VIRT_W;
+        const py = VIRT_H - ((i * 47 + now * 0.08) % VIRT_H);
+        ctx.fillRect(px, py, (i%3)+1, (i%3)+1);
+      }
+    }
+
     // Parallax hills
     const cx=this.camera.x;
     ctx.fillStyle=this.globalGravity===-1?'#4a148c':(cfg.id===2?'#4A148C':(cfg.id===3?'#1A237E':'#66BB6A'));
@@ -1325,6 +1624,20 @@ class PlatformerGame {
 
   renderLevel(ctx,now){
     const cam=this.camera;
+    // Zero-G Cosmic Bubbles
+    for(const zb of this.zeroGBubbles){
+      if(!cam.isVisible(zb.x - zb.r, zb.y - zb.r, zb.r*2, zb.r*2)) continue;
+      const s = cam.toScreen(zb.x, zb.y);
+      ctx.save();
+      const pulse = Math.sin(now * 0.005) * 3;
+      ctx.fillStyle = 'rgba(224, 64, 251, 0.22)';
+      ctx.beginPath(); ctx.arc(s.x, s.y, zb.r + pulse, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#E040FB'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#00E5FF'; ctx.font = '6px "Press Start 2P", monospace';
+      ctx.textAlign = 'center'; ctx.fillText('ZERO-G', s.x, s.y);
+      ctx.restore();
+    }
+
     for(const pl of this.staticPlatforms){
       if(!cam.isVisible(pl.x,pl.y,pl.w,pl.h))continue;
       const s=cam.toScreen(pl.x,pl.y);
@@ -1378,6 +1691,7 @@ class PlatformerGame {
     const cam=this.camera;
     for(const en of this.enemies) en.draw(ctx,cam,now);
     if(this.tommyAI) this.tommyAI.draw(ctx,cam,now);
+    if(this.galaxyBoss) this.galaxyBoss.draw(ctx,cam,now);
   }
 
   renderParticles(ctx){
@@ -1433,17 +1747,28 @@ class PlatformerGame {
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
     ctx.save(); ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.font='7px "Press Start 2P",monospace';
     
-    ctx.fillStyle='rgba(14,10,24,0.82)'; ctx.beginPath(); ctx.roundRect(5,4,235,24,[6]); ctx.fill();
+    ctx.fillStyle='rgba(14,10,24,0.82)'; ctx.beginPath(); ctx.roundRect(5,4,245,24,[6]); ctx.fill();
     ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.fillStyle='#ff5252'; ctx.fillText(char.name,11,16);
     ctx.fillStyle='#FFD700'; ctx.fillText('SD:'+String(this.starDust).padStart(2,'0'),82,16);
     ctx.fillStyle='#85f8ce'; ctx.fillText('SC:'+String(this.score).padStart(4,'0'),135,16);
-    ctx.fillStyle=this.globalGravity===-1?'#E040FB':'#64B5F6'; ctx.fillText(this.globalGravity===-1?'-1G':'1G ',200,16);
+    ctx.fillStyle=this.globalGravity===-1?'#E040FB':'#64B5F6'; ctx.fillText(this.globalGravity===-1?'-1G':'1G ',205,16);
 
     ctx.fillStyle='rgba(14,10,24,0.82)'; ctx.beginPath(); ctx.roundRect(VIRT_W-160,4,155,24,[6]); ctx.fill();
     ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.textAlign='right'; ctx.font='5.5px "Press Start 2P",monospace'; ctx.fillStyle='#85f8ce';
     ctx.fillText(cfg.name.split(':')[0],VIRT_W-9,16);
+
+    // Boss Health Bar in 1-3
+    if(this.galaxyBoss && this.galaxyBoss.active && this.galaxyBoss.state !== 'defeated'){
+      ctx.fillStyle = 'rgba(14,10,24,0.85)';
+      ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 70, 32, 140, 14, [4]); ctx.fill();
+      ctx.strokeStyle = '#FF1744'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#FF1744';
+      ctx.fillRect(VIRT_W/2 - 66, 35, (132 * (this.galaxyBoss.hp / this.galaxyBoss.maxHp)), 8);
+      ctx.fillStyle = '#FFF'; ctx.font = '5px "Press Start 2P", monospace';
+      ctx.textAlign = 'center'; ctx.fillText('JEFE CÓSMICO', VIRT_W/2, 39);
+    }
     ctx.restore();
   }
 
