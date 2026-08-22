@@ -49,11 +49,15 @@
     border: 2px solid #ffd700;
     border-radius: 8px;
     padding: 6px 12px;
-    display: flex; gap: 12px; align-items: center;
+    display: flex; gap: 14px; align-items: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     pointer-events: auto;
   }
   .hud-name { color: #ff5252; font-weight: bold; }
+  .hud-stardust {
+    color: #ffd700; font-weight: bold;
+    display: flex; align-items: center; gap: 4px;
+  }
   .hud-perk { color: #85f8ce; font-size: 7px; }
   .hud-btn {
     background: #2b2540; border: 2px solid #ffd700; color: #fff;
@@ -191,6 +195,7 @@
     <div id="hud" style="display: none;">
       <div class="hud-pill">
         <span class="hud-name" id="hud-name">PAPÁ</span>
+        <span class="hud-stardust">✨ <span id="hud-stardust">00</span></span>
         <span class="hud-perk" id="hud-perk">Ground Pound: [Abajo] en el aire</span>
       </div>
       <div class="hud-pill">
@@ -288,7 +293,7 @@
 <script>
 /**
  * SUPER RIVELLES PERIS WORLD - ENGINE CORE
- * Professional 16-Bit Platformer with Image Loader & Asymmetrical Character Logic
+ * Professional 16-Bit Platformer with Image Loader, Asymmetrical Abilities & Risk/Reward Loop
  */
 
 // ── Web Audio Synthesizer ───────────────────────────────────
@@ -331,6 +336,14 @@ class SoundFX {
   shellShoot() { this.playTone(340, 'sawtooth', 0.14, 0.25, 120); }
   shellBounce() { this.playTone(450, 'square', 0.08, 0.2, 700); }
   bark() { this.playTone(360, 'sawtooth', 0.1, 0.3, 140); }
+  starCollect() {
+    this.playTone(987.77, 'square', 0.07, 0.2);
+    setTimeout(() => this.playTone(1318.51, 'square', 0.14, 0.22), 65);
+  }
+  hazardScatter() {
+    this.playTone(220, 'sawtooth', 0.2, 0.35, 60);
+    setTimeout(() => this.playTone(140, 'sawtooth', 0.25, 0.3, 40), 90);
+  }
   click() { this.playTone(600, 'sine', 0.04, 0.15, 900); }
 }
 const audio = new SoundFX();
@@ -412,7 +425,7 @@ const JUMP_CUT_MULT = 0.45;
 const platforms = [
   // Floor spanning the full width
   { x: 0, y: 256, w: 512, h: 32, color: '#3E2723', topColor: '#66BB6A' },
-  // Left and Right Boundary Walls (for testing Cayetana's projectile bounces)
+  // Left and Right Boundary Walls
   { x: 0, y: 0, w: 12, h: 256, color: '#283593', topColor: '#5C6BC0' },
   { x: 500, y: 0, w: 12, h: 256, color: '#283593', topColor: '#5C6BC0' },
   // Three staggered platforms to test jump arcs
@@ -421,6 +434,14 @@ const platforms = [
   { x: 360, y: 114, w: 84, h: 12, color: '#5D4037', topColor: '#8D6E63' },
   // Additional high test ledge
   { x: 140, y: 80, w: 70, h: 12, color: '#5D4037', topColor: '#8D6E63' }
+];
+
+// ── Red Hazard Blocks ───────────────────────────────────────
+const hazardBlocks = [
+  // Floor Hazard Block
+  { x: 260, y: 236, w: 32, h: 20 },
+  // Mid-Platform Hazard Block
+  { x: 244, y: 138, w: 26, h: 16 }
 ];
 
 // ── Game Engine ─────────────────────────────────────────────
@@ -434,6 +455,9 @@ class PlatformerGame {
 
     this.selectedCharId = 'papa';
     this.state = 'MENU'; // 'MENU' or 'PLAYING'
+
+    // Economy
+    this.starDust = 0;
 
     // Player State
     this.player = {
@@ -450,13 +474,16 @@ class PlatformerGame {
       isGroundPounding: false,
       hasDoubleJumped: false,
       isGliding: false,
+      invincibleTimer: 0, // 2-second invincibility flash on hazard collision
       frame: 0
     };
 
     // Dynamic Level Objects
+    this.starDustItems = [];    // Collectible Yellow Star-Dust Items
     this.spawnedPlatforms = []; // Candela platforms
     this.projectiles = [];      // Cayetana bouncing shells
     this.particles = [];
+    this.scatterDustParticles = []; // Physical scattering stars on hazard hit
     this.floatingTexts = [];
 
     // Inputs
@@ -470,6 +497,7 @@ class PlatformerGame {
 
     this.initResize();
     this.initControls();
+    this.initStarDustItems();
 
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop.bind(this));
@@ -563,6 +591,27 @@ class PlatformerGame {
     });
   }
 
+  initStarDustItems() {
+    this.starDustItems = [
+      // Platform 1
+      { x: 88, y: 176, collected: false },
+      { x: 132, y: 176, collected: false },
+      // Platform 2
+      { x: 224, y: 134, collected: false },
+      { x: 288, y: 134, collected: false },
+      // Platform 3
+      { x: 376, y: 94, collected: false },
+      { x: 424, y: 94, collected: false },
+      // High Ledge
+      { x: 175, y: 60, collected: false },
+      // Floor Areas
+      { x: 160, y: 236, collected: false },
+      { x: 340, y: 236, collected: false },
+      { x: 460, y: 236, collected: false },
+      { x: 40, y: 236, collected: false }
+    ];
+  }
+
   openCharacterSelect() {
     audio.click();
     this.state = 'MENU';
@@ -584,14 +633,19 @@ class PlatformerGame {
     this.player.isGroundPounding = false;
     this.player.hasDoubleJumped = false;
     this.player.isGliding = false;
+    this.player.invincibleTimer = 0;
 
+    this.starDust = 0;
+    this.initStarDustItems();
     this.spawnedPlatforms = [];
     this.projectiles = [];
     this.particles = [];
+    this.scatterDustParticles = [];
     this.floatingTexts = [];
 
     document.getElementById('hud').style.display = 'flex';
     document.getElementById('hud-name').textContent = char.name;
+    document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
     document.getElementById('hud-perk').textContent = char.perk;
 
     if (window.matchMedia('(pointer: coarse)').matches) {
@@ -614,7 +668,7 @@ class PlatformerGame {
   }
 
   addFloatingText(txt, x, y, col = '#FFF') {
-    this.floatingTexts.push({ txt, x, y, vy: -1.2, life: 35, col });
+    this.floatingTexts.push({ txt, x, y, vy: -1.2, life: 38, col });
   }
 
   loop(now) {
@@ -626,8 +680,11 @@ class PlatformerGame {
   update(now) {
     if (this.state === 'PLAYING') {
       this.updatePlayer(now);
+      this.updateStarDustCollisions();
+      this.updateHazardCollisions();
       this.updateProjectiles();
       this.updateSpawnedPlatforms();
+      this.updateScatterDustParticles();
     }
     this.updateParticles();
     this.prevJump = this.input.jump;
@@ -638,6 +695,8 @@ class PlatformerGame {
     const char = CHARACTERS[this.selectedCharId];
     const p = this.player;
     p.frame++;
+
+    if (p.invincibleTimer > 0) p.invincibleTimer--;
 
     const jumpEdge = (this.input.jump && !this.prevJump);
     const actionEdge = (this.input.action && !this.prevAction);
@@ -781,6 +840,98 @@ class PlatformerGame {
     if (p.y > VIRT_H + 40) {
       p.y = 80;
       p.vy = 0;
+    }
+  }
+
+  // ── 6. Economy: Star-Dust Collection Loop ────────────────
+  updateStarDustCollisions() {
+    const p = this.player;
+
+    for (const item of this.starDustItems) {
+      if (!item.collected) {
+        // Star-Dust bounding box (center item is ~12x12)
+        if (p.x < item.x + 12 && p.x + p.w > item.x - 4 &&
+            p.y < item.y + 12 && p.y + p.h > item.y - 4) {
+          item.collected = true;
+          this.starDust += 1;
+          document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
+          audio.starCollect();
+          this.addFloatingText("+1 STAR-DUST", item.x + 4, item.y - 8, '#FFD700');
+          this.addParticles(item.x + 4, item.y + 4, 10, ['#FFD700', '#FFF', '#FFE082', '#FFF59D'], 3.0);
+        }
+      }
+    }
+
+    // If all Star-Dust is collected, respawn them with a sparkle flourish
+    const allCollected = this.starDustItems.every(i => i.collected);
+    if (allCollected && this.starDustItems.length > 0) {
+      setTimeout(() => {
+        for (const item of this.starDustItems) {
+          item.collected = false;
+          this.addParticles(item.x + 4, item.y + 4, 6, ['#FFD700', '#FFF']);
+        }
+        this.addFloatingText("✨ STAR-DUST RESPAWNED! ✨", VIRT_W / 2, 70, '#FFD700');
+      }, 1000);
+    }
+  }
+
+  // ── 7. The Penalty: Red Hazard Collision & Star-Dust Scatter ──
+  updateHazardCollisions() {
+    const p = this.player;
+
+    // Only process damage if not in invincibility frames
+    if (p.invincibleTimer <= 0) {
+      for (const hz of hazardBlocks) {
+        if (p.x < hz.x + hz.w && p.x + p.w > hz.x &&
+            p.y < hz.y + hz.h && p.y + p.h > hz.y) {
+          
+          // Trigger 'Star-Dust Scatter'
+          const lostAmount = Math.min(this.starDust, 10);
+          this.starDust = Math.max(0, this.starDust - 10);
+          document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
+
+          // Physical Knockback
+          const knockDir = (p.x + p.w / 2) < (hz.x + hz.w / 2) ? -1 : 1;
+          p.vx = knockDir * 4.8;
+          p.vy = -6.5;
+          p.onGround = false;
+          p.isGroundPounding = false;
+
+          // 2 Seconds Invincibility (120 frames @ 60fps)
+          p.invincibleTimer = 120;
+
+          audio.hazardScatter();
+          this.addFloatingText(`-${lostAmount} STAR-DUST 💥`, p.x + p.w/2, p.y - 16, '#FF5252');
+
+          // Scatter Star-Dust Particles bursting outward from player
+          for (let i = 0; i < 10; i++) {
+            const ang = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.5;
+            const spd = Math.random() * 3.5 + 2.5;
+            this.scatterDustParticles.push({
+              x: p.x + p.w / 2,
+              y: p.y + p.h / 2,
+              vx: Math.cos(ang) * spd,
+              vy: Math.sin(ang) * spd - 2.5,
+              life: 45, maxLife: 45
+            });
+          }
+
+          // Red impact burst
+          this.addParticles(hz.x + hz.w/2, hz.y + hz.h/2, 20, ['#FF1744', '#D50000', '#FF5252', '#FFD700'], 4.0);
+          break;
+        }
+      }
+    }
+  }
+
+  updateScatterDustParticles() {
+    for (let i = this.scatterDustParticles.length - 1; i >= 0; i--) {
+      const sp = this.scatterDustParticles[i];
+      sp.x += sp.vx;
+      sp.y += sp.vy;
+      sp.vy += 0.25; // gravity on scattered star
+      sp.life--;
+      if (sp.life <= 0) this.scatterDustParticles.splice(i, 1);
     }
   }
 
@@ -950,6 +1101,76 @@ class PlatformerGame {
       ctx.fillRect(plat.x, plat.y + plat.h - 1, plat.w, 1);
     }
 
+    // Red Hazard Blocks (Pulsating Danger Styling)
+    for (const hz of hazardBlocks) {
+      const pulse = Math.sin(now * 0.008) * 0.2 + 0.8;
+      ctx.save();
+      // Hazard body
+      ctx.fillStyle = '#D50000';
+      ctx.fillRect(hz.x, hz.y, hz.w, hz.h);
+      // Warning diagonal stripes
+      ctx.fillStyle = '#FF1744';
+      ctx.fillRect(hz.x + 3, hz.y + 3, hz.w - 6, hz.h - 6);
+
+      // Warning spikes / glowing border
+      ctx.strokeStyle = `rgba(255, 23, 68, ${pulse})`;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(hz.x - 1, hz.y - 1, hz.w + 2, hz.h + 2);
+
+      // Danger emblem
+      ctx.fillStyle = '#FFF';
+      ctx.font = '8px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚠️', hz.x + hz.w / 2, hz.y + hz.h / 2 + 3);
+      ctx.restore();
+    }
+
+    // Yellow Star-Dust Collectibles (Floating & Spinning)
+    for (const item of this.starDustItems) {
+      if (!item.collected) {
+        const floatOffset = Math.sin(now * 0.006 + item.x) * 3;
+        const ix = item.x + 4;
+        const iy = item.y + 4 + floatOffset;
+
+        ctx.save();
+        ctx.translate(ix, iy);
+        ctx.rotate((now * 0.003) % (Math.PI * 2));
+
+        // Outer glow
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
+        ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
+
+        // 4-pointed Star-Dust shape
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.moveTo(0, -6);
+        ctx.lineTo(2, -2);
+        ctx.lineTo(6, 0);
+        ctx.lineTo(2, 2);
+        ctx.lineTo(0, 6);
+        ctx.lineTo(-2, 2);
+        ctx.lineTo(-6, 0);
+        ctx.lineTo(-2, -2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Center sparkle
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(-1, -1, 2, 2);
+        ctx.restore();
+      }
+    }
+
+    // Scattered Star-Dust Particles (Bursting on Hazard Hit)
+    for (const sp of this.scatterDustParticles) {
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(sp.x - 1, sp.y - 1, 2, 2);
+    }
+
     // Candela's Spawned Star Platforms
     for (const sp of this.spawnedPlatforms) {
       const alpha = sp.life < 40 ? sp.life / 40 : 1;
@@ -1003,6 +1224,12 @@ class PlatformerGame {
 
     ctx.save();
     ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+
+    // Invincibility Flash (Blinking for 2 seconds after Hazard Hit)
+    if (p.invincibleTimer > 0) {
+      const flash = Math.floor(p.frame / 4) % 2;
+      if (flash === 0) ctx.globalAlpha = 0.35;
+    }
 
     // Horizontal flip
     if (!p.facingRight) ctx.scale(-1, 1);
