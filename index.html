@@ -68,9 +68,19 @@
     background: #6a1b9a; border-color: #ce93d8;
     animation: pulse-inv 1.5s infinite ease-in-out;
   }
+  .hud-badge-mount {
+    padding: 3px 8px; border-radius: 4px;
+    background: #e040fb; color: #fff; border: 1px solid #ea80fc;
+    font-size: 8px; font-weight: bold;
+    animation: pulse-mount 1.2s infinite ease-in-out;
+  }
   @keyframes pulse-inv {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+  }
+  @keyframes pulse-mount {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); background: #d500f9; }
   }
   .hud-perk { color: #85f8ce; font-size: 7px; }
   .hud-btn {
@@ -211,6 +221,7 @@
         <span class="hud-name" id="hud-name">PAPÁ</span>
         <span class="hud-stardust">✨ <span id="hud-stardust">00</span></span>
         <span class="hud-badge-grav" id="hud-gravity">1G NORMAL</span>
+        <span class="hud-badge-mount" id="hud-mount" style="display: none;">🦄 MONTADO</span>
       </div>
       <div class="hud-pill">
         <span class="hud-perk" id="hud-perk">Ground Pound: [Abajo] en el aire</span>
@@ -236,18 +247,18 @@
       <div class="touch-zone btn-zone">
         <button class="act-btn btn-b" id="tp-b">
           <span>B</span>
-          <span class="btn-label">ACCION</span>
+          <span class="btn-label">ACCION/DASH</span>
         </button>
         <button class="act-btn btn-a" id="tp-a">
           <span>A</span>
-          <span class="btn-label">SALTO</span>
+          <span class="btn-label">SALTO/FLUTTER</span>
         </button>
       </div>
     </div>
 
     <!-- Keyboard Instructions -->
     <div id="keyboard-bar">
-      🎮 <b>Flechas/WASD</b>: Mover | <b>Espacio / Z</b>: Salto (A) | <b>X / Shift</b>: Acción (B) | <b>G</b>: Interruptor G | <b>C</b>: Cambiar
+      🎮 <b>Flechas/WASD</b>: Mover | <b>Espacio / Z</b>: Salto / Flutter (A) | <b>X / Shift</b>: Acción / Dash (B) | <b>G</b>: Gravedad
     </div>
 
     <!-- Character Selection Screen UI at Start -->
@@ -308,7 +319,7 @@
 <script>
 /**
  * SUPER RIVELLES PERIS WORLD - ENGINE CORE
- * Anti-Gravity Galaxy Core Engine: 'G' Switch, Inverted Physics, 100ms White Flash & Purple Sky
+ * Anti-Gravity Galaxy Core Engine: Unicorn Mount Ultimate Power-Up, Flutter Jump, Fast Dash & Armor Buffer
  */
 
 // ── Web Audio Synthesizer ───────────────────────────────────
@@ -344,6 +355,11 @@ class SoundFX {
   }
   jump() { this.playTone(160, 'square', 0.14, 0.22, 480); }
   doubleJump() { this.playTone(380, 'triangle', 0.16, 0.25, 820); }
+  flutter() {
+    this.playTone(450, 'triangle', 0.12, 0.25, 750);
+    setTimeout(() => this.playTone(600, 'sine', 0.14, 0.22, 900), 50);
+  }
+  dash() { this.playTone(280, 'sawtooth', 0.15, 0.3, 140); }
   glide() { this.playTone(400, 'sine', 0.08, 0.15, 600); }
   groundPoundStart() { this.playTone(280, 'sawtooth', 0.12, 0.3, 100); }
   groundPoundImpact() { this.playTone(100, 'sawtooth', 0.3, 0.45, 20); }
@@ -358,6 +374,13 @@ class SoundFX {
   starCollect() {
     this.playTone(987.77, 'square', 0.07, 0.2);
     setTimeout(() => this.playTone(1318.51, 'square', 0.14, 0.22), 65);
+  }
+  mountUnicorn() {
+    [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.14, 0.25), i * 55));
+  }
+  armorBreak() {
+    this.playTone(300, 'sawtooth', 0.15, 0.35, 100);
+    setTimeout(() => this.playTone(520, 'sine', 0.2, 0.25, 800), 80);
   }
   hazardScatter() {
     this.playTone(220, 'sawtooth', 0.2, 0.35, 60);
@@ -411,10 +434,10 @@ const CHARACTERS = {
   tommy: {
     id: 'tommy', name: 'TOMMY',
     imgSrc: 'tommy.png', fallback: 'assets/tommy.png',
-    baseSpeed: 3.4 * 1.3, // 30% faster horizontal movement
+    baseSpeed: 3.4 * 1.3,
     sprintSpeed: 4.8 * 1.3,
     jumpForce: -9.2,
-    w: 16, h: 18, // Smaller collision hitbox
+    w: 16, h: 18,
     isDog: true,
     perk: '+30% Velocidad & Hitbox Pequeña'
   }
@@ -453,7 +476,7 @@ const platforms = [
   { x: 70, y: 196, w: 84, h: 12, color: '#5D4037', topColor: '#8D6E63' },
   { x: 210, y: 154, w: 96, h: 12, color: '#5D4037', topColor: '#8D6E63' },
   { x: 360, y: 114, w: 84, h: 12, color: '#5D4037', topColor: '#8D6E63' },
-  // Additional high test ledge
+  // Additional high test ledge (Unicorn Perch)
   { x: 140, y: 80, w: 70, h: 12, color: '#5D4037', topColor: '#8D6E63' }
 ];
 
@@ -479,7 +502,7 @@ class PlatformerGame {
 
     // Core Anti-Gravity: 1 (Normal 1G), -1 (Inverted -1G)
     this.globalGravity = 1;
-    this.flashTimer = 0; // 100ms white screen flash (6 frames @ 60fps)
+    this.flashTimer = 0;
 
     // Economy
     this.starDust = 0;
@@ -495,15 +518,18 @@ class PlatformerGame {
       lastGroundedAt: -Infinity,
       lastJumpPressAt: -Infinity,
       jumpHeld: false,
+      // Mount Logic (Ultimate Power-Up)
+      isRiding: false,
       // Asymmetrical logic states
       isGroundPounding: false,
       hasDoubleJumped: false,
       isGliding: false,
-      invincibleTimer: 0, // 2-second invincibility flash on hazard collision
+      invincibleTimer: 0,
       frame: 0
     };
 
     // Level Entities
+    this.unicorns = [];         // Unicorn Entities on the map
     this.gSwitches = [];        // Green 'G' Switches
     this.starDustItems = [];    // Collectible Yellow Star-Dust Items
     this.spawnedPlatforms = []; // Candela platforms
@@ -543,7 +569,6 @@ class PlatformerGame {
   }
 
   initControls() {
-    // Keyboard mapping
     window.addEventListener('keydown', e => {
       audio.init();
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
@@ -567,7 +592,6 @@ class PlatformerGame {
       if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = false;
     });
 
-    // Mobile touch controls mapping
     const bindTouch = (id, key) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -588,20 +612,17 @@ class PlatformerGame {
     bindTouch('tp-a',      'jump');   // A = Jump
     bindTouch('tp-b',      'action'); // B = Action
 
-    // Touch reveal on mobile
     window.addEventListener('touchstart', () => {
       const tl = document.getElementById('touch-layer');
       if (tl && this.state === 'PLAYING') tl.style.display = 'block';
     }, { once: true });
 
-    // UI Buttons
     document.getElementById('btn-char-select').addEventListener('click', () => this.openCharacterSelect());
     document.getElementById('btn-sound').addEventListener('click', () => {
       audio.muted = !audio.muted;
       document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
     });
 
-    // Character Card Selection UI
     document.querySelectorAll('.char-card').forEach(card => {
       card.addEventListener('click', () => {
         audio.click();
@@ -619,13 +640,18 @@ class PlatformerGame {
   }
 
   initEntities() {
-    // Green 'G' Switches
+    // 1. Unicorn Entity on high ledge (x: 160, y: 56)
+    this.unicorns = [
+      { x: 160, y: 56, w: 26, h: 22, collected: false }
+    ];
+
+    // 2. Green 'G' Switches
     this.gSwitches = [
       { x: 310, y: 242, w: 24, h: 14, pressed: 0, cooldown: 0 },
       { x: 100, y: 182, w: 24, h: 14, pressed: 0, cooldown: 0 }
     ];
 
-    // Star-Dust Collectibles
+    // 3. Star-Dust Collectibles
     this.starDustItems = [
       { x: 80, y: 176, collected: false },
       { x: 140, y: 176, collected: false },
@@ -633,7 +659,6 @@ class PlatformerGame {
       { x: 288, y: 134, collected: false },
       { x: 376, y: 94, collected: false },
       { x: 424, y: 94, collected: false },
-      { x: 175, y: 60, collected: false },
       { x: 160, y: 236, collected: false },
       { x: 370, y: 236, collected: false },
       { x: 460, y: 236, collected: false },
@@ -641,13 +666,11 @@ class PlatformerGame {
     ];
   }
 
-  // ── 1. The 'G' Switch Trigger & Anti-Gravity Shift ─────────
   triggerGravityShift() {
-    this.globalGravity *= -1; // Multiply global gravity by -1
-    this.flashTimer = 6;      // 100ms white flash (6 frames @ 60fps)
+    this.globalGravity *= -1;
+    this.flashTimer = 6;
     audio.gravityShift();
 
-    // Update Top HUD Badge
     const badge = document.getElementById('hud-gravity');
     if (badge) {
       if (this.globalGravity === -1) {
@@ -659,7 +682,6 @@ class PlatformerGame {
       }
     }
 
-    // Visual Sparkle Flare & Floating Notification Text
     this.addFloatingText(
       this.globalGravity === -1 ? "🌀 ANTI-GRAVITY (-1G) 🌀" : "🌍 GRAVEDAD NORMAL (1G) 🌍",
       VIRT_W / 2, 70,
@@ -692,6 +714,7 @@ class PlatformerGame {
     this.player.vx = 0;
     this.player.vy = 0;
     this.player.onGround = true;
+    this.player.isRiding = false;
     this.player.isGroundPounding = false;
     this.player.hasDoubleJumped = false;
     this.player.isGliding = false;
@@ -709,6 +732,7 @@ class PlatformerGame {
     document.getElementById('hud-name').textContent = char.name;
     document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
     document.getElementById('hud-perk').textContent = char.perk;
+    document.getElementById('hud-mount').style.display = 'none';
 
     const badge = document.getElementById('hud-gravity');
     if (badge) {
@@ -748,6 +772,7 @@ class PlatformerGame {
   update(now) {
     if (this.state === 'PLAYING') {
       this.updatePlayer(now);
+      this.updateUnicornMountCollisions();
       this.updateGSwitches();
       this.updateStarDustCollisions();
       this.updateHazardCollisions();
@@ -760,7 +785,7 @@ class PlatformerGame {
     this.prevAction = this.input.action;
   }
 
-  // ── 2. Inverted Physics & Player Controls ───────────────────
+  // ── 1. Player Movement & Unicorn Upgraded Moves ─────────────
   updatePlayer(now) {
     const char = CHARACTERS[this.selectedCharId];
     const p = this.player;
@@ -773,9 +798,12 @@ class PlatformerGame {
 
     if (jumpEdge) p.lastJumpPressAt = now;
 
-    // Horizontal Movement
-    const topSpeed = this.input.action && !char.canShootBouncingShell && !char.canSpawnPlatform
-      ? char.sprintSpeed : char.baseSpeed;
+    // Horizontal Speed (Unicorn mount gives high baseline agility)
+    let baseSpd = p.isRiding ? char.baseSpeed * 1.25 : char.baseSpeed;
+    let sprintSpd = p.isRiding ? char.sprintSpeed * 1.35 : char.sprintSpeed;
+
+    const topSpeed = this.input.action && !char.canShootBouncingShell && !char.canSpawnPlatform && !p.isRiding
+      ? sprintSpd : baseSpd;
 
     if (this.input.left) {
       p.vx = Math.max(p.vx - ACCEL, -topSpeed);
@@ -788,13 +816,12 @@ class PlatformerGame {
       else if (p.vx < 0) p.vx = Math.min(0, p.vx + DECEL);
     }
 
-    // Inverted & Normal Gravity Acceleration
+    // Gravity Acceleration
     if (this.globalGravity === 1) {
-      // 1G Normal Gravity (Falls downward)
       p.isGliding = false;
-      if (char.id === 'mama' && this.input.jump && !p.onGround && p.vy > 0) {
+      if (char.id === 'mama' && this.input.jump && !p.onGround && p.vy > 0 && !p.isRiding) {
         p.isGliding = true;
-        p.vy = Math.min(p.vy, 1.2); // Glide fall speed clamp
+        p.vy = Math.min(p.vy, 1.2);
         if (p.frame % 5 === 0) {
           audio.glide();
           this.addParticles(p.x + p.w / 2, p.y + p.h, 2, ['#FFD700', '#FFF', '#85F8CE'], 1.5);
@@ -803,8 +830,7 @@ class PlatformerGame {
         p.vy = Math.min(p.vy + GRAVITY * char.weight, MAX_FALL);
       }
 
-      // Papá Ground Pound (Plunges downward)
-      if (char.id === 'papa' && this.input.down && !p.onGround && !p.isGroundPounding) {
+      if (char.id === 'papa' && this.input.down && !p.onGround && !p.isGroundPounding && !p.isRiding) {
         p.isGroundPounding = true;
         p.vy = 13.0;
         p.vx = 0;
@@ -813,11 +839,10 @@ class PlatformerGame {
         this.addParticles(p.x + p.w / 2, p.y + p.h, 12, ['#FF5252', '#FFD700', '#FFF'], 3.5);
       }
     } else {
-      // -1G Inverted Gravity (Falls upward toward ceiling!)
       p.isGliding = false;
-      if (char.id === 'mama' && this.input.jump && !p.onGround && p.vy < 0) {
+      if (char.id === 'mama' && this.input.jump && !p.onGround && p.vy < 0 && !p.isRiding) {
         p.isGliding = true;
-        p.vy = Math.max(p.vy, -1.2); // Inverted Glide upward clamp
+        p.vy = Math.max(p.vy, -1.2);
         if (p.frame % 5 === 0) {
           audio.glide();
           this.addParticles(p.x + p.w / 2, p.y, 2, ['#FFD700', '#FFF', '#E040FB'], 1.5);
@@ -826,10 +851,9 @@ class PlatformerGame {
         p.vy = Math.max(p.vy - GRAVITY * char.weight, -MAX_FALL);
       }
 
-      // Papá Ground Pound in Inverted (Plunges with force)
-      if (char.id === 'papa' && (this.input.down || this.input.up) && !p.onGround && !p.isGroundPounding) {
+      if (char.id === 'papa' && (this.input.down || this.input.up) && !p.onGround && !p.isGroundPounding && !p.isRiding) {
         p.isGroundPounding = true;
-        p.vy = -13.0; // Fast plunge towards ceiling
+        p.vy = -13.0;
         p.vx = 0;
         audio.groundPoundStart();
         this.addFloatingText("CEILING POUND!", p.x + p.w/2, p.y + p.h + 12, '#FF5252');
@@ -837,18 +861,16 @@ class PlatformerGame {
       }
     }
 
-    // Grounded Tracking for Coyote Time
     if (p.onGround) {
       p.lastGroundedAt = now;
-      p.hasDoubleJumped = false; // Reset Valentina's double jump
+      p.hasDoubleJumped = false;
     }
 
-    // Jump Logic (Normal vs Inverted Gravity)
+    // ── Jump Logic / Unicorn Flutter-Jump ──────────────────
     const coyoteOk = (now - p.lastGroundedAt) <= COYOTE_MS;
     const bufferOk = (now - p.lastJumpPressAt) <= BUFFER_MS;
 
     if ((jumpEdge && coyoteOk) || (bufferOk && p.onGround)) {
-      // Normal: push upward (negative vy). Inverted: push away from ceiling/downward (positive vy)!
       p.vy = this.globalGravity === 1 ? char.jumpForce : -char.jumpForce;
       p.onGround = false;
       p.jumpHeld = true;
@@ -857,7 +879,16 @@ class PlatformerGame {
       p.lastJumpPressAt = -Infinity;
       audio.jump();
       this.addParticles(p.x + p.w / 2, this.globalGravity === 1 ? p.y + p.h : p.y, 6, ['#FFF', '#E0E0E0']);
-    } else if (jumpEdge && char.id === 'valentina' && !p.onGround && !p.hasDoubleJumped) {
+    } else if (jumpEdge && p.isRiding && !p.onGround) {
+      // 🦄 UNICORN UPGRADE: Flutter-Jump (slight upward velocity boost mid-air)
+      p.vy = this.globalGravity === 1 ? -6.2 : 6.2;
+      p.jumpHeld = true;
+      audio.flutter();
+      this.addFloatingText("FLUTTER! ✨", p.x + p.w/2, p.y - 12, '#E040FB');
+      this.addParticles(p.x + p.w/2, this.globalGravity === 1 ? p.y + p.h + 6 : p.y - 6, 6, [
+        '#E040FB', '#00E5FF', '#FFD700', '#FF4081', '#76FF03'
+      ], 2.2);
+    } else if (jumpEdge && char.id === 'valentina' && !p.onGround && !p.hasDoubleJumped && !p.isRiding) {
       // Valentina Double Jump
       p.vy = this.globalGravity === 1 ? char.jumpForce * 0.92 : -char.jumpForce * 0.92;
       p.hasDoubleJumped = true;
@@ -867,75 +898,99 @@ class PlatformerGame {
       this.addParticles(p.x + p.w / 2, p.y + p.h/2, 10, ['#FF4081', '#FF80AB', '#FFF'], 3);
     }
 
-    // Variable Jump Cut (Early release cuts jump short in respective gravity direction)
     if (p.jumpHeld && !this.input.jump) {
-      if (this.globalGravity === 1 && p.vy < 0) {
-        p.vy *= JUMP_CUT_MULT;
-      } else if (this.globalGravity === -1 && p.vy > 0) {
-        p.vy *= JUMP_CUT_MULT;
-      }
+      if (this.globalGravity === 1 && p.vy < 0) p.vy *= JUMP_CUT_MULT;
+      else if (this.globalGravity === -1 && p.vy > 0) p.vy *= JUMP_CUT_MULT;
       p.jumpHeld = false;
     }
 
-    // Action (B) Abilities
+    // ── Action Button / Unicorn Fast Horizontal Dash ─────────
     if (actionEdge) {
-      // Candela: Star Platform
-      if (char.id === 'candela') {
-        const platX = p.x + (p.facingRight ? 2 : -20);
-        const platY = this.globalGravity === 1 ? p.y + p.h + 2 : p.y - 12;
-        this.spawnedPlatforms.push({
-          x: Math.max(14, Math.min(450, platX)),
-          y: Math.max(16, Math.min(240, platY)),
-          w: 52, h: 10,
-          life: 240,
-          maxLife: 240
-        });
-        audio.platformSpawn();
-        this.addFloatingText("STAR PLATFORM!", p.x + p.w/2, p.y - 12, '#FFD700');
-        this.addParticles(platX + 26, platY + 5, 14, ['#FFD700', '#FFF', '#FFE082'], 2.5);
-      }
+      if (p.isRiding) {
+        // 🦄 UNICORN UPGRADE: Fast Horizontal Dash
+        const dashDir = p.facingRight ? 1 : -1;
+        p.vx = dashDir * 10.5;
+        audio.dash();
+        this.addFloatingText("DASH! ⚡", p.x + p.w/2, p.y - 12, '#00E5FF');
+        this.addParticles(p.x + (p.facingRight ? -10 : p.w + 10), p.y + p.h/2, 12, [
+          '#00E5FF', '#E040FB', '#FFD700', '#FFFFFF'
+        ], 3.8);
+      } else {
+        // Normal Character Action (B) Abilities
+        if (char.id === 'candela') {
+          const platX = p.x + (p.facingRight ? 2 : -20);
+          const platY = this.globalGravity === 1 ? p.y + p.h + 2 : p.y - 12;
+          this.spawnedPlatforms.push({
+            x: Math.max(14, Math.min(450, platX)),
+            y: Math.max(16, Math.min(240, platY)),
+            w: 52, h: 10,
+            life: 240,
+            maxLife: 240
+          });
+          audio.platformSpawn();
+          this.addFloatingText("STAR PLATFORM!", p.x + p.w/2, p.y - 12, '#FFD700');
+          this.addParticles(platX + 26, platY + 5, 14, ['#FFD700', '#FFF', '#FFE082'], 2.5);
+        }
 
-      // Cayetana: Bouncing Shell Projectile
-      if (char.id === 'cayetana') {
-        const dir = p.facingRight ? 1 : -1;
-        this.projectiles.push({
-          x: p.x + (p.facingRight ? p.w + 4 : -14),
-          y: p.y + p.h / 2 - 4,
-          w: 12, h: 12,
-          vx: dir * 5.2,
-          vy: this.globalGravity === 1 ? -2.0 : 2.0,
-          bounces: 0,
-          maxBounces: 8,
-          life: 300
-        });
-        audio.shellShoot();
-        this.addFloatingText("BOUNCING SHELL!", p.x + p.w/2, p.y - 12, '#4CAF50');
-        this.addParticles(p.x + p.w/2, p.y + p.h/2, 8, ['#4CAF50', '#81C784', '#FFD700'], 2);
-      }
+        if (char.id === 'cayetana') {
+          const dir = p.facingRight ? 1 : -1;
+          this.projectiles.push({
+            x: p.x + (p.facingRight ? p.w + 4 : -14),
+            y: p.y + p.h / 2 - 4,
+            w: 12, h: 12,
+            vx: dir * 5.2,
+            vy: this.globalGravity === 1 ? -2.0 : 2.0,
+            bounces: 0,
+            maxBounces: 8,
+            life: 300
+          });
+          audio.shellShoot();
+          this.addFloatingText("BOUNCING SHELL!", p.x + p.w/2, p.y - 12, '#4CAF50');
+          this.addParticles(p.x + p.w/2, p.y + p.h/2, 8, ['#4CAF50', '#81C784', '#FFD700'], 2);
+        }
 
-      // Tommy: Bark
-      if (char.id === 'tommy') {
-        audio.bark();
-        this.addFloatingText("WOOF! 🐶", p.x + p.w/2, p.y - 12, '#FFD700');
-        this.addParticles(p.x + p.w/2, p.y + p.h/2, 10, ['#FFD700', '#FF9800'], 2);
+        if (char.id === 'tommy') {
+          audio.bark();
+          this.addFloatingText("WOOF! 🐶", p.x + p.w/2, p.y - 12, '#FFD700');
+          this.addParticles(p.x + p.w/2, p.y + p.h/2, 10, ['#FFD700', '#FF9800'], 2);
+        }
       }
     }
 
-    // Position & Collision Resolution
+    // Position & Collisions
     p.x += p.vx;
     this.resolveHorizontalCollisions();
 
     p.y += p.vy;
     this.resolveVerticalCollisions();
 
-    // Bounds safety
     if (p.x < 12) { p.x = 12; p.vx = 0; }
     if (p.x + p.w > 500) { p.x = 500 - p.w; p.vx = 0; }
 
-    // Fall rescue
     if (p.y > VIRT_H + 40 || p.y < -40) {
       p.y = 120;
       p.vy = 0;
+    }
+  }
+
+  // ── 2. Unicorn Mount Collision & Respawn ───────────────────
+  updateUnicornMountCollisions() {
+    const p = this.player;
+
+    for (const uc of this.unicorns) {
+      if (!uc.collected && !p.isRiding) {
+        if (p.x < uc.x + uc.w && p.x + p.w > uc.x &&
+            p.y < uc.y + uc.h && p.y + p.h > uc.y) {
+          uc.collected = true;
+          p.isRiding = true;
+          audio.mountUnicorn();
+          document.getElementById('hud-mount').style.display = 'inline-block';
+          this.addFloatingText("UNICORN MOUNT! 🦄", p.x + p.w/2, p.y - 16, '#E040FB');
+          this.addParticles(p.x + p.w/2, p.y + p.h/2, 22, [
+            '#E040FB', '#00E5FF', '#FFD700', '#FF4081', '#76FF03', '#FFFFFF'
+          ], 3.5);
+        }
+      }
     }
   }
 
@@ -950,8 +1005,8 @@ class PlatformerGame {
       if (sw.cooldown === 0) {
         if (p.x < sw.x + sw.w && p.x + p.w > sw.x &&
             p.y < sw.y + sw.h + 2 && p.y + p.h > sw.y - 2) {
-          sw.pressed = 18; // Switch squash animation
-          sw.cooldown = 35; // Debounce contact
+          sw.pressed = 18;
+          sw.cooldown = 35;
           this.triggerGravityShift();
           this.addParticles(sw.x + sw.w/2, sw.y + sw.h/2, 16, ['#00E676', '#69F0AE', '#FFF'], 3.0);
         }
@@ -988,6 +1043,7 @@ class PlatformerGame {
     }
   }
 
+  // ── 4. Hazard Collisions & Unicorn Armor Buffer ─────────────
   updateHazardCollisions() {
     const p = this.player;
 
@@ -996,33 +1052,63 @@ class PlatformerGame {
         if (p.x < hz.x + hz.w && p.x + p.w > hz.x &&
             p.y < hz.y + hz.h && p.y + p.h > hz.y) {
           
-          const lostAmount = Math.min(this.starDust, 10);
-          this.starDust = Math.max(0, this.starDust - 10);
-          document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
-
           const knockDir = (p.x + p.w / 2) < (hz.x + hz.w / 2) ? -1 : 1;
-          p.vx = knockDir * 4.8;
-          p.vy = this.globalGravity === 1 ? -6.5 : 6.5;
-          p.onGround = false;
-          p.isGroundPounding = false;
-          p.invincibleTimer = 120; // 2s invincibility
 
-          audio.hazardScatter();
-          this.addFloatingText(`-${lostAmount} STAR-DUST 💥`, p.x + p.w/2, p.y - 16, '#FF5252');
+          if (p.isRiding) {
+            // 🦄 UNICORN ARMOR BUFFER:
+            // Ignore Star-Dust penalty! Dispel unicorn, give 2s invincibility
+            p.isRiding = false;
+            document.getElementById('hud-mount').style.display = 'none';
 
-          for (let i = 0; i < 10; i++) {
-            const ang = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.5;
-            const spd = Math.random() * 3.5 + 2.5;
-            this.scatterDustParticles.push({
-              x: p.x + p.w / 2,
-              y: p.y + p.h / 2,
-              vx: Math.cos(ang) * spd,
-              vy: Math.sin(ang) * spd + (this.globalGravity === 1 ? -2.5 : 2.5),
-              life: 45, maxLife: 45
-            });
+            p.invincibleTimer = 120; // 2 seconds of flashing invincibility
+            p.vx = knockDir * 4.2;
+            p.vy = this.globalGravity === 1 ? -6.0 : 6.0;
+            p.onGround = false;
+
+            audio.armorBreak();
+            this.addFloatingText("ARMOR BUFFER! 🛡️🦄", p.x + p.w/2, p.y - 16, '#00E5FF');
+            this.addParticles(p.x + p.w/2, p.y + p.h/2, 24, [
+              '#E040FB', '#00E5FF', '#FFD700', '#FF1744', '#FFFFFF'
+            ], 4.0);
+
+            // Respawn unicorn on high ledge after 6 seconds
+            setTimeout(() => {
+              for (const uc of this.unicorns) {
+                uc.collected = false;
+                this.addParticles(uc.x + uc.w/2, uc.y + uc.h/2, 12, ['#E040FB', '#FFD700', '#FFF']);
+              }
+              this.addFloatingText("🦄 UNICORN RESPAWNED!", 175, 50, '#E040FB');
+            }, 6000);
+
+          } else {
+            // Standard Penalty: Star-Dust Scatter
+            const lostAmount = Math.min(this.starDust, 10);
+            this.starDust = Math.max(0, this.starDust - 10);
+            document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
+
+            p.vx = knockDir * 4.8;
+            p.vy = this.globalGravity === 1 ? -6.5 : 6.5;
+            p.onGround = false;
+            p.isGroundPounding = false;
+            p.invincibleTimer = 120; // 2s invincibility
+
+            audio.hazardScatter();
+            this.addFloatingText(`-${lostAmount} STAR-DUST 💥`, p.x + p.w/2, p.y - 16, '#FF5252');
+
+            for (let i = 0; i < 10; i++) {
+              const ang = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.5;
+              const spd = Math.random() * 3.5 + 2.5;
+              this.scatterDustParticles.push({
+                x: p.x + p.w / 2,
+                y: p.y + p.h / 2,
+                vx: Math.cos(ang) * spd,
+                vy: Math.sin(ang) * spd + (this.globalGravity === 1 ? -2.5 : 2.5),
+                life: 45, maxLife: 45
+              });
+            }
+
+            this.addParticles(hz.x + hz.w/2, hz.y + hz.h/2, 20, ['#FF1744', '#D50000', '#FF5252', '#FFD700'], 4.0);
           }
-
-          this.addParticles(hz.x + hz.w/2, hz.y + hz.h/2, 20, ['#FF1744', '#D50000', '#FF5252', '#FFD700'], 4.0);
           break;
         }
       }
@@ -1073,7 +1159,6 @@ class PlatformerGame {
     for (const plat of allPlats) {
       if (p.x < plat.x + plat.w && p.x + p.w > plat.x && p.y < plat.y + plat.h && p.y + p.h > plat.y) {
         if (this.globalGravity === 1) {
-          // 1G Normal Gravity Collision (Stands on top)
           if (p.vy >= 0) {
             p.y = plat.y - p.h;
             p.vy = 0;
@@ -1090,11 +1175,10 @@ class PlatformerGame {
             p.vy = 0;
           }
         } else {
-          // -1G Inverted Gravity Collision (Stands on bottom of platforms/ceiling!)
           if (p.vy <= 0) {
             p.y = plat.y + plat.h;
             p.vy = 0;
-            p.onGround = true; // Grounded on ceiling!
+            p.onGround = true;
 
             if (p.isGroundPounding) {
               p.isGroundPounding = false;
@@ -1121,7 +1205,7 @@ class PlatformerGame {
 
       pr.x += pr.vx;
       for (const plat of allPlats) {
-        if (pr.x < plat.x + plat.w && pr.x + pr.w > plat.x && pr.y < plat.y + plat.h && pr.y + pr.h > plat.y) {
+        if (pr.x < plat.x + plat.w && pr.x + pr.w > plat.x && pr.y < plat.y + plat.h && pr.y + p.h > plat.y) {
           pr.vx *= -1;
           pr.bounces++;
           audio.shellBounce();
@@ -1195,11 +1279,11 @@ class PlatformerGame {
     }
   }
 
-  // ── 4. Rendering (Dynamic Sky & Flash Feedback) ─────────────
+  // ── 5. Rendering ──────────────────────────────────────────
   render(now) {
     const ctx = this.ctx;
 
-    // Feedback: Sky Background Color (Dark Purple in -1G Inverted, Blue in 1G Normal)
+    // Sky gradient
     const sky = ctx.createLinearGradient(0, 0, 0, VIRT_H);
     if (this.globalGravity === -1) {
       sky.addColorStop(0, '#150626');
@@ -1211,13 +1295,13 @@ class PlatformerGame {
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, VIRT_W, VIRT_H);
 
-    // Parallax Hills (Cosmic Violet when inverted, Lush Green when normal)
+    // Parallax Hills
     ctx.fillStyle = this.globalGravity === -1 ? '#4a148c' : '#43A047';
     ctx.beginPath(); ctx.arc(100, 256, 70, Math.PI, 0); ctx.fill();
     ctx.beginPath(); ctx.arc(280, 256, 90, Math.PI, 0); ctx.fill();
     ctx.beginPath(); ctx.arc(440, 256, 60, Math.PI, 0); ctx.fill();
 
-    // Parallax Clouds / Cosmic Nebulae
+    // Parallax Clouds
     ctx.fillStyle = this.globalGravity === -1 ? 'rgba(206, 147, 216, 0.4)' : 'rgba(255,255,255,0.7)';
     for (let i = 0; i < 4; i++) {
       const wx = ((i * 150) + (now * 0.01)) % (VIRT_W + 80) - 40;
@@ -1246,11 +1330,9 @@ class PlatformerGame {
       const curY = sw.y + (isPressed ? 8 : 0);
 
       ctx.save();
-      // Switch Base
       ctx.fillStyle = '#1B5E20';
       ctx.fillRect(sw.x - 2, sw.y + sw.h - 2, sw.w + 4, 4);
 
-      // Switch Cap (Pulsating Green Button)
       const gPulse = Math.sin(now * 0.009 + sw.x) * 0.2 + 0.8;
       ctx.fillStyle = '#00E676';
       ctx.fillRect(sw.x, curY, sw.w, curH);
@@ -1259,7 +1341,6 @@ class PlatformerGame {
       ctx.lineWidth = 1.5;
       ctx.strokeRect(sw.x - 0.5, curY - 0.5, sw.w + 1, curH + 1);
 
-      // 'G' Emblem
       ctx.fillStyle = '#003300';
       ctx.font = '8px monospace';
       ctx.textAlign = 'center';
@@ -1283,6 +1364,24 @@ class PlatformerGame {
       ctx.textAlign = 'center';
       ctx.fillText('⚠️', hz.x + hz.w / 2, hz.y + hz.h / 2 + 3);
       ctx.restore();
+    }
+
+    // 🦄 Unicorn Entity (Waiting on high ledge when not mounted)
+    for (const uc of this.unicorns) {
+      if (!uc.collected) {
+        const floatY = Math.sin(now * 0.005) * 3;
+        ctx.save();
+        ctx.translate(uc.x + uc.w/2, uc.y + uc.h/2 + floatY);
+
+        // Rainbow sparkle aura
+        ctx.fillStyle = 'rgba(224, 64, 251, 0.35)';
+        ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
+
+        // Draw Unicorn Sprite
+        this.drawUnicornSprite(ctx, 0, 0, true, 0);
+
+        ctx.restore();
+      }
     }
 
     // Yellow Star-Dust Collectibles
@@ -1355,7 +1454,7 @@ class PlatformerGame {
       ctx.restore();
     }
 
-    // Player Sprite Render (Vertically flipped in -1G inverted gravity)
+    // Player Sprite Render (with Unicorn mount if active)
     if (this.state === 'PLAYING') {
       this.renderPlayer(ctx);
     }
@@ -1379,6 +1478,75 @@ class PlatformerGame {
       ctx.fillRect(0, 0, VIRT_W, VIRT_H);
       this.flashTimer--;
     }
+  }
+
+  // ── Procedural Unicorn Sprite ──────────────────────────────
+  drawUnicornSprite(ctx, x, y, facingRight, legCycle = 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    if (!facingRight) ctx.scale(-1, 1);
+
+    // Body (White with soft shading)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.roundRect(-10, -4, 20, 12, 4);
+    ctx.fill();
+
+    // Neck & Head
+    ctx.beginPath();
+    ctx.moveTo(4, -2);
+    ctx.lineTo(8, -14);
+    ctx.lineTo(15, -12);
+    ctx.lineTo(14, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Golden Horn
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.moveTo(11, -14);
+    ctx.lineTo(19, -20);
+    ctx.lineTo(14, -13);
+    ctx.closePath();
+    ctx.fill();
+
+    // Rainbow Mane (3 Vibrant Locks)
+    ctx.fillStyle = '#FF4081';
+    ctx.fillRect(5, -14, 3, 5);
+    ctx.fillStyle = '#00E5FF';
+    ctx.fillRect(3, -9, 3, 5);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(1, -4, 3, 5);
+
+    // Cute Eye & Muzzle
+    ctx.fillStyle = '#1A237E';
+    ctx.fillRect(11, -11, 2, 2);
+    ctx.fillStyle = '#FF80AB';
+    ctx.fillRect(14, -8, 2, 2); // Blush
+
+    // Magical Star Tail
+    ctx.fillStyle = '#E040FB';
+    ctx.beginPath();
+    ctx.moveTo(-10, -2);
+    ctx.lineTo(-17, -7);
+    ctx.lineTo(-14, 2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Golden Hooves & Legs
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(-8 + legCycle, 8, 3, 5);
+    ctx.fillRect(-2 - legCycle, 8, 3, 5);
+    ctx.fillRect(3 + legCycle, 8, 3, 5);
+    ctx.fillRect(7 - legCycle, 8, 3, 5);
+
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(-8 + legCycle, 11, 3, 2);
+    ctx.fillRect(-2 - legCycle, 11, 3, 2);
+    ctx.fillRect(3 + legCycle, 11, 3, 2);
+    ctx.fillRect(7 - legCycle, 11, 3, 2);
+
+    ctx.restore();
   }
 
   renderPlayer(ctx) {
@@ -1407,15 +1575,42 @@ class PlatformerGame {
       ctx.scale(0.85, 1.25);
     }
 
-    if (img && img.complete && img.naturalWidth > 0) {
-      const drawW = p.w * 1.6;
-      const drawH = p.h * 1.25;
-      ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+    const isRunning = Math.abs(p.vx) > 0.3;
+    const legCycle = isRunning ? Math.sin(p.frame * 0.4) * 3 : 0;
+
+    if (p.isRiding) {
+      // 🦄 1. Draw Unicorn Sprite Underneath
+      this.drawUnicornSprite(ctx, 0, 8, true, legCycle);
+
+      // 🦄 2. Draw Player's PNG Mounted On Top
+      if (img && img.complete && img.naturalWidth > 0) {
+        const drawW = p.w * 1.4;
+        const drawH = p.h * 1.1;
+        ctx.drawImage(img, -drawW / 2 + 1, -drawH / 2 - 10, drawW, drawH);
+      } else {
+        ctx.fillStyle = '#1565C0';
+        ctx.fillRect(-p.w / 2, -p.h / 2 - 8, p.w, p.h);
+      }
+
+      // Rainbow particle trail while moving on unicorn
+      if (isRunning && p.frame % 3 === 0) {
+        this.addParticles(p.x + (p.facingRight ? -6 : p.w + 6), p.y + p.h - 2, 2, [
+          '#E040FB', '#00E5FF', '#FFD700', '#FF4081'
+        ], 1.5);
+      }
+
     } else {
-      ctx.fillStyle = '#1565C0';
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.fillStyle = '#FFCC80';
-      ctx.fillRect(-p.w / 2 + 2, -p.h / 2, p.w - 4, 8);
+      // Normal Unmounted Player Rendering
+      if (img && img.complete && img.naturalWidth > 0) {
+        const drawW = p.w * 1.6;
+        const drawH = p.h * 1.25;
+        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+      } else {
+        ctx.fillStyle = '#1565C0';
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.fillStyle = '#FFCC80';
+        ctx.fillRect(-p.w / 2 + 2, -p.h / 2, p.w - 4, 8);
+      }
     }
 
     // Mamá Glide Aura
