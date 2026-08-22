@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Super Rivelles Peris World</title>
+<title>Super Rivelles Peris World - Nintendo Family Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -22,14 +22,14 @@
     position:absolute; top:0; left:0; width:100%; height:100%; }
 
   /* ── Character Select Modal ── */
-  .screen-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.93); backdrop-filter:blur(6px);
+  .screen-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.94); backdrop-filter:blur(6px);
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     z-index:100; opacity:0; pointer-events:none; transition:opacity 0.25s ease; padding:12px;
     overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .screen-overlay.active { opacity:1; pointer-events:auto; }
   .select-modal { background:#1e1633; border:4px solid #ffd700; border-radius:14px;
     padding:18px 22px; max-width:720px; width:96%; text-align:center;
-    box-shadow:0 0 35px rgba(255,215,0,0.4); max-height:92vh; overflow-y:auto;
+    box-shadow:0 0 35px rgba(255,215,0,0.45); max-height:92vh; overflow-y:auto;
     -webkit-overflow-scrolling:touch; touch-action:pan-y; }
   .modal-title { color:#ffd700; font-size:13px; margin-bottom:6px; text-shadow:2px 2px 0 #000; }
   .modal-subtitle { color:#85f8ce; font-size:8px; margin-bottom:14px; text-shadow:1px 1px 0 #000; }
@@ -40,7 +40,7 @@
     transition:transform 0.12s,border-color 0.12s,box-shadow 0.12s,background 0.12s;
     touch-action:manipulation; }
   .char-card:hover,.char-card.selected { border-color:#ffd700;
-    box-shadow:0 0 16px rgba(255,215,0,0.6); transform:scale(1.04); background:#271c40; }
+    box-shadow:0 0 16px rgba(255,215,0,0.7); transform:scale(1.05); background:#2b1d47; }
   .char-thumb-wrap { width:64px; height:76px; display:flex; align-items:center;
     justify-content:center; margin-bottom:6px; }
   .char-thumb { max-width:100%; max-height:100%; object-fit:contain;
@@ -84,33 +84,33 @@
   <div class="screen-overlay active" id="modal-select">
     <div class="select-modal">
       <div class="modal-title">🌟 MUNDO 1: GALAXIA RIVELLES 🌟</div>
-      <div class="modal-subtitle">¡Elige a tu héroe! Tommy te acompañará en la aventura</div>
+      <div class="modal-subtitle">¡Elige a tu héroe! Tommy te acompañará con magia familiar</div>
       
       <div class="char-grid">
-        <div class="char-card selected" data-id="papa" id="card-papa">
-          <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
-          <div class="char-title">PAPÁ</div>
-          <div class="char-ability-tag"><b>▼ en aire</b><br>Ground Pound</div>
-        </div>
-        <div class="char-card" data-id="mama" id="card-mama">
-          <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
-          <div class="char-title">MAMÁ</div>
-          <div class="char-ability-tag"><b>Mantener A</b><br>Glide / Planeo</div>
-        </div>
-        <div class="char-card" data-id="candela" id="card-candela">
+        <div class="char-card selected" data-id="candela" id="card-candela">
           <div class="char-thumb-wrap"><img src="candela.png" alt="Candela" class="char-thumb" onerror="this.src='assets/candela.png'"></div>
           <div class="char-title">CANDELA</div>
-          <div class="char-ability-tag"><b>Pulsar B</b><br>Plataforma Estelar</div>
+          <div class="char-ability-tag"><b>Varita de Estrellas</b><br>Plataforma Arcoíris</div>
         </div>
         <div class="char-card" data-id="cayetana" id="card-cayetana">
           <div class="char-thumb-wrap"><img src="cayetana.png" alt="Cayetana" class="char-thumb" onerror="this.src='assets/cayetana.png'"></div>
           <div class="char-title">CAYETANA</div>
-          <div class="char-ability-tag"><b>Pulsar B</b><br>Caparazón Rebotador</div>
+          <div class="char-ability-tag"><b>Caparazón Koopa</b><br>Rompe y Da Monedas</div>
         </div>
         <div class="char-card" data-id="valentina" id="card-valentina">
           <div class="char-thumb-wrap"><img src="valentina.png" alt="Valentina" class="char-thumb" onerror="this.src='assets/valentina.png'"></div>
           <div class="char-title">VALENTINA</div>
-          <div class="char-ability-tag"><b>A en aire</b><br>Doble Salto</div>
+          <div class="char-ability-tag"><b>Triple Salto Rosa</b><br>Acrobacias con Flores</div>
+        </div>
+        <div class="char-card" data-id="mama" id="card-mama">
+          <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
+          <div class="char-title">MAMÁ</div>
+          <div class="char-ability-tag"><b>Planeo Celestial</b><br>Imán de Estrellas</div>
+        </div>
+        <div class="char-card" data-id="papa" id="card-papa">
+          <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
+          <div class="char-title">PAPÁ</div>
+          <div class="char-ability-tag"><b>Terremoto Estelar</b><br>Ground Pound ▼</div>
         </div>
       </div>
 
@@ -118,8 +118,8 @@
       <div class="tommy-banner">
         <img src="tommy.png" alt="Tommy" class="tommy-banner-img" onerror="this.src='assets/tommy.png'">
         <div class="tommy-banner-text">
-          <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO SUPER-CARGADO</div>
-          Ladrido sónico que aturde enemigos, súper trampolín de salto, recolección de estrellas y rescate en fosos.
+          <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO MÁGICO IA</div>
+          Ladrido sónico que congela enemigos, súper trampolín de salto, recolección de estrellas y rescate automático en fosos.
         </div>
       </div>
 
@@ -131,12 +131,13 @@
 <script>
 'use strict';
 /**
- * SUPER RIVELLES PERIS WORLD v4.0 - ANTI-GRAVITY 2.0 & GALAXY BOSS
- * Features:
- * - Anti-Gravity 2.0: Smooth lunar physics, cosmic ascending dust, Zero-G bubbles.
- * - Supercharged Tommy AI: Sonic stun bark + canine bounce trampoline.
- * - Level Overhaul: Inverted geometry, stalactites, floating crystal platforms.
- * - Epic Boss Battle in 1-3: Giga Koopa Cósmico with multi-phase mechanics & gravity shifts.
+ * SUPER RIVELLES PERIS WORLD v5.0 - NINTENDO FAMILY EDITION 10/10
+ * - Polyphonic Nintendo Chiptune Music Synthesizer (BGM)
+ * - Personalized Wonder Magic for Candela, Cayetana, Valentina, Mamá & Papá
+ * - Tommy Cute Idle Animations (tail wag, sleeping, hearts) & Sonic Stun
+ * - 3 Star Coins per Level for High Replayability
+ * - Zero Frustration Cloud Rescue & Encouraging Family Voice Bubbles
+ * - Flawless Mobile Touch UI with HUD Mute & Map Shortcuts
  */
 
 // ── Polyfill: roundRect ──────────────────────────────────────
@@ -152,36 +153,56 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   };
 }
 
-// ── Audio Synthesizer ─────────────────────────────────────────
+// ── Nintendo Polyphonic Audio & Music Engine ─────────────────
 class SoundFX {
-  constructor(){ this.ctx=null; this.muted=false; }
-  init(){
-    if(!this.ctx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC)this.ctx=new AC(); }
-    if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume();
+  constructor(){
+    this.ctx = null;
+    this.muted = false;
+    this.musicPlaying = false;
+    this.bgmTimer = null;
+    this.bgmStep = 0;
+    this.currentTrack = 'overworld'; // 'overworld', 'cave', 'boss'
   }
-  playTone(f,type='square',dur=0.1,gainVal=0.22,fEnd=null){
-    this.init(); if(!this.ctx||this.muted)return;
+  init(){
+    if(!this.ctx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) this.ctx = new AC();
+    }
+    if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    if(!this.musicPlaying && !this.muted) this.startBGM();
+  }
+  playTone(f, type='square', dur=0.1, gainVal=0.22, fEnd=null){
+    this.init();
+    if(!this.ctx || this.muted) return;
     try{
-      const osc=this.ctx.createOscillator(),gain=this.ctx.createGain(),now=this.ctx.currentTime;
-      osc.type=type; osc.frequency.setValueAtTime(f,now);
-      if(fEnd)osc.frequency.exponentialRampToValueAtTime(Math.max(10,fEnd),now+dur);
-      gain.gain.setValueAtTime(gainVal,now); gain.gain.exponentialRampToValueAtTime(0.001,now+dur);
-      osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now+dur);
+      const osc = this.ctx.createOscillator(), gain = this.ctx.createGain(), now = this.ctx.currentTime;
+      osc.type = type; osc.frequency.setValueAtTime(f, now);
+      if(fEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(10, fEnd), now + dur);
+      gain.gain.setValueAtTime(gainVal, now); gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + dur);
     }catch(e){}
   }
+
+  // Chiptune SFX
   jump(){ this.playTone(160,'square',0.14,0.22,480); }
-  doubleJump(){ this.playTone(380,'triangle',0.16,0.25,820); }
+  tripleJump(){
+    this.playTone(330,'triangle',0.12,0.25,660);
+    setTimeout(()=>this.playTone(660,'sine',0.16,0.25,1100),60);
+  }
   flutter(){ this.playTone(450,'triangle',0.12,0.25,750); setTimeout(()=>this.playTone(600,'sine',0.14,0.22,900),50); }
   dash(){ this.playTone(280,'sawtooth',0.15,0.3,140); }
   glide(){ this.playTone(400,'sine',0.08,0.15,600); }
   groundPoundStart(){ this.playTone(280,'sawtooth',0.12,0.3,100); }
   groundPoundImpact(){ this.playTone(100,'sawtooth',0.3,0.45,20); }
-  platformSpawn(){ this.playTone(700,'triangle',0.15,0.25,1100); }
+  platformSpawn(){
+    this.playTone(700,'triangle',0.12,0.25,1100);
+    setTimeout(()=>this.playTone(1200,'sine',0.15,0.22,1600),60);
+  }
   shellShoot(){ this.playTone(340,'sawtooth',0.14,0.25,120); }
   shellBounce(){ this.playTone(450,'square',0.08,0.2,700); }
   bark(){
-    this.playTone(420,'sawtooth',0.12,0.35,160);
-    setTimeout(()=>this.playTone(240,'sawtooth',0.18,0.3,80),40);
+    this.playTone(440,'sawtooth',0.1,0.35,180);
+    setTimeout(()=>this.playTone(260,'sawtooth',0.16,0.3,90),40);
   }
   gravityShift(){
     this.playTone(280,'sine',0.28,0.35,80);
@@ -192,14 +213,17 @@ class SoundFX {
     this.playTone(600,'sine',0.18,0.25,900);
     setTimeout(()=>this.playTone(800,'triangle',0.2,0.2,1200),60);
   }
+  starCoinCollect(){
+    [523, 659, 784, 1046, 1318, 1568].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.18,0.3,f*1.2),i*60));
+  }
   bossHit(){
     this.playTone(140,'sawtooth',0.25,0.45,40);
     setTimeout(()=>this.playTone(280,'square',0.15,0.3,60),80);
   }
   bossDefeat(){
-    [220, 330, 440, 550, 660, 880].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.2, 0.4, f*1.5), i * 100));
+    [220, 330, 440, 550, 660, 880, 1100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.22, 0.4, f*1.5), i * 90));
   }
-  starCollect(){ this.playTone(987.77,'square',0.07,0.2); setTimeout(()=>this.playTone(1318.51,'square',0.14,0.22),65); }
+  starCollect(){ this.playTone(987.77,'square',0.07,0.18); setTimeout(()=>this.playTone(1318.51,'square',0.14,0.2),65); }
   mountUnicorn(){ [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.14,0.25),i*55)); }
   armorBreak(){ this.playTone(300,'sawtooth',0.15,0.35,100); setTimeout(()=>this.playTone(520,'sine',0.2,0.25,800),80); }
   hazardScatter(){ this.playTone(220,'sawtooth',0.2,0.35,60); setTimeout(()=>this.playTone(140,'sawtooth',0.25,0.3,40),90); }
@@ -207,6 +231,52 @@ class SoundFX {
   levelComplete(){ [523,659,784,880,1046,1318,1568].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.2,0.3),i*80)); }
   blockBump(){ this.playTone(300,'square',0.08,0.25,240); }
   click(){ this.playTone(600,'sine',0.04,0.15,900); }
+
+  // 🎵 Catchy Nintendo Polyphonic Background Music
+  startBGM(){
+    if(this.bgmTimer) clearInterval(this.bgmTimer);
+    this.musicPlaying = true;
+    this.bgmStep = 0;
+
+    // Upbeat Super Mario World style melodies
+    const overworldMelody = [
+      261.63, 0, 329.63, 392.00, 0, 523.25, 392.00, 0,
+      349.23, 0, 440.00, 523.25, 0, 587.33, 523.25, 0,
+      392.00, 0, 493.88, 587.33, 0, 659.25, 587.33, 0,
+      523.25, 0, 392.00, 329.63, 261.63, 0, 0, 0
+    ];
+    const caveMelody = [
+      220.00, 261.63, 329.63, 440.00, 329.63, 261.63, 220.00, 0,
+      174.61, 220.00, 261.63, 349.23, 261.63, 220.00, 174.61, 0,
+      196.00, 246.94, 293.66, 392.00, 293.66, 246.94, 196.00, 0,
+      220.00, 329.63, 440.00, 523.25, 440.00, 329.63, 220.00, 0
+    ];
+    const bossMelody = [
+      146.83, 146.83, 220.00, 0, 146.83, 146.83, 261.63, 0,
+      130.81, 130.81, 196.00, 0, 130.81, 130.81, 246.94, 0,
+      123.47, 123.47, 185.00, 0, 123.47, 123.47, 233.08, 0,
+      146.83, 220.00, 293.66, 370.00, 293.66, 220.00, 146.83, 0
+    ];
+
+    this.bgmTimer = setInterval(() => {
+      if(this.muted || !this.ctx) return;
+      const track = this.currentTrack === 'cave' ? caveMelody : (this.currentTrack === 'boss' ? bossMelody : overworldMelody);
+      const note = track[this.bgmStep % track.length];
+      if(note > 0){
+        this.playTone(note, this.currentTrack === 'cave' ? 'sine' : 'triangle', 0.14, 0.08);
+        // Soft Bassline accompaniment
+        if(this.bgmStep % 4 === 0){
+          this.playTone(note * 0.5, 'triangle', 0.22, 0.11);
+        }
+      }
+      this.bgmStep++;
+    }, 150);
+  }
+
+  stopBGM(){
+    if(this.bgmTimer) clearInterval(this.bgmTimer);
+    this.musicPlaying = false;
+  }
 }
 const audio = new SoundFX();
 
@@ -223,29 +293,29 @@ const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
-// ── 5 Playable Characters ───────────────────────────────────
+// ── 5 Playable Characters with Family Wonder Magic ──────────
 const CHARACTERS = {
-  papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.4, weight:1.0, w:20, h:30,
-              perk:'Ground Pound: ▼ en el aire' },
-  mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.9, w:20, h:30,
-              canGlide:true, perk:'Glide: Mantener A en aire' },
   candela:  { id:'candela',  name:'CANDELA',   imgSrc:'candela.png',  fallback:'assets/candela.png',
               baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.5, weight:0.92, w:20, h:30,
-              canSpawnPlatform:true, perk:'Plataforma: Pulsar B' },
+              canSpawnPlatform:true, perk:'Varita Estelar: Pulsar B' },
   cayetana: { id:'cayetana', name:'CAYETANA',  imgSrc:'cayetana.png', fallback:'assets/cayetana.png',
               baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.5, weight:0.95, w:20, h:30,
-              canShootBouncingShell:true, perk:'Proyectil: Pulsar B' },
+              canShootBouncingShell:true, perk:'Caparazón Koopa: Pulsar B' },
   valentina:{ id:'valentina',name:'VALENTINA', imgSrc:'valentina.png',fallback:'assets/valentina.png',
               baseSpeed:3.6, sprintSpeed:5.0, jumpForce:-9.3, weight:0.85, w:18, h:26,
-              canDoubleJump:true, perk:'Doble Salto: A en el aire' }
+              canTripleJump:true, perk:'Triple Salto Rosa: A en aire' },
+  mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.9, w:20, h:30,
+              canGlide:true, perk:'Planeo Celestial + Imán de Estrellas' },
+  papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.4, weight:1.0, w:20, h:30,
+              perk:'Terremoto Ground Pound: ▼ en aire' }
 };
 
 const loadedImages = {};
 for(const [key,char] of Object.entries(CHARACTERS)){
-  const img=new Image(); img.src=char.imgSrc; img.onerror=()=>{ img.src=char.fallback; };
-  loadedImages[key]=img;
+  const img = new Image(); img.src = char.imgSrc; img.onerror = () => { img.src = char.fallback; };
+  loadedImages[key] = img;
 }
 const tommyImg = new Image();
 tommyImg.src = 'tommy.png';
@@ -253,9 +323,9 @@ tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 
 // ── 3 Level Configs for World 1 ──────────────────────────────
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: El Jardín de las Rosas", width: 2800, theme: "garden", sky: ["#5C94FC","#89b8ff","#d4eaff"] },
-  { id: 2, name: "1-2: Caverna Anti-Gravedad",   width: 3200, theme: "cave",   sky: ["#150626","#2d0d4e","#4a148c"] },
-  { id: 3, name: "1-3: Castillo & Jefe Cósmico", width: 3600, theme: "castle", sky: ["#0b0410","#1c0b2b","#31124d"] }
+  { id: 1, name: "1-1: El Jardín de las Rosas", width: 2800, theme: "garden", sky: ["#5C94FC","#89b8ff","#d4eaff"], track: "overworld" },
+  { id: 2, name: "1-2: Caverna Anti-Gravedad",   width: 3200, theme: "cave",   sky: ["#150626","#2d0d4e","#4a148c"], track: "cave" },
+  { id: 3, name: "1-3: Castillo & Jefe Cósmico", width: 3600, theme: "castle", sky: ["#0b0410","#1c0b2b","#31124d"], track: "boss" }
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -356,7 +426,7 @@ class TouchController {
 }
 
 // ════════════════════════════════════════════════════════════
-// ENEMY — FSM (Koopa & Bat with stun and panic)
+// ENEMY — FSM
 // ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
@@ -431,7 +501,7 @@ class Enemy {
   die(game){
     this.dead=true; this.deadTimer=30; this.deadVy=-6*game.globalGravity;
     game.addParticles(this.x+this.w/2,this.y+this.h/2,14,['#4CAF50','#FFD700','#FFF'],3.5);
-    game.addFloatingText('+100',this.x+this.w/2,this.y-10,'#FFD700');
+    game.addFloatingText('+100 ★',this.x+this.w/2,this.y-10,'#FFD700');
     game.score+=100; audio.enemyDie(); game.hitStopFrames=3; game.camera.shake(5);
   }
   draw(ctx,cam,now){
@@ -476,17 +546,15 @@ class Enemy {
 }
 
 // ════════════════════════════════════════════════════════════
-// GIGA KOOPA CÓSMICO (Boss en Nivel 1-3)
+// GIGA KOOPA CÓSMICO (Epic Galaxy Boss)
 // ════════════════════════════════════════════════════════════
 class GalaxyBoss {
   constructor(x, y){
     this.x = x; this.y = y;
     this.w = 52; this.h = 56;
     this.hp = 3; this.maxHp = 3;
-    this.state = 'idle'; // 'idle', 'charge', 'fire', 'vulnerable', 'defeated'
-    this.phase = 1;
-    this.frame = 0;
-    this.timer = 0;
+    this.state = 'idle';
+    this.frame = 0; this.timer = 0;
     this.vx = -1.5; this.vy = 0;
     this.facingRight = false;
     this.invincTimer = 0;
@@ -498,24 +566,22 @@ class GalaxyBoss {
     this.frame++;
     if(this.invincTimer > 0) this.invincTimer--;
 
-    // Activate when player approaches arena
     if(!this.active && player.x > this.x - 300){
       this.active = true;
+      audio.currentTrack = 'boss';
+      audio.startBGM();
       audio.bossHit();
       game.camera.shake(12);
-      game.addFloatingText('¡ALERTA: GIGA KOOPA CÓSMICO!', this.x, this.y - 30, '#FF1744');
+      game.addFloatingText('¡GRAN JEFE CÓSMICO!', this.x, this.y - 30, '#FF1744');
     }
     if(!this.active) return;
 
-    // Movement & Attack Cycle
     this.timer++;
     if(this.timer > 160){
       this.timer = 0;
       this.facingRight = player.x > this.x;
-      // Attack choice
       const roll = Math.random();
       if(roll < 0.5){
-        // Fire meteors
         for(let i=0; i<3; i++){
           setTimeout(()=>{
             if(this.state!=='defeated'){
@@ -533,37 +599,29 @@ class GalaxyBoss {
           }, i * 220);
         }
       } else {
-        // Shift gravity periodically in later phases
         if(this.hp <= 2 && Math.random() < 0.6){
           game.triggerGravityShift();
         }
       }
     }
 
-    // Boss patrol within arena
     this.x += this.vx;
     if(this.x < 3000){ this.x = 3000; this.vx = 2.0; this.facingRight = true; }
     if(this.x > 3420){ this.x = 3420; this.vx = -2.0; this.facingRight = false; }
 
-    // Update fireballs
     for(let i = this.fireballs.length - 1; i >= 0; i--){
       const fb = this.fireballs[i];
-      fb.x += fb.vx; fb.y += fb.vy;
-      fb.life--;
-      // Player hit check
+      fb.x += fb.vx; fb.y += fb.vy; fb.life--;
       if(player.invincibleTimer <= 0 && Math.hypot(player.x - fb.x, player.y - fb.y) < 18){
         player.invincibleTimer = 90;
-        player.vx = Math.sign(fb.vx) * 5;
-        player.vy = -5;
-        game.starDust = Math.max(0, game.starDust - 6);
-        audio.hazardScatter();
-        game.camera.shake(6);
-        game.addFloatingText('-6 STAR-DUST', player.x, player.y - 12, '#FF1744');
+        player.vx = Math.sign(fb.vx) * 5; player.vy = -5;
+        game.starDust = Math.max(0, game.starDust - 4);
+        audio.hazardScatter(); game.camera.shake(6);
+        game.addFloatingText('-4 STAR-DUST', player.x, player.y - 12, '#FF1744');
       }
       if(fb.life <= 0) this.fireballs.splice(i, 1);
     }
 
-    // Player Jump / Stomp Damage on Boss
     if(this.invincTimer <= 0 && player.x < this.x + this.w && player.x + player.w > this.x && player.y < this.y + this.h && player.y + player.h > this.y){
       const stomped = (game.globalGravity === 1 && player.vy > 0 && player.y + player.h < this.y + 24) ||
                       (game.globalGravity === -1 && player.vy < 0 && player.y > this.y + this.h - 24);
@@ -571,9 +629,7 @@ class GalaxyBoss {
         this.hp--;
         this.invincTimer = 70;
         player.vy = game.globalGravity === 1 ? -9 : 9;
-        audio.bossHit();
-        game.camera.shake(14);
-        game.hitStopFrames = 5;
+        audio.bossHit(); game.camera.shake(14); game.hitStopFrames = 5;
         game.addParticles(this.x + this.w/2, this.y + this.h/2, 28, ['#FF1744','#FFD700','#FFF'], 5);
         game.addFloatingText(`¡IMPACTO! HP: ${this.hp}/${this.maxHp}`, this.x + this.w/2, this.y - 16, '#FFD700');
 
@@ -581,7 +637,7 @@ class GalaxyBoss {
           this.state = 'defeated';
           audio.bossDefeat();
           game.score += 2500;
-          game.addFloatingText('¡JEFE DERROTADO! +2500', this.x + this.w/2, this.y - 30, '#00E5FF');
+          game.addFloatingText('¡VICTORIA FAMILIAR! +2500', this.x + this.w/2, this.y - 30, '#00E5FF');
           for(let i=0; i<15; i++){
             setTimeout(()=>{
               game.addParticles(this.x + Math.random()*this.w, this.y + Math.random()*this.h, 24, ['#FFD700','#FF4081','#00E5FF','#FFF'], 6);
@@ -591,12 +647,10 @@ class GalaxyBoss {
         }
       } else if(player.invincibleTimer <= 0){
         player.invincibleTimer = 90;
-        player.vx = (player.x < this.x ? -5 : 5);
-        player.vy = -6;
-        game.starDust = Math.max(0, game.starDust - 8);
-        audio.hazardScatter();
-        game.camera.shake(8);
-        game.addFloatingText('-8 STAR-DUST', player.x, player.y - 14, '#FF1744');
+        player.vx = (player.x < this.x ? -5 : 5); player.vy = -6;
+        game.starDust = Math.max(0, game.starDust - 4);
+        audio.hazardScatter(); game.camera.shake(8);
+        game.addFloatingText('-4 STAR-DUST', player.x, player.y - 14, '#FF1744');
       }
     }
   }
@@ -611,47 +665,37 @@ class GalaxyBoss {
     if(!this.facingRight) ctx.scale(-1, 1);
     if(this.invincTimer > 0 && Math.floor(now / 80) % 2 === 0) ctx.globalAlpha = 0.4;
 
-    // Shell Body (Gigantic Dark Red & Gold)
     ctx.fillStyle = '#B71C1C';
     ctx.beginPath(); ctx.ellipse(0, 4, 24, 22, 0, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3; ctx.stroke();
 
-    // Spikes on Shell
     ctx.fillStyle = '#FFD700';
     [-14, 0, 14].forEach(off => {
       ctx.beginPath(); ctx.moveTo(off - 4, -14); ctx.lineTo(off, -26); ctx.lineTo(off + 4, -14); ctx.closePath(); ctx.fill();
     });
 
-    // Head
     ctx.fillStyle = '#4A148C';
     ctx.beginPath(); ctx.ellipse(18, -8, 14, 12, 0, 0, Math.PI*2); ctx.fill();
-    // Glowing Eyes
     ctx.fillStyle = '#FF1744'; ctx.fillRect(20, -12, 5, 4);
     ctx.fillStyle = '#FFF'; ctx.fillRect(22, -11, 2, 2);
-    // Horns
-    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(14, -16); ctx.lineTo(24, -28); ctx.lineTo(20, -14); ctx.closePath(); ctx.fill();
 
-    // Legs
     const walk = Math.sin(this.frame * 0.2) * 5;
     ctx.fillStyle = '#31124D';
     ctx.fillRect(-16 + walk, 18, 10, 12); ctx.fillRect(6 - walk, 18, 10, 12);
-
     ctx.restore();
 
-    // Draw fireballs
     for(const fb of this.fireballs){
       const fs = cam.toScreen(fb.x, fb.y);
       ctx.save(); ctx.translate(fs.x, fs.y);
       ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     }
   }
 }
 
 // ════════════════════════════════════════════════════════════
-// TOMMY SUPER-CARGADO (Sonic Stun Bark & Bounce Trampoline)
+// TOMMY IA (Cute Idles, Sonic Stun & Canine Trampoline)
 // ════════════════════════════════════════════════════════════
 class TommyAI {
   constructor(startX, startY){
@@ -663,33 +707,42 @@ class TommyAI {
     this.targetItem = null; this.barkTimer = 0; this.frame = 0;
     this.jumpCooldown = 0; this.rescueCooldown = 0;
     this.sonicWaves = [];
+    this.idleTimer = 0;
   }
-  update(player, starDustItems, enemies, allPlatforms, globalGravity, game){
+  update(player, starDustItems, starCoins, enemies, allPlatforms, globalGravity, game){
     this.frame++;
     if(this.barkTimer > 0) this.barkTimer--;
     if(this.jumpCooldown > 0) this.jumpCooldown--;
     if(this.rescueCooldown > 0) this.rescueCooldown--;
 
-    // Gravity
     if(globalGravity === 1) this.vy = Math.min(this.vy + GRAVITY * 0.85, MAX_FALL);
     else                    this.vy = Math.max(this.vy - GRAVITY * 0.68, -MAX_FALL);
 
-    // 1. Sonic Stun Bark when enemy is nearby
+    // Idle Cute Hearts Animation
+    if(Math.abs(player.vx) < 0.2 && Math.abs(this.vx) < 0.2){
+      this.idleTimer++;
+      if(this.idleTimer === 120){
+        game.addFloatingText('❤️🐶', this.x + this.w/2, this.y - 16, '#FF4081');
+      }
+    } else {
+      this.idleTimer = 0;
+    }
+
+    // 1. Sonic Stun Bark
     const danger = enemies.find(e => !e.dead && Math.hypot(e.x - player.x, e.y - player.y) < 110);
     if(danger && this.barkTimer <= 0){
       this.mode = 'warn'; this.barkTimer = 90; audio.bark();
       game.addFloatingText('¡LADRIDO SÓNICO! 🔊🐶', this.x, this.y - 18, '#00E5FF');
       this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 4, maxR: 70 });
-      // Stun all nearby enemies!
       enemies.forEach(en => {
         if(!en.dead && Math.hypot(en.x - this.x, en.y - this.y) < 120){
-          en.stunTimer = 90; // Stun for 1.5 seconds!
+          en.stunTimer = 90;
           game.addFloatingText('¡ATURDIDO! 💫', en.x, en.y - 12, '#FFD700');
         }
       });
     }
 
-    // 2. Canine Bounce Trampoline: Player can bounce off Tommy for super high jump!
+    // 2. Canine Trampoline
     if(player.x + player.w > this.x - 2 && player.x < this.x + this.w + 2 && player.y + player.h >= this.y - 4 && player.y + player.h <= this.y + 10 && player.vy > 0){
       player.vy = globalGravity === 1 ? -10.5 : 10.5;
       player.squashX = 0.7; player.squashY = 1.4;
@@ -699,16 +752,16 @@ class TommyAI {
     }
 
     // 3. Failsafe Rescue Jump
-    if(player.y > VIRT_H - 18 && this.rescueCooldown <= 0 && Math.abs(player.x - this.x) < 120){
+    if(player.y > VIRT_H - 18 && this.rescueCooldown <= 0 && Math.abs(player.x - this.x) < 140){
       this.mode = 'rescue'; this.rescueCooldown = 320;
       this.x = player.x; this.y = VIRT_H - 10; this.vy = -12;
       player.y = VIRT_H - 40; player.vy = -11;
       audio.bark(); audio.jump();
-      game.addFloatingText('¡RESCATE HEROICO! 🐶✨', player.x, player.y - 20, '#00E5FF');
+      game.addFloatingText('¡NUBE DE RESCATE TOMMY! 🐶✨', player.x, player.y - 20, '#00E5FF');
       game.addParticles(player.x, player.y, 18, ['#FFD700','#00E5FF','#FFF'], 4);
     }
 
-    // 4. Star Collection Seek
+    // 4. Star & Coin Seek
     let nearStar = null, nearDist = 180;
     for(const sd of starDustItems){
       if(sd.collected) continue;
@@ -723,7 +776,6 @@ class TommyAI {
       }
     }
 
-    // Target Movement
     let targetX = player.x + (player.facingRight ? -26 : player.w + 8);
     if(this.mode === 'collect' && this.targetItem) targetX = this.targetItem.x;
     const dx = targetX - this.x;
@@ -737,7 +789,6 @@ class TommyAI {
       this.vy = globalGravity === 1 ? -9.0 : 9.0; this.jumpCooldown = 35;
     }
 
-    // Physics
     this.x += this.vx;
     for(const p of allPlatforms){
       if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
@@ -755,14 +806,13 @@ class TommyAI {
     if(this.targetItem && !this.targetItem.collected){
       if(Math.hypot(this.targetItem.x - this.x, this.targetItem.y - this.y) < 22){
         this.targetItem.collected = true; game.starDust += 1; audio.starCollect();
-        game.addFloatingText('+1 (Tommy)', this.x + this.w/2, this.y - 14, '#FFD700');
+        game.addFloatingText('+1 ★ (Tommy)', this.x + this.w/2, this.y - 14, '#FFD700');
         this.targetItem = null; this.mode = 'follow';
       }
     }
 
     if(this.y > VIRT_H + 40){ this.y = player.y; this.x = player.x + 20; this.vy = 0; }
 
-    // Sonic wave expand
     for(let i = this.sonicWaves.length - 1; i >= 0; i--){
       const sw = this.sonicWaves[i];
       sw.r += 3.5;
@@ -778,19 +828,20 @@ class TommyAI {
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
     if(!this.facingRight) ctx.scale(-1, 1);
     
+    // Tail Wag Animation
+    const wag = Math.sin(now * 0.015) * 3;
+
     if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
       const dw = this.w * 1.8, dh = this.h * 1.5;
-      ctx.drawImage(tommyImg, -dw/2, -dh/2, dw, dh);
+      ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.3:0), dw, dh);
     } else {
       ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-8, -4, 16, 10);
       ctx.fillStyle = '#8D6E63'; ctx.fillRect(-8, -4, 7, 6);
       ctx.fillStyle = '#FFFFFF'; ctx.fillRect(4, -9, 10, 9);
       ctx.fillStyle = '#1A1A1A'; ctx.fillRect(10, -7, 2, 2);
-      ctx.fillStyle = '#1A1A1A'; ctx.fillRect(1, -5, 2, 3);
     }
     ctx.restore();
 
-    // Draw sonic waves
     for(const sw of this.sonicWaves){
       const ws = cam.toScreen(sw.x, sw.y);
       ctx.save();
@@ -799,6 +850,58 @@ class TommyAI {
       ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     }
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// STAR COIN (3 Monedas Gigantes Coleccionables por Nivel)
+// ════════════════════════════════════════════════════════════
+class StarCoin {
+  constructor(x, y, id){
+    this.x = x; this.y = y; this.id = id;
+    this.r = 14; this.collected = false;
+  }
+  check(player, game){
+    if(this.collected) return;
+    if(Math.hypot(player.x + player.w/2 - this.x, player.y + player.h/2 - this.y) < this.r + 14){
+      this.collected = true;
+      game.starCoinsCollected++;
+      game.score += 500;
+      audio.starCoinCollect();
+      game.camera.shake(6);
+      game.addFloatingText('¡GRAN MONEDA ESTELAR! ⭐', this.x, this.y - 20, '#FFD700');
+      game.addParticles(this.x, this.y, 24, ['#FFD700','#FFF','#FFA000','#FF4081'], 4.5);
+    }
+  }
+  draw(ctx, cam, now){
+    if(this.collected) return;
+    if(!cam.isVisible(this.x - this.r, this.y - this.r, this.r*2, this.r*2)) return;
+    const s = cam.toScreen(this.x, this.y);
+
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    const pulse = Math.sin(now * 0.006 + this.id) * 2;
+    const curR = this.r + pulse;
+
+    // Glowing Radial Outer
+    const grad = ctx.createRadialGradient(0, 0, curR*0.2, 0, 0, curR + 6);
+    grad.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
+    grad.addColorStop(0.7, 'rgba(255, 152, 0, 0.4)');
+    grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(0, 0, curR + 6, 0, Math.PI*2); ctx.fill();
+
+    // Gold Coin Base
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath(); ctx.arc(0, 0, curR, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Center Big Star
+    ctx.fillStyle = '#FFF';
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('★', 0, 1);
+    ctx.restore();
   }
 }
 
@@ -841,11 +944,11 @@ class QuestionBlock {
       game.starDust+=3; game.addFloatingText('+3 STAR-DUST!',px,py-14,'#FFD700');
       game.addParticles(px,py,12,['#FFD700','#FFF','#FFE082'],3);
     } else if(this.item==='mushroom'){
-      game.player.superSpeedTimer=300; game.addFloatingText('SUPER VELOCIDAD!',px,py-14,'#FF4081');
+      game.player.superSpeedTimer=300; game.addFloatingText('¡SUPER VELOCIDAD!',px,py-14,'#FF4081');
       game.addParticles(px,py,10,['#FF4081','#E040FB','#FFF'],2.5); audio.mountUnicorn();
     } else if(this.item==='trampoline'){
       game.spawnedPlatforms.push({x:this.x-8,y:this.y-12,w:32,h:8,life:360,maxLife:360,color:'#00BCD4',topColor:'#00E5FF',isTrampoline:true});
-      game.addFloatingText('TRAMPOLIN!',px,py-14,'#00E5FF'); audio.platformSpawn();
+      game.addFloatingText('¡TRAMPOLÍN!',px,py-14,'#00E5FF'); audio.platformSpawn();
     }
   }
   update(){ if(this.bumpT>0){ this.bumpT--; this.y=this.baseY-Math.sin((this.bumpT/12)*Math.PI)*7; } else this.y=this.baseY; }
@@ -921,13 +1024,14 @@ class PlatformerGame {
     this.canvas.width=VIRT_W; this.canvas.height=VIRT_H;
     this.ctx.imageSmoothingEnabled=false;
     
-    this.selectedCharId='papa';
+    this.selectedCharId='candela';
     this.currentLevelIdx=0;
     this.unlockedLevels=[true, false, false];
     this.state='MENU';
 
     this.globalGravity=1; this.flashTimer=0;
     this.starDust=0; this.score=0;
+    this.starCoinsCollected=0;
     this.soundMuted=false; this.frameCount=0; this.hitStopFrames=0;
     this.screenW=window.innerWidth; this.screenH=window.innerHeight;
     this.isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0)||window.matchMedia('(pointer:coarse)').matches;
@@ -935,7 +1039,7 @@ class PlatformerGame {
     this.player={
       x:80,y:210,w:20,h:30,vx:0,vy:0,onGround:false,facingRight:true,
       lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity,jumpHeld:false,
-      isRiding:false,isGroundPounding:false,hasDoubleJumped:false,isGliding:false,
+      isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
       invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false
     };
@@ -948,8 +1052,8 @@ class PlatformerGame {
 
     this.staticPlatforms=[]; this.spawnedPlatforms=[]; this.enemies=[];
     this.questionBlocks=[]; this.destructibleBlocks=[]; this.starDustItems=[];
-    this.hazardBlocks=[]; this.gSwitches=[]; this.unicorns=[]; this.flagPole=null;
-    this.zeroGBubbles=[];
+    this.starCoins=[]; this.hazardBlocks=[]; this.gSwitches=[]; this.unicorns=[];
+    this.zeroGBubbles=[]; this.flagPole=null;
     this.projectiles=[]; this.particles=[]; this.scatterDust=[]; this.floatingTexts=[];
 
     this.input={left:false,right:false,up:false,down:false,jump:false,action:false};
@@ -987,7 +1091,11 @@ class PlatformerGame {
       if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=true;
       if(e.code==='KeyG')this.triggerGravityShift();
       if(e.code==='KeyC')this.openCharacterSelect();
-      if(e.code==='KeyM'){this.soundMuted=!this.soundMuted;audio.muted=this.soundMuted;}
+      if(e.code==='KeyM'){
+        this.soundMuted=!this.soundMuted;
+        audio.muted=this.soundMuted;
+        if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+      }
     });
     window.addEventListener('keyup',e=>{
       if(e.code==='ArrowLeft'||e.code==='KeyA')this.input.left=false;
@@ -1023,9 +1131,8 @@ class PlatformerGame {
     startBtn.addEventListener('click', onStart);
     startBtn.addEventListener('touchend', onStart, {passive:false});
 
-    // Map level selection touch & click
-    const handleMapInput = (e)=>{
-      if(this.state!=='WORLD_MAP')return;
+    // Map level selection & Top HUD clicks
+    const handleCanvasTap = (e)=>{
       let clientX, clientY;
       if(e.changedTouches && e.changedTouches.length>0){
         clientX=e.changedTouches[0].clientX; clientY=e.changedTouches[0].clientY;
@@ -1036,6 +1143,24 @@ class PlatformerGame {
       const rect=this.canvas.getBoundingClientRect();
       const cx=(clientX-rect.left)*(VIRT_W/rect.width);
       const cy=(clientY-rect.top)*(VIRT_H/rect.height);
+
+      // HUD Button Clicks (Mute & Map)
+      if(this.state === 'PLAYING' && cy <= 32){
+        // Mute button tap
+        if(cx >= VIRT_W - 50 && cx <= VIRT_W - 10){
+          this.soundMuted = !this.soundMuted;
+          audio.muted = this.soundMuted;
+          if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+          return;
+        }
+        // Map button tap
+        if(cx >= VIRT_W - 100 && cx <= VIRT_W - 55){
+          this.state = 'WORLD_MAP';
+          return;
+        }
+      }
+
+      if(this.state!=='WORLD_MAP') return;
 
       const nodes=[{x:120,y:140},{x:256,y:140},{x:390,y:140}];
       nodes.forEach((n,idx)=>{
@@ -1049,10 +1174,12 @@ class PlatformerGame {
       });
     };
 
-    this.canvas.addEventListener('click', handleMapInput);
+    this.canvas.addEventListener('click', handleCanvasTap);
     this.canvas.addEventListener('touchend', e=>{
-      if(this.state==='WORLD_MAP'){ e.preventDefault(); handleMapInput(e); }
-    },{passive:false});
+      if(this.state==='WORLD_MAP' || this.state==='PLAYING'){
+        handleCanvasTap(e);
+      }
+    },{passive:true});
   }
 
   startSelectedLevel(){
@@ -1062,11 +1189,12 @@ class PlatformerGame {
 
     this.globalGravity=1; this.flashTimer=0;
     this.frameCount=0; this.hitStopFrames=0;
+    this.starCoinsCollected=0;
 
     Object.assign(this.player,{
       w:char.w,h:char.h,x:80,y:256-char.h,vx:0,vy:0,
       onGround:true,isRiding:false,isGroundPounding:false,
-      hasDoubleJumped:false,isGliding:false,invincibleTimer:0,
+      jumpCount:0,isGliding:false,invincibleTimer:0,
       facingRight:true,jumpHeld:false,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false,
       lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity
@@ -1075,6 +1203,20 @@ class PlatformerGame {
     this.tommyAI=new TommyAI(50,210);
     this.buildLevel(cfg);
     this.camera.x=0;
+
+    // Start level specific soundtrack
+    audio.currentTrack = cfg.track;
+    audio.startBGM();
+
+    // Encouraging family intro voice
+    const quotes = {
+      candela: '¡VAMOS CANDELA! ✨🌟',
+      cayetana: '¡A POR TODAS CAYETANA! 🐢💨',
+      valentina: '¡ERES LA MEJOR VALENTINA! 🌸💖',
+      mama: '¡LA FAMILIA UNIDA ES PODEROSA! 👰💫',
+      papa: '¡VAMOS EQUIPO! 👔🚀'
+    };
+    this.addFloatingText(quotes[char.id]||'¡A JUGAR!', 160, 100, '#FFD700');
 
     if(this.isMobile) this.touchCtrl.active=true;
   }
@@ -1096,6 +1238,11 @@ class PlatformerGame {
       this.gSwitches=[{x:320,y:242,w:24,h:14,pressed:0,cooldown:0},{x:1140,y:158,w:24,h:14,pressed:0,cooldown:0}];
       this.zeroGBubbles=[
         {x:480, y:130, r:55}, {x:1250, y:130, r:65}, {x:2100, y:120, r:55}
+      ];
+      this.starCoins=[
+        new StarCoin(440, 100, 1),
+        new StarCoin(1250, 90, 2),
+        new StarCoin(2450, 110, 3)
       ];
       this.questionBlocks=[
         new QuestionBlock(180,160,'stardust'), new QuestionBlock(620,140,'mushroom'),
@@ -1119,10 +1266,8 @@ class PlatformerGame {
       this.staticPlatforms=[
         P(0,0,lw,16,'#4A148C','#AB47BC'), P(0,0,12,VIRT_H), P(lw-12,0,12,VIRT_H),
         P(0,256,900,32,'#2A085C','#7B1FA2'), P(1000,256,1200,32,'#2A085C','#7B1FA2'), P(2300,256,900,32,'#2A085C','#7B1FA2'),
-        // Bóvedas de techo para correr invertido
         P(200,44,140,14,'#4A148C','#CE93D8'), P(450,60,160,14,'#4A148C','#CE93D8'), P(750,40,150,14,'#4A148C','#CE93D8'),
         P(1100,50,180,14,'#4A148C','#CE93D8'), P(1400,35,180,14,'#4A148C','#CE93D8'), P(1800,55,160,14,'#4A148C','#CE93D8'),
-        // Estalactitas y plataformas en zigzag
         P(150,190,80,12), P(350,160,90,12), P(600,180,100,12), P(850,140,80,12),
         P(1200,180,110,12), P(1500,150,100,12), P(1750,190,90,12), P(2000,160,100,12), P(2400,180,110,12)
       ];
@@ -1131,9 +1276,13 @@ class PlatformerGame {
         {x:220,y:242,w:24,h:14,pressed:0,cooldown:0},{x:620,y:166,w:24,h:14,pressed:0,cooldown:0},
         {x:1220,y:166,w:24,h:14,pressed:0,cooldown:0},{x:1820,y:176,w:24,h:14,pressed:0,cooldown:0}
       ];
-      // 🌟 4 Cosmic Zero-G Bubbles in Level 1-2!
       this.zeroGBubbles=[
         {x:450, y:120, r:65}, {x:1050, y:120, r:70}, {x:1700, y:110, r:70}, {x:2350, y:120, r:65}
+      ];
+      this.starCoins=[
+        new StarCoin(450, 45, 1),
+        new StarCoin(1400, 20, 2),
+        new StarCoin(2000, 110, 3)
       ];
       this.questionBlocks=[
         new QuestionBlock(220,150,'stardust'), new QuestionBlock(640,130,'trampoline'),
@@ -1161,20 +1310,25 @@ class PlatformerGame {
         P(1150,175,100,12), P(1350,135,110,12), P(1580,175,100,12), P(1800,135,110,12), P(2020,185,100,12),
         P(2250,145,110,12), P(2480,185,100,12), P(2700,145,110,12),
         // Boss Arena (2900 - 3500)
-        P(2900,256,650,32,'#1A0033','#E040FB'), // Arena floor
-        P(2900,16,650,16,'#1A0033','#E040FB'),  // Arena ceiling floor
+        P(2900,256,650,32,'#1A0033','#E040FB'),
+        P(2900,16,650,16,'#1A0033','#E040FB'),
         P(3020,190,90,12,'#4A148C','#E040FB'), P(3320,190,90,12,'#4A148C','#E040FB'),
-        P(3170,70,100,12,'#4A148C','#E040FB')  // Top perch for inverted ground pound on boss
+        P(3170,70,100,12,'#4A148C','#E040FB')
       ];
       this.hazardBlocks=[{x:320,y:140,w:26,h:16},{x:1370,y:115,w:26,h:16},{x:1820,y:115,w:26,h:16},{x:2720,y:125,w:26,h:16}];
       this.gSwitches=[
         {x:500,y:109,w:24,h:14,pressed:0,cooldown:0},{x:1370,y:119,w:24,h:14,pressed:0,cooldown:0},
         {x:2270,y:129,w:24,h:14,pressed:0,cooldown:0},
-        {x:2940,y:242,w:24,h:14,pressed:0,cooldown:0}, // Boss Arena Switches
+        {x:2940,y:242,w:24,h:14,pressed:0,cooldown:0},
         {x:3480,y:242,w:24,h:14,pressed:0,cooldown:0}
       ];
       this.zeroGBubbles=[
         {x:600, y:130, r:60}, {x:1500, y:120, r:65}, {x:2300, y:120, r:65}, {x:3170, y:110, r:75}
+      ];
+      this.starCoins=[
+        new StarCoin(480, 75, 1),
+        new StarCoin(1800, 85, 2),
+        new StarCoin(3170, 45, 3)
       ];
       this.questionBlocks=[
         new QuestionBlock(320,120,'stardust'), new QuestionBlock(700,125,'mushroom'),
@@ -1241,13 +1395,22 @@ class PlatformerGame {
       this.updateEntities(now);
       this.updateEnemies();
       if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
-      this.tommyAI.update(this.player,this.starDustItems,this.enemies,this.getAllSolidPlatforms(),this.globalGravity,this);
+      this.tommyAI.update(this.player,this.starDustItems,this.starCoins,this.enemies,this.getAllSolidPlatforms(),this.globalGravity,this);
       this.dda.evaluate(this.frameCount);
-      if(this.dda.magnetRadius>0){
+
+      // Star Coins Check
+      for(const sc of this.starCoins){ sc.check(this.player, this); }
+
+      // DDA & Mamá Magnet
+      const char = CHARACTERS[this.selectedCharId];
+      const isMamaMagnet = (char.id === 'mama' && this.player.isGliding);
+      const effectiveRadius = isMamaMagnet ? 120 : this.dda.magnetRadius;
+
+      if(effectiveRadius > 0){
         for(const sd of this.starDustItems){
           if(sd.collected)continue;
           const dx=this.player.x-sd.x, dy=this.player.y-sd.y, d=Math.sqrt(dx*dx+dy*dy);
-          if(d<this.dda.magnetRadius&&d>2){sd.x+=dx/d*2;sd.y+=dy/d*2;}
+          if(d<effectiveRadius&&d>2){sd.x+=dx/d*3.5;sd.y+=dy/d*3.5;}
         }
       }
     }
@@ -1256,7 +1419,7 @@ class PlatformerGame {
     this.prevAction=this.input.action;
   }
 
-  // ── Player Movement & Anti-Gravity 2.0 ─────────────────────
+  // ── Player Movement with Wonder Magic ──────────────────────
   updatePlayer(now){
     const char=CHARACTERS[this.selectedCharId];
     const p=this.player; p.frame++;
@@ -1290,7 +1453,6 @@ class PlatformerGame {
     }
 
     if(p.inZeroG){
-      // 🌟 Zero-G Omnidirectional Space Swimming Physics
       p.onGround = false;
       p.isGroundPounding = false;
       p.vy *= 0.90;
@@ -1304,7 +1466,6 @@ class PlatformerGame {
       if(this.input.left){ p.vx = Math.max(p.vx - zSpd, -maxZSpd); p.facingRight = false; }
       if(this.input.right){ p.vx = Math.min(p.vx + zSpd, maxZSpd); p.facingRight = true; }
 
-      // Turbo Space Dash on Jump (A)
       if(jumpEdge){
         const dirX = this.input.left ? -1 : (this.input.right ? 1 : (p.facingRight ? 1 : -1));
         const dirY = this.input.up ? -1 : (this.input.down ? 1 : 0);
@@ -1316,7 +1477,6 @@ class PlatformerGame {
         this.addParticles(p.x + p.w/2, p.y + p.h/2, 14, ['#00E5FF','#E040FB','#FFD700','#FFF'], 3.5);
       }
     } else {
-      // Normal / Anti-Gravity 2.0 Physics
       const speedMult=(p.superSpeedTimer>0?1.7:1)*(p.isRiding?1.25:1);
       let baseSpd=char.baseSpeed*speedMult;
       let sprintSpd=char.sprintSpeed*speedMult;
@@ -1329,7 +1489,6 @@ class PlatformerGame {
         else if(p.vx<0) p.vx=Math.min(0,p.vx+DECEL);
       }
 
-      // Anti-Gravity 2.0 Lunar Float Physics
       if(this.globalGravity===1){
         p.isGliding=false;
         if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy>0&&!p.isRiding){
@@ -1338,33 +1497,33 @@ class PlatformerGame {
         } else if(!p.isGroundPounding){ p.vy=Math.min(p.vy+GRAVITY*char.weight,MAX_FALL); }
         if(char.id==='papa'&&this.input.down&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
           p.isGroundPounding=true; p.vy=13; p.vx=0;
-          audio.groundPoundStart(); this.camera.shake(3);
-          this.addFloatingText('GROUND POUND!',p.x+p.w/2,p.y-12,'#FF5252');
+          audio.groundPoundStart(); this.camera.shake(4);
+          this.addFloatingText('¡TERREMOTO ESTELAR!',p.x+p.w/2,p.y-12,'#FF5252');
         }
       } else {
-        // -1G: Smooth Lunar Float
         p.isGliding=false;
         if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy<0&&!p.isRiding){
           p.isGliding=true; p.vy=Math.max(p.vy,-1.2);
           if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y,2,['#FFD700','#FFF','#E040FB'],1.5);}
         } else if(!p.isGroundPounding){
-          // Floatier upward gravity (68% magnitude)
           p.vy=Math.max(p.vy - GRAVITY * 0.68 * char.weight, -MAX_FALL);
         }
         if(char.id==='papa'&&(this.input.down||this.input.up)&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
           p.isGroundPounding=true; p.vy=-13; p.vx=0;
-          audio.groundPoundStart(); this.camera.shake(3);
-          this.addFloatingText('CEILING POUND!',p.x+p.w/2,p.y+p.h+12,'#FF5252');
+          audio.groundPoundStart(); this.camera.shake(4);
+          this.addFloatingText('¡TERREMOTO DE TECHO!',p.x+p.w/2,p.y+p.h+12,'#FF5252');
         }
       }
 
-      if(p.onGround){ p.lastGroundedAt=now; p.hasDoubleJumped=false; }
+      if(p.onGround){ p.lastGroundedAt=now; p.jumpCount=0; }
 
       const coyoteOk=(now-p.lastGroundedAt)<=COYOTE_MS;
       const bufferOk=(now-p.lastJumpPressAt)<=BUFFER_MS;
+
       if((jumpEdge&&coyoteOk)||(bufferOk&&p.onGround)){
         p.vy=this.globalGravity===1?char.jumpForce:-char.jumpForce*0.88;
         p.onGround=false; p.jumpHeld=true; p.isGroundPounding=false;
+        p.jumpCount=1;
         p.lastGroundedAt=-Infinity; p.lastJumpPressAt=-Infinity;
         p.squashX=0.82; p.squashY=1.2; audio.jump();
         this.addParticles(p.x+p.w/2,this.globalGravity===1?p.y+p.h:p.y,7,['#FFF','#E0E0E0']);
@@ -1372,11 +1531,15 @@ class PlatformerGame {
         p.vy=this.globalGravity===1?-6.2:6.2; p.jumpHeld=true; audio.flutter();
         this.addFloatingText('FLUTTER!',p.x+p.w/2,p.y-12,'#E040FB');
         this.addParticles(p.x+p.w/2,p.y+p.h/2,7,['#E040FB','#00E5FF','#FFD700'],2.5);
-      } else if(jumpEdge&&char.id==='valentina'&&!p.onGround&&!p.hasDoubleJumped&&!p.isRiding){
-        p.vy=this.globalGravity===1?char.jumpForce*0.92:-char.jumpForce*0.82;
-        p.hasDoubleJumped=true; p.jumpHeld=true; audio.doubleJump();
-        this.addFloatingText('DOUBLE JUMP!',p.x+p.w/2,p.y-12,'#FF4081');
-        this.addParticles(p.x+p.w/2,p.y+p.h/2,10,['#FF4081','#FF80AB','#FFF'],3);
+      } else if(jumpEdge&&char.id==='valentina'&&!p.onGround&&!p.isRiding&&p.jumpCount<3){
+        // 🌸 Valentina Triple Jump Wonder Magic
+        p.jumpCount++;
+        const boost = p.jumpCount === 2 ? 0.95 : 1.15;
+        p.vy = this.globalGravity===1 ? char.jumpForce * boost : -char.jumpForce * boost * 0.85;
+        p.jumpHeld = true;
+        audio.tripleJump();
+        this.addFloatingText(p.jumpCount===3 ? '¡TRIPLE SALTO MÁGICO! 🌸✨' : '¡DOBLE SALTO! 🌸', p.x+p.w/2, p.y-14, '#FF4081');
+        this.addParticles(p.x+p.w/2, p.y+p.h/2, 14, ['#FF4081','#FF80AB','#FFF','#FFD700'], 3.8);
       }
       if(p.jumpHeld&&!this.input.jump){
         if(this.globalGravity===1&&p.vy<0)p.vy*=JUMP_CUT_MULT;
@@ -1385,23 +1548,29 @@ class PlatformerGame {
       }
     }
 
+    // Wonder Magic Action Buttons
     if(actionEdge){
       if(p.isRiding){
         const d=p.facingRight?1:-1; p.vx=d*10.5; audio.dash();
-        this.addFloatingText('DASH!',p.x+p.w/2,p.y-12,'#00E5FF');
+        this.addFloatingText('¡TURBO DASH!',p.x+p.w/2,p.y-12,'#00E5FF');
         this.addParticles(p.x+(p.facingRight?-8:p.w+8),p.y+p.h/2,14,['#00E5FF','#E040FB','#FFD700'],4);
       } else {
         if(char.id==='candela'){
+          // ✨ Candela Star Wand Magic Platform
           const lw=LEVEL_CONFIGS[this.currentLevelIdx].width;
           const px=Math.max(14,Math.min(lw-60,p.x+(p.facingRight?2:-20)));
           const py=this.globalGravity===1?p.y+p.h+2:p.y-12;
-          this.spawnedPlatforms.push({x:px,y:Math.max(16,Math.min(244,py)),w:52,h:10,life:260,maxLife:260,color:'#FFD700',topColor:'#FFF9C4'});
-          audio.platformSpawn(); this.addFloatingText('PLATAFORMA!',p.x+p.w/2,p.y-12,'#FFD700');
+          this.spawnedPlatforms.push({x:px,y:Math.max(16,Math.min(244,py)),w:56,h:10,life:280,maxLife:280,color:'#FFD700',topColor:'#FFF9C4'});
+          audio.platformSpawn();
+          this.addFloatingText('¡VARITA ESTELAR! ✨⭐',p.x+p.w/2,p.y-12,'#FFD700');
+          this.addParticles(px+28,py+5,16,['#FFD700','#FF4081','#00E5FF','#FFF'],3.0);
         }
         if(char.id==='cayetana'){
+          // 🐢 Cayetana Bouncing Shell
           const dir=p.facingRight?1:-1;
-          this.projectiles.push({x:p.x+(p.facingRight?p.w+4:-14),y:p.y+p.h/2-4,w:12,h:12,vx:dir*5.2,vy:this.globalGravity===1?-2:2,bounces:0,maxBounces:8,life:300});
-          audio.shellShoot(); this.addFloatingText('CAPARAZON!',p.x+p.w/2,p.y-12,'#4CAF50');
+          this.projectiles.push({x:p.x+(p.facingRight?p.w+4:-14),y:p.y+p.h/2-4,w:14,h:14,vx:dir*5.6,vy:this.globalGravity===1?-2:2,bounces:0,maxBounces:10,life:320});
+          audio.shellShoot();
+          this.addFloatingText('¡CAPARAZÓN KOOPA! 🐢',p.x+p.w/2,p.y-12,'#4CAF50');
         }
       }
     }
@@ -1440,8 +1609,12 @@ class PlatformerGame {
               this.addParticles(p.x+p.w/2,p.y+p.h,28,['#FF5252','#FFD700','#FF9800','#FFF'],5);
               this.camera.shake(10); this.hitStopFrames=4;
               for(const db of this.destructibleBlocks){
-                if(!db.destroyed&&Math.abs(db.x-p.x)<48&&Math.abs(db.y-p.y)<32)db.destroy(this);
+                if(!db.destroyed&&Math.abs(db.x-p.x)<55&&Math.abs(db.y-p.y)<36)db.destroy(this);
               }
+              // Stun enemies across floor
+              this.enemies.forEach(en=>{
+                if(!en.dead && Math.abs(en.x - p.x) < 220){ en.stunTimer = 60; }
+              });
             }
             if(pl.isTrampoline){ p.vy=-11; p.squashX=0.7;p.squashY=1.4; audio.jump(); }
           } else if(p.vy<0){ p.y=pl.y+pl.h; p.vy=0; }
@@ -1472,7 +1645,7 @@ class PlatformerGame {
     for(const it of this.starDustItems){
       if(!it.collected&&p.x<it.x+12&&p.x+p.w>it.x-4&&p.y<it.y+12&&p.y+p.h>it.y-4){
         it.collected=true; this.starDust++; this.dda.recordStar(); audio.starCollect();
-        this.addFloatingText('+1',it.x+4,it.y-8,'#FFD700');
+        this.addFloatingText('+1 ★',it.x+4,it.y-8,'#FFD700');
         this.addParticles(it.x+4,it.y+4,10,['#FFD700','#FFF','#FFE082'],3);
       }
     }
@@ -1484,12 +1657,12 @@ class PlatformerGame {
             p.isRiding=false; p.invincibleTimer=120+this.dda.extraInvinc;
             p.vx=kd*4.2; p.vy=this.globalGravity===1?-6:6; p.onGround=false;
             audio.armorBreak(); this.camera.shake(6);
-            this.addFloatingText('ESCUDO UNICORNIO!',p.x+p.w/2,p.y-16,'#00E5FF');
+            this.addFloatingText('¡ESCUDO UNICORNIO!',p.x+p.w/2,p.y-16,'#00E5FF');
           } else {
-            const lost=Math.min(this.starDust,10); this.starDust=Math.max(0,this.starDust-10);
-            this.dda.recordHit(); p.vx=kd*4.8; p.vy=this.globalGravity===1?-6.5:6.5; p.onGround=false;
-            p.invincibleTimer=120+this.dda.extraInvinc; audio.hazardScatter(); this.camera.shake(7);
-            this.addFloatingText('-'+lost+' STAR-DUST',p.x+p.w/2,p.y-16,'#FF5252');
+            const lost=Math.min(this.starDust,3); this.starDust=Math.max(0,this.starDust-3);
+            this.dda.recordHit(); p.vx=kd*4.5; p.vy=this.globalGravity===1?-5.5:5.5; p.onGround=false;
+            p.invincibleTimer=120+this.dda.extraInvinc; audio.hazardScatter(); this.camera.shake(5);
+            this.addFloatingText('-'+lost+' ESTRELLITAS',p.x+p.w/2,p.y-16,'#FF5252');
           }
           break;
         }
@@ -1498,7 +1671,7 @@ class PlatformerGame {
     for(const uc of this.unicorns){
       if(!uc.collected&&!p.isRiding&&p.x<uc.x+uc.w&&p.x+p.w>uc.x&&p.y<uc.y+uc.h&&p.y+p.h>uc.y){
         uc.collected=true; p.isRiding=true; audio.mountUnicorn(); this.camera.shake(5);
-        this.addFloatingText('UNICORN MOUNT!',p.x+p.w/2,p.y-16,'#E040FB');
+        this.addFloatingText('¡UNICORNIO MÁGICO!',p.x+p.w/2,p.y-16,'#E040FB');
       }
     }
     for(const qb of this.questionBlocks){ qb.update(); qb.checkBump(p,this.globalGravity,this); }
@@ -1515,10 +1688,10 @@ class PlatformerGame {
           en.die(this); p.vy=this.globalGravity===1?-6:6; p.squashX=0.75;p.squashY=1.3;
         } else {
           const kd=(p.x+p.w/2)<(en.x+en.w/2)?-1:1;
-          const lost=Math.min(this.starDust,5); this.starDust=Math.max(0,this.starDust-5);
-          this.dda.recordHit(); p.vx=kd*4.5; p.vy=this.globalGravity===1?-5:5; p.onGround=false;
-          p.invincibleTimer=100+this.dda.extraInvinc; audio.hazardScatter(); this.camera.shake(5);
-          this.addFloatingText('-'+lost+' STAR-DUST',p.x+p.w/2,p.y-14,'#FF5252');
+          const lost=Math.min(this.starDust,2); this.starDust=Math.max(0,this.starDust-2);
+          this.dda.recordHit(); p.vx=kd*4.2; p.vy=this.globalGravity===1?-4.5:4.5; p.onGround=false;
+          p.invincibleTimer=100+this.dda.extraInvinc; audio.hazardScatter(); this.camera.shake(4);
+          this.addFloatingText('-'+lost+' ESTRELLAS',p.x+p.w/2,p.y-14,'#FF5252');
         }
       }
     }
@@ -1575,12 +1748,10 @@ class PlatformerGame {
     ctx.fillStyle='#85f8ce'; ctx.font='7px "Press Start 2P",monospace';
     ctx.fillText('Selecciona un nivel desbloqueado para jugar',VIRT_W/2,56);
 
-    // Path
     ctx.strokeStyle='#FFD700'; ctx.lineWidth=4; ctx.setLineDash([8,6]);
     ctx.beginPath(); ctx.moveTo(120,140); ctx.lineTo(256,140); ctx.lineTo(390,140); ctx.stroke();
     ctx.setLineDash([]);
 
-    // Nodes
     const nodes=[{x:120,y:140},{x:256,y:140},{x:390,y:140}];
     nodes.forEach((n,idx)=>{
       const unlocked=this.unlockedLevels[idx];
@@ -1630,7 +1801,6 @@ class PlatformerGame {
     }
     ctx.fillStyle=sky; ctx.fillRect(0,0,VIRT_W,VIRT_H);
 
-    // 🌟 Anti-Gravity 2.0: Ascending Cosmic Dust Particles in -1G
     if(this.globalGravity === -1){
       ctx.fillStyle = 'rgba(224, 64, 251, 0.4)';
       for(let i=0; i<30; i++){
@@ -1640,7 +1810,6 @@ class PlatformerGame {
       }
     }
 
-    // Parallax hills
     const cx=this.camera.x;
     ctx.fillStyle=this.globalGravity===-1?'#4a148c':(cfg.id===2?'#4A148C':(cfg.id===3?'#1A237E':'#66BB6A'));
     for(let i=0;i<8;i++){const hx=((i*260-cx*0.12)%1000)-60;const hy=VIRT_H-56-i%3*12;ctx.beginPath();ctx.arc(hx,hy,60+i%2*30,Math.PI,0);ctx.fill();}
@@ -1648,7 +1817,7 @@ class PlatformerGame {
 
   renderLevel(ctx,now){
     const cam=this.camera;
-    // 🌌 Stunning Multi-Layer Zero-G Cosmic Bubbles
+    // 🌌 Zero-G Cosmic Bubbles
     for(const zb of this.zeroGBubbles){
       if(!cam.isVisible(zb.x - zb.r, zb.y - zb.r, zb.r*2, zb.r*2)) continue;
       const s = cam.toScreen(zb.x, zb.y);
@@ -1656,7 +1825,6 @@ class PlatformerGame {
       const pulse = Math.sin(now * 0.005) * 4;
       const curR = zb.r + pulse;
 
-      // Outer Glow
       const grad = ctx.createRadialGradient(s.x, s.y, curR*0.2, s.x, s.y, curR);
       grad.addColorStop(0, 'rgba(0, 229, 255, 0.40)');
       grad.addColorStop(0.6, 'rgba(224, 64, 251, 0.25)');
@@ -1664,12 +1832,10 @@ class PlatformerGame {
       ctx.fillStyle = grad;
       ctx.beginPath(); ctx.arc(s.x, s.y, curR, 0, Math.PI*2); ctx.fill();
 
-      // Outer Pulsating Border Ring
       ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.strokeStyle = '#E040FB'; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(s.x, s.y, curR - 4, 0, Math.PI*2); ctx.stroke();
 
-      // Orbiting Sparkling Stars
       for(let i=0; i<4; i++){
         const ang = (now * 0.002) + (i * Math.PI / 2);
         const ox = s.x + Math.cos(ang) * (curR - 6);
@@ -1677,13 +1843,13 @@ class PlatformerGame {
         ctx.fillStyle = '#FFD700'; ctx.fillRect(ox - 1.5, oy - 1.5, 3, 3);
       }
 
-      // Center Banner
       ctx.fillStyle = '#00E5FF'; ctx.font = 'bold 7px "Press Start 2P", monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('ZERO-G', s.x, s.y);
       ctx.restore();
     }
 
+    // Platforms
     for(const pl of this.staticPlatforms){
       if(!cam.isVisible(pl.x,pl.y,pl.w,pl.h))continue;
       const s=cam.toScreen(pl.x,pl.y);
@@ -1730,6 +1896,8 @@ class PlatformerGame {
       ctx.lineTo(-2,2);ctx.lineTo(-6,0);ctx.lineTo(-2,-2);ctx.closePath(); ctx.fill();
       ctx.restore();
     }
+    // Star Coins
+    for(const sc of this.starCoins) sc.draw(ctx,cam,now);
     if(this.flagPole) this.flagPole.draw(ctx,cam,now);
   }
 
@@ -1776,7 +1944,6 @@ class PlatformerGame {
       } else { ctx.fillStyle='#1565C0'; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); }
     }
 
-    // 🌟 Zero-G Cosmic Aura Shield
     if(p.inZeroG){
       ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.0;
       const gp = Math.sin(now * 0.01) * 3;
@@ -1799,20 +1966,30 @@ class PlatformerGame {
 
   renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
-    const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
     ctx.save(); ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.font='7px "Press Start 2P",monospace';
     
-    ctx.fillStyle='rgba(14,10,24,0.82)'; ctx.beginPath(); ctx.roundRect(5,4,245,24,[6]); ctx.fill();
+    // Left Pill: Name + Stars + Score + Gravity
+    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(5,4,248,24,[6]); ctx.fill();
     ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.fillStyle='#ff5252'; ctx.fillText(char.name,11,16);
-    ctx.fillStyle='#FFD700'; ctx.fillText('SD:'+String(this.starDust).padStart(2,'0'),82,16);
+    ctx.fillStyle='#FFD700'; ctx.fillText('★:'+String(this.starDust).padStart(2,'0'),82,16);
     ctx.fillStyle='#85f8ce'; ctx.fillText('SC:'+String(this.score).padStart(4,'0'),135,16);
     ctx.fillStyle=this.globalGravity===-1?'#E040FB':'#64B5F6'; ctx.fillText(this.globalGravity===-1?'-1G':'1G ',205,16);
 
-    ctx.fillStyle='rgba(14,10,24,0.82)'; ctx.beginPath(); ctx.roundRect(VIRT_W-160,4,155,24,[6]); ctx.fill();
+    // Star Coins Badge (⭐⭐⭐)
+    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(258,4,68,24,[6]); ctx.fill();
     ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.textAlign='right'; ctx.font='5.5px "Press Start 2P",monospace'; ctx.fillStyle='#85f8ce';
-    ctx.fillText(cfg.name.split(':')[0],VIRT_W-9,16);
+    ctx.fillStyle='#FFD700'; ctx.font='8px "Press Start 2P",monospace';
+    let coinsStr = '';
+    for(let i=0; i<3; i++){ coinsStr += (i < this.starCoinsCollected ? '⭐' : '•'); }
+    ctx.fillText(coinsStr, 263, 16);
+
+    // Right Pill: Map & Music Buttons
+    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W-120,4,115,24,[6]); ctx.fill();
+    ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.font='6px "Press Start 2P",monospace';
+    ctx.fillStyle='#85f8ce'; ctx.fillText('🗺️MAP', VIRT_W-112, 16);
+    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#00E5FF'; ctx.fillText(this.soundMuted?'🔇SIL':'🎵SND', VIRT_W-60, 16);
 
     // Boss Health Bar in 1-3
     if(this.galaxyBoss && this.galaxyBoss.active && this.galaxyBoss.state !== 'defeated'){
@@ -1834,15 +2011,19 @@ class PlatformerGame {
 
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillStyle='#FFD700'; ctx.font='14px "Press Start 2P",monospace';
-    ctx.fillText('¡NIVEL COMPLETADO!',VIRT_W/2,80);
+    ctx.fillText('¡NIVEL COMPLETADO!',VIRT_W/2,65);
 
     ctx.fillStyle='#FFF'; ctx.font='8px "Press Start 2P",monospace';
-    ctx.fillText('Star-Dust: '+this.starDust,VIRT_W/2,125);
-    ctx.fillText('Puntuacion Total: '+this.score,VIRT_W/2,145);
+    ctx.fillText('Estrellas: '+this.starDust,VIRT_W/2,105);
+    ctx.fillText('Puntuacion Total: '+this.score,VIRT_W/2,125);
+    
+    // Star Coins collected in level
+    ctx.fillStyle='#FFD700'; ctx.font='9px "Press Start 2P",monospace';
+    ctx.fillText('Grandes Monedas: ' + '⭐'.repeat(this.starCoinsCollected) + '•'.repeat(3 - this.starCoinsCollected), VIRT_W/2, 150);
 
     const pulse=Math.sin(now*0.006)*0.2+0.8;
     ctx.globalAlpha=pulse; ctx.fillStyle='#00E5FF'; ctx.font='9px "Press Start 2P",monospace';
-    ctx.fillText('TOCA PARA VOLVER AL MAPA DE MUNDOS 🗺️',VIRT_W/2,200);
+    ctx.fillText('TOCA PARA VOLVER AL MAPA DE MUNDOS 🗺️',VIRT_W/2,205);
     ctx.globalAlpha=1;
 
     if(!this._completeListener){
