@@ -287,16 +287,22 @@ class TouchController {
       else { const pad=8; if(sx>=btn.x-pad&&sx<=btn.x+btn.w+pad&&sy>=btn.y-pad&&sy<=btn.y+btn.h+pad)return name; }
     } return null;
   }
-  handleTouchStart(e){ e.preventDefault(); audio.init(); this.active=true;
+  handleTouchStart(e){
+    if(this.game.state!=='PLAYING')return;
+    e.preventDefault(); audio.init(); this.active=true;
     for(const t of e.changedTouches){ const btn=this.hitTest(t.clientX,t.clientY); if(btn){ this.activeTouches.set(t.identifier,btn); this.pressedButtons.add(btn); const b=this.buttons[btn]; if(b)this.game.input[b.input]=true; if(navigator.vibrate)navigator.vibrate(12); } }
   }
-  handleTouchMove(e){ e.preventDefault();
+  handleTouchMove(e){
+    if(this.game.state!=='PLAYING')return;
+    e.preventDefault();
     for(const t of e.changedTouches){
       const old=this.activeTouches.get(t.identifier),nw=this.hitTest(t.clientX,t.clientY);
       if(old!==nw){ if(old){let s=false;for(const[id,b]of this.activeTouches)if(id!==t.identifier&&b===old){s=true;break;}if(!s){this.pressedButtons.delete(old);const b=this.buttons[old];if(b)this.game.input[b.input]=false;}} if(nw){this.activeTouches.set(t.identifier,nw);this.pressedButtons.add(nw);const b=this.buttons[nw];if(b)this.game.input[b.input]=true;}else this.activeTouches.delete(t.identifier); }
     }
   }
-  handleTouchEnd(e){ e.preventDefault();
+  handleTouchEnd(e){
+    if(this.game.state!=='PLAYING')return;
+    e.preventDefault();
     for(const t of e.changedTouches){ const btn=this.activeTouches.get(t.identifier); if(btn){ this.activeTouches.delete(t.identifier); let s=false; for(const[,b]of this.activeTouches)if(b===btn){s=true;break;} if(!s){this.pressedButtons.delete(btn);const b=this.buttons[btn];if(b)this.game.input[b.input]=false;} } }
   }
   draw(ctx,sw,sh,cw,ch){
@@ -769,31 +775,47 @@ class PlatformerGame {
       });
     });
 
-    document.getElementById('btn-start').addEventListener('click',()=>{
+    const startBtn = document.getElementById('btn-start');
+    const onStart = (e)=>{
+      if(e) e.preventDefault();
       audio.init(); audio.jump();
       document.getElementById('modal-select').classList.remove('active');
       this.state='WORLD_MAP';
-    });
+    };
+    startBtn.addEventListener('click', onStart);
+    startBtn.addEventListener('touchend', onStart, {passive:false});
 
-    // Map level selection touch/click
-    this.canvas.addEventListener('click',e=>this.handleMapClick(e));
-  }
+    // Map level selection touch & click
+    const handleMapInput = (e)=>{
+      if(this.state!=='WORLD_MAP')return;
+      let clientX, clientY;
+      if(e.changedTouches && e.changedTouches.length>0){
+        clientX=e.changedTouches[0].clientX; clientY=e.changedTouches[0].clientY;
+      } else if(e.clientX!==undefined){
+        clientX=e.clientX; clientY=e.clientY;
+      } else return;
 
-  handleMapClick(e){
-    if(this.state!=='WORLD_MAP')return;
-    const rect=this.canvas.getBoundingClientRect();
-    const cx=(e.clientX-rect.left)*(VIRT_W/rect.width);
-    const cy=(e.clientY-rect.top)*(VIRT_H/rect.height);
+      const rect=this.canvas.getBoundingClientRect();
+      const cx=(clientX-rect.left)*(VIRT_W/rect.width);
+      const cy=(clientY-rect.top)*(VIRT_H/rect.height);
 
-    // Map Nodes coords: 1-1 (120, 140), 1-2 (256, 140), 1-3 (390, 140)
-    const nodes=[{x:120,y:140},{x:256,y:140},{x:390,y:140}];
-    nodes.forEach((n,idx)=>{
-      if(this.unlockedLevels[idx]&&Math.hypot(cx-n.x,cy-n.y)<28){
-        audio.click();
-        this.currentLevelIdx=idx;
-        this.startSelectedLevel();
-      }
-    });
+      // Map Nodes coords: 1-1 (120, 140), 1-2 (256, 140), 1-3 (390, 140)
+      const nodes=[{x:120,y:140},{x:256,y:140},{x:390,y:140}];
+      nodes.forEach((n,idx)=>{
+        const dist=Math.hypot(cx-n.x,cy-n.y);
+        const inNodeBox=(Math.abs(cx-n.x)<48 && cy>=100 && cy<=195);
+        if(this.unlockedLevels[idx] && (dist<48 || inNodeBox)){
+          audio.init(); audio.click();
+          this.currentLevelIdx=idx;
+          this.startSelectedLevel();
+        }
+      });
+    };
+
+    this.canvas.addEventListener('click', handleMapInput);
+    this.canvas.addEventListener('touchend', e=>{
+      if(this.state==='WORLD_MAP'){ e.preventDefault(); handleMapInput(e); }
+    },{passive:false});
   }
 
   startSelectedLevel(){
