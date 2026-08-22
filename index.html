@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Super Rivelles Peris World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,133 +14,41 @@
   * {
     margin: 0; padding: 0; box-sizing: border-box;
     user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-    touch-action: manipulation;
+    touch-action: none; -webkit-tap-highlight-color: transparent;
   }
   html, body {
     width: 100%; height: 100%; overflow: hidden;
     background: #090712;
     font-family: 'Press Start 2P', monospace, sans-serif;
     color: #fff;
+    position: fixed; top: 0; left: 0;
   }
   #game-wrapper {
-    position: relative; width: 100vw; height: 100vh;
+    position: fixed; inset: 0;
     display: flex; justify-content: center; align-items: center;
-    background: radial-gradient(circle at 50% 50%, #171126 0%, #06040a 100%);
-  }
-  #canvas-container {
-    position: relative; width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
+    background: #090712;
+    /* iOS safe area padding */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   canvas {
     display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    background: #5c94fc;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
   }
-
-  /* ── In-Game HUD ───────────────────────────────────────── */
-  #hud {
-    position: absolute; top: 10px; left: 14px; right: 14px;
-    display: flex; justify-content: space-between; align-items: center;
-    pointer-events: none; z-index: 20;
-    font-size: 9px;
-    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
-  }
-  .hud-pill {
-    background: rgba(18, 14, 28, 0.85);
-    border: 2px solid #ffd700;
-    border-radius: 8px;
-    padding: 6px 12px;
-    display: flex; gap: 12px; align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    pointer-events: auto;
-  }
-  .hud-name { color: #ff5252; font-weight: bold; }
-  .hud-stardust {
-    color: #ffd700; font-weight: bold;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .hud-badge-grav {
-    padding: 3px 8px; border-radius: 4px;
-    background: #283593; color: #fff; border: 1px solid #7986cb;
-    font-size: 8px; font-weight: bold;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .hud-badge-grav.g-inv {
-    background: #6a1b9a; border-color: #ce93d8;
-    animation: pulse-inv 1.5s infinite ease-in-out;
-  }
-  .hud-badge-mount {
-    padding: 3px 8px; border-radius: 4px;
-    background: #e040fb; color: #fff; border: 1px solid #ea80fc;
-    font-size: 8px; font-weight: bold;
-    animation: pulse-mount 1.2s infinite ease-in-out;
-  }
-  @keyframes pulse-inv {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  @keyframes pulse-mount {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); background: #d500f9; }
-  }
-  .hud-perk { color: #85f8ce; font-size: 7px; }
-  .hud-btn {
-    background: #2b2540; border: 2px solid #ffd700; color: #fff;
-    border-radius: 6px; padding: 5px 9px;
-    font-family: inherit; font-size: 8px; cursor: pointer;
-    transition: transform 0.1s, background 0.1s;
-    pointer-events: auto;
-  }
-  .hud-btn:active { transform: scale(0.92); background: #ffd700; color: #000; }
-
-  /* ── Mobile Touch Controls ────────────────────────────── */
-  #touch-layer {
-    position: absolute; inset: 0;
-    pointer-events: none; z-index: 30;
-    display: none;
-  }
-  .touch-zone {
-    position: absolute; bottom: 20px;
-    pointer-events: auto; display: flex; gap: 8px; align-items: flex-end;
-  }
-  .dpad-zone { left: 16px; }
-  .btn-zone { right: 16px; gap: 12px; }
-
-  .dpad-grid {
-    display: grid; grid-template-columns: 52px 52px 52px; grid-template-rows: 52px 52px; gap: 4px;
-  }
-  .dpad-cell {
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 10px; font-size: 20px; color: #fff;
-    background: rgba(30, 24, 46, 0.78); border: 2px solid #ffd700;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    touch-action: none; transition: transform 0.06s, background 0.06s;
-  }
-  .dpad-cell:active, .dpad-cell.held { transform: scale(0.9); background: #ffd700; color: #000; }
-  .dpad-cell.blank { background: none; border: none; pointer-events: none; }
-
-  .act-btn {
-    width: 64px; height: 64px; border-radius: 50%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-family: inherit; font-size: 14px; font-weight: bold;
-    border: 3px solid; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    touch-action: none; transition: transform 0.06s;
-  }
-  .act-btn:active, .act-btn.held { transform: scale(0.9); }
-  .btn-a { background: rgba(56, 142, 60, 0.85); border-color: #81c784; color: #fff; margin-bottom: 24px; }
-  .btn-b { background: rgba(198, 40, 40, 0.85); border-color: #ef9a9a; color: #fff; }
-  .btn-label { font-size: 6px; margin-top: 2px; opacity: 0.9; }
 
   /* ── Character Selection Overlay ──────────────────────── */
   .screen-overlay {
-    position: absolute; inset: 0;
-    background: rgba(0, 0, 0, 0.88);
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.92);
     backdrop-filter: blur(6px);
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 40; opacity: 0; pointer-events: none;
+    z-index: 100; opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease; padding: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .screen-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -146,7 +57,9 @@
     border: 4px solid #ffd700; border-radius: 14px;
     padding: 18px 22px; max-width: 680px; width: 96%;
     text-align: center; box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
-    max-height: 94vh; overflow-y: auto;
+    max-height: 90vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
   .modal-title {
     color: #ffd700; font-size: 13px; margin-bottom: 12px;
@@ -163,6 +76,7 @@
     padding: 8px 6px; cursor: pointer;
     display: flex; flex-direction: column; align-items: center;
     transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s, background 0.12s;
+    touch-action: manipulation;
   }
   .char-card:hover, .char-card.selected {
     border-color: #ffd700;
@@ -188,146 +102,118 @@
   .snes-btn-gold {
     background: linear-gradient(180deg, #ffd700 0%, #ff9800 100%);
     color: #000; border: 3px solid #fff; border-radius: 8px;
-    padding: 10px 24px; font-family: inherit; font-size: 10px; font-weight: bold;
+    padding: 14px 28px; font-family: inherit; font-size: 11px; font-weight: bold;
     cursor: pointer; box-shadow: 0 4px 0 #b26a00;
     transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
   }
   .snes-btn-gold:active { transform: translateY(3px); box-shadow: 0 1px 0 #b26a00; }
 
-  #keyboard-bar {
-    position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
-    background: rgba(15, 12, 24, 0.85); border: 1px solid rgba(255, 215, 0, 0.4);
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 7px; color: #ccc; pointer-events: none; z-index: 10;
-    white-space: nowrap;
-  }
   @media (max-width: 680px) {
     .char-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .char-thumb-wrap { width: 60px; height: 72px; }
-    #keyboard-bar { display: none; }
-    .dpad-grid { grid-template-columns: 46px 46px 46px; grid-template-rows: 46px 46px; gap: 3px; }
-    .act-btn { width: 56px; height: 56px; font-size: 12px; }
+    .modal-title { font-size: 10px; }
+    .snes-btn-gold { padding: 12px 22px; font-size: 10px; }
+  }
+  @media (max-width: 400px) {
+    .char-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+    .char-thumb-wrap { width: 48px; height: 58px; }
+    .char-card { padding: 5px 3px; }
+    .char-title { font-size: 7px; }
+    .char-ability-tag { font-size: 5px; }
+    .select-modal { padding: 12px 10px; }
   }
 </style>
 </head>
 <body>
 <div id="game-wrapper">
-  <div id="canvas-container">
-    <canvas id="game-canvas"></canvas>
+  <canvas id="game-canvas"></canvas>
 
-    <!-- In-Game HUD -->
-    <div id="hud" style="display: none;">
-      <div class="hud-pill">
-        <span class="hud-name" id="hud-name">PAPÁ</span>
-        <span class="hud-stardust">✨ <span id="hud-stardust">00</span></span>
-        <span class="hud-badge-grav" id="hud-gravity">1G NORMAL</span>
-        <span class="hud-badge-mount" id="hud-mount" style="display: none;">🦄 MONTADO</span>
-      </div>
-      <div class="hud-pill">
-        <span class="hud-perk" id="hud-perk">Ground Pound: [Abajo] en el aire</span>
-        <button class="hud-btn" id="btn-char-select" title="Cambiar Héroe">👥 CAMBIAR</button>
-        <button class="hud-btn" id="btn-sound" title="Sonido">🔊</button>
-      </div>
-    </div>
+  <!-- Character Selection Screen UI at Start -->
+  <div class="screen-overlay active" id="modal-select">
+    <div class="select-modal">
+      <div class="modal-title">🌟 ELIGE TU PERSONAJE 🌟</div>
 
-    <!-- Mobile Virtual Touch Controls -->
-    <div id="touch-layer">
-      <!-- D-Pad on Left -->
-      <div class="touch-zone dpad-zone">
-        <div class="dpad-grid">
-          <div class="dpad-cell blank"></div>
-          <div class="dpad-cell" id="tp-up">▲</div>
-          <div class="dpad-cell blank"></div>
-          <div class="dpad-cell" id="tp-left">◀</div>
-          <div class="dpad-cell" id="tp-down">▼</div>
-          <div class="dpad-cell" id="tp-right">▶</div>
-        </div>
-      </div>
-      <!-- B & A Action Buttons on Right -->
-      <div class="touch-zone btn-zone">
-        <button class="act-btn btn-b" id="tp-b">
-          <span>B</span>
-          <span class="btn-label">ACCION/DASH</span>
-        </button>
-        <button class="act-btn btn-a" id="tp-a">
-          <span>A</span>
-          <span class="btn-label">SALTO/FLUTTER</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Keyboard Instructions -->
-    <div id="keyboard-bar">
-      🎮 <b>Flechas/WASD</b>: Mover | <b>Espacio / Z</b>: Salto / Flutter (A) | <b>X / Shift</b>: Acción / Dash (B) | <b>G</b>: Gravedad
-    </div>
-
-    <!-- Character Selection Screen UI at Start -->
-    <div class="screen-overlay active" id="modal-select">
-      <div class="select-modal">
-        <div class="modal-title">🌟 ELIGE TU PERSONAJE 🌟</div>
-
-        <div class="char-grid">
-          <!-- 1. Papá -->
-          <div class="char-card selected" data-id="papa" id="card-papa">
-            <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
-            <div class="char-title">PAPÁ</div>
-            <div class="char-ability-tag"><b>[Abajo] en el aire</b><br>Ground Pound rápido hacia abajo</div>
-          </div>
-
-          <!-- 2. Mamá -->
-          <div class="char-card" data-id="mama" id="card-mama">
-            <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
-            <div class="char-title">MAMÁ</div>
-            <div class="char-ability-tag"><b>Mantener [A] en el aire</b><br>Reduce velocidad de caída (Glide)</div>
-          </div>
-
-          <!-- 3. Candela -->
-          <div class="char-card" data-id="candela" id="card-candela">
-            <div class="char-thumb-wrap"><img src="candela.png" alt="Candela" class="char-thumb" onerror="this.src='assets/candela.png'"></div>
-            <div class="char-title">CANDELA</div>
-            <div class="char-ability-tag"><b>Pulsar [B]</b><br>Crea plataforma sólida temporal</div>
-          </div>
-
-          <!-- 4. Cayetana -->
-          <div class="char-card" data-id="cayetana" id="card-cayetana">
-            <div class="char-thumb-wrap"><img src="cayetana.png" alt="Cayetana" class="char-thumb" onerror="this.src='assets/cayetana.png'"></div>
-            <div class="char-title">CAYETANA</div>
-            <div class="char-ability-tag"><b>Pulsar [B]</b><br>Lanza proyectil que rebota en paredes</div>
-          </div>
-
-          <!-- 5. Valentina -->
-          <div class="char-card" data-id="valentina" id="card-valentina">
-            <div class="char-thumb-wrap"><img src="valentina.png" alt="Valentina" class="char-thumb" onerror="this.src='assets/valentina.png'"></div>
-            <div class="char-title">VALENTINA</div>
-            <div class="char-ability-tag"><b>Pulsar [A] en el aire</b><br>Doble salto ágil</div>
-          </div>
-
-          <!-- 6. Tommy -->
-          <div class="char-card" data-id="tommy" id="card-tommy">
-            <div class="char-thumb-wrap"><img src="tommy.png" alt="Tommy" class="char-thumb" onerror="this.src='assets/tommy.png'"></div>
-            <div class="char-title">TOMMY</div>
-            <div class="char-ability-tag"><b>Pasivo Especial</b><br>+30% Velocidad y Hitbox reducida</div>
-          </div>
+      <div class="char-grid">
+        <!-- 1. Papá -->
+        <div class="char-card selected" data-id="papa" id="card-papa">
+          <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
+          <div class="char-title">PAPÁ</div>
+          <div class="char-ability-tag"><b>[Abajo] en el aire</b><br>Ground Pound rápido hacia abajo</div>
         </div>
 
-        <button class="snes-btn-gold" id="btn-start">¡COMENZAR A JUGAR! 🚀</button>
+        <!-- 2. Mamá -->
+        <div class="char-card" data-id="mama" id="card-mama">
+          <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
+          <div class="char-title">MAMÁ</div>
+          <div class="char-ability-tag"><b>Mantener [A] en el aire</b><br>Reduce velocidad de caída (Glide)</div>
+        </div>
+
+        <!-- 3. Candela -->
+        <div class="char-card" data-id="candela" id="card-candela">
+          <div class="char-thumb-wrap"><img src="candela.png" alt="Candela" class="char-thumb" onerror="this.src='assets/candela.png'"></div>
+          <div class="char-title">CANDELA</div>
+          <div class="char-ability-tag"><b>Pulsar [B]</b><br>Crea plataforma sólida temporal</div>
+        </div>
+
+        <!-- 4. Cayetana -->
+        <div class="char-card" data-id="cayetana" id="card-cayetana">
+          <div class="char-thumb-wrap"><img src="cayetana.png" alt="Cayetana" class="char-thumb" onerror="this.src='assets/cayetana.png'"></div>
+          <div class="char-title">CAYETANA</div>
+          <div class="char-ability-tag"><b>Pulsar [B]</b><br>Lanza proyectil que rebota en paredes</div>
+        </div>
+
+        <!-- 5. Valentina -->
+        <div class="char-card" data-id="valentina" id="card-valentina">
+          <div class="char-thumb-wrap"><img src="valentina.png" alt="Valentina" class="char-thumb" onerror="this.src='assets/valentina.png'"></div>
+          <div class="char-title">VALENTINA</div>
+          <div class="char-ability-tag"><b>Pulsar [A] en el aire</b><br>Doble salto ágil</div>
+        </div>
+
+        <!-- 6. Tommy -->
+        <div class="char-card" data-id="tommy" id="card-tommy">
+          <div class="char-thumb-wrap"><img src="tommy.png" alt="Tommy" class="char-thumb" onerror="this.src='assets/tommy.png'"></div>
+          <div class="char-title">TOMMY</div>
+          <div class="char-ability-tag"><b>Pasivo Especial</b><br>+30% Velocidad y Hitbox reducida</div>
+        </div>
       </div>
+
+      <button class="snes-btn-gold" id="btn-start">¡COMENZAR A JUGAR! 🚀</button>
     </div>
   </div>
 </div>
 
 <script>
 /**
- * SUPER RIVELLES PERIS WORLD - ENGINE CORE
- * Anti-Gravity Galaxy Core Engine: Unicorn Mount Ultimate Power-Up, Flutter Jump, Fast Dash & Armor Buffer
+ * SUPER RIVELLES PERIS WORLD – ENGINE CORE v2.0
+ * Complete mobile-first rewrite by Miyamoto-mode agent.
+ * Fixes: NaN gravity, touch system, delta-time, canvas HUD, safe areas,
+ *        projectile crash, roundRect polyfill, multi-touch D-Pad.
  */
+
+// ── roundRect polyfill for older browsers ────────────────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r, r, r, r];
+    else if (!Array.isArray(r)) r = [0, 0, 0, 0];
+    const [tl, tr, br, bl] = r;
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + tr);
+    this.lineTo(x + w, y + h - br);
+    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    this.lineTo(x + bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - bl);
+    this.lineTo(x, y + tl);
+    this.quadraticCurveTo(x, y, x + tl, y);
+    this.closePath();
+    return this;
+  };
+}
 
 // ── Web Audio Synthesizer ───────────────────────────────────
 class SoundFX {
-  constructor() {
-    this.ctx = null;
-    this.muted = false;
-  }
+  constructor() { this.ctx = null; this.muted = false; }
   init() {
     if (!this.ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -390,46 +276,52 @@ class SoundFX {
 }
 const audio = new SoundFX();
 
-// ── 6 Character Definitions & Image Loader ──────────────────
+// ── 6 Character Definitions ─────────────────────────────────
+// FIX: Added 'weight' property to ALL characters (was undefined → NaN gravity)
 const CHARACTERS = {
   papa: {
     id: 'papa', name: 'PAPÁ',
     imgSrc: 'papa.png', fallback: 'assets/papa.png',
     baseSpeed: 3.4, sprintSpeed: 4.8, jumpForce: -9.4,
+    weight: 1.0,
     w: 20, h: 30,
-    perk: 'Ground Pound: [Abajo] en el aire'
+    perk: 'Ground Pound: ▼ en el aire'
   },
   mama: {
     id: 'mama', name: 'MAMÁ',
     imgSrc: 'mama.png', fallback: 'assets/mama.png',
     baseSpeed: 3.2, sprintSpeed: 4.6, jumpForce: -9.5,
+    weight: 0.9,
     w: 20, h: 30,
     canGlide: true,
-    perk: 'Glide: Mantener [A] en el aire'
+    perk: 'Glide: Mantener A en el aire'
   },
   candela: {
     id: 'candela', name: 'CANDELA',
     imgSrc: 'candela.png', fallback: 'assets/candela.png',
     baseSpeed: 3.4, sprintSpeed: 4.8, jumpForce: -9.5,
+    weight: 0.92,
     w: 20, h: 30,
     canSpawnPlatform: true,
-    perk: 'Plataforma: Pulsar [B]'
+    perk: 'Plataforma: Pulsar B'
   },
   cayetana: {
     id: 'cayetana', name: 'CAYETANA',
     imgSrc: 'cayetana.png', fallback: 'assets/cayetana.png',
     baseSpeed: 3.4, sprintSpeed: 4.8, jumpForce: -9.5,
+    weight: 0.95,
     w: 20, h: 30,
     canShootBouncingShell: true,
-    perk: 'Proyectil Rebotador: Pulsar [B]'
+    perk: 'Proyectil: Pulsar B'
   },
   valentina: {
     id: 'valentina', name: 'VALENTINA',
     imgSrc: 'valentina.png', fallback: 'assets/valentina.png',
     baseSpeed: 3.6, sprintSpeed: 5.0, jumpForce: -9.3,
+    weight: 0.85,
     w: 18, h: 26,
     canDoubleJump: true,
-    perk: 'Doble Salto: [A] en el aire'
+    perk: 'Doble Salto: A en el aire'
   },
   tommy: {
     id: 'tommy', name: 'TOMMY',
@@ -437,6 +329,7 @@ const CHARACTERS = {
     baseSpeed: 3.4 * 1.3,
     sprintSpeed: 4.8 * 1.3,
     jumpForce: -9.2,
+    weight: 0.78,
     w: 16, h: 18,
     isDog: true,
     perk: '+30% Velocidad & Hitbox Pequeña'
@@ -462,31 +355,238 @@ const DECEL = 0.28;
 const COYOTE_MS = 150;
 const BUFFER_MS = 150;
 const JUMP_CUT_MULT = 0.45;
+const TARGET_FPS = 60;
+const FRAME_TIME = 1000 / TARGET_FPS;
 
-// ── Level Geometry (Floor, Ceiling, Walls & Staggered Platforms) ──
+// ── Level Geometry ──────────────────────────────────────────
 const platforms = [
-  // Floor spanning the full width
+  // Floor
   { x: 0, y: 256, w: 512, h: 32, color: '#3E2723', topColor: '#66BB6A' },
-  // Ceiling magnetic boundary for inverted running
+  // Ceiling
   { x: 0, y: 0, w: 512, h: 16, color: '#283593', topColor: '#5C6BC0' },
-  // Left and Right Boundary Walls
+  // Walls
   { x: 0, y: 0, w: 12, h: 256, color: '#283593', topColor: '#5C6BC0' },
   { x: 500, y: 0, w: 12, h: 256, color: '#283593', topColor: '#5C6BC0' },
-  // Three staggered platforms to test jump arcs
+  // Staggered platforms
   { x: 70, y: 196, w: 84, h: 12, color: '#5D4037', topColor: '#8D6E63' },
   { x: 210, y: 154, w: 96, h: 12, color: '#5D4037', topColor: '#8D6E63' },
   { x: 360, y: 114, w: 84, h: 12, color: '#5D4037', topColor: '#8D6E63' },
-  // Additional high test ledge (Unicorn Perch)
+  // Unicorn Perch
   { x: 140, y: 80, w: 70, h: 12, color: '#5D4037', topColor: '#8D6E63' }
 ];
 
 // ── Red Hazard Blocks ───────────────────────────────────────
 const hazardBlocks = [
-  // Floor Hazard Block
   { x: 260, y: 236, w: 32, h: 20 },
-  // Mid-Platform Hazard Block
   { x: 244, y: 138, w: 26, h: 16 }
 ];
+
+// ── Mobile Touch Controller ─────────────────────────────────
+// Full multi-touch system rendered directly on canvas
+class TouchController {
+  constructor(game) {
+    this.game = game;
+    this.active = false;
+    this.activeTouches = new Map(); // touchId -> button name
+
+    // Button layout (in screen pixel coords, recalculated on resize)
+    this.buttons = {};
+    this.opacity = 0.55;
+    this.pressedButtons = new Set();
+  }
+
+  updateLayout(screenW, screenH) {
+    // We position buttons in screen coords relative to canvas
+    const safeBottom = 20;
+    const safeLeft = 16;
+    const safeRight = 16;
+
+    // D-Pad sizing - minimum 52px per button, scale up for larger screens
+    const dpadSize = Math.max(52, Math.min(68, screenW * 0.08));
+    const dpadGap = 4;
+    const dpadX = safeLeft;
+    const dpadY = screenH - safeBottom - dpadSize * 2 - dpadGap;
+
+    this.buttons = {
+      up:    { x: dpadX + dpadSize + dpadGap, y: dpadY - dpadSize - dpadGap, w: dpadSize, h: dpadSize, label: '▲', input: 'up' },
+      left:  { x: dpadX, y: dpadY, w: dpadSize, h: dpadSize, label: '◀', input: 'left' },
+      down:  { x: dpadX + dpadSize + dpadGap, y: dpadY, w: dpadSize, h: dpadSize, label: '▼', input: 'down' },
+      right: { x: dpadX + (dpadSize + dpadGap) * 2, y: dpadY, w: dpadSize, h: dpadSize, label: '▶', input: 'right' },
+
+      // A & B action buttons - larger for small fingers
+      btnB:  {
+        x: screenW - safeRight - dpadSize * 2 - 16,
+        y: screenH - safeBottom - dpadSize * 2 - dpadGap,
+        w: dpadSize * 1.2, h: dpadSize * 1.2,
+        label: 'B', sublabel: 'ACCIÓN', input: 'action',
+        color: 'rgba(198, 40, 40, 0.8)', borderColor: '#ef9a9a', round: true
+      },
+      btnA:  {
+        x: screenW - safeRight - dpadSize * 1.1,
+        y: screenH - safeBottom - dpadSize * 2 - dpadGap - dpadSize * 0.5,
+        w: dpadSize * 1.2, h: dpadSize * 1.2,
+        label: 'A', sublabel: 'SALTO', input: 'jump',
+        color: 'rgba(56, 142, 60, 0.8)', borderColor: '#81c784', round: true
+      }
+    };
+  }
+
+  hitTest(screenX, screenY) {
+    for (const [name, btn] of Object.entries(this.buttons)) {
+      if (btn.round) {
+        const cx = btn.x + btn.w / 2;
+        const cy = btn.y + btn.h / 2;
+        const r = btn.w / 2 + 10; // generous touch radius
+        const dx = screenX - cx;
+        const dy = screenY - cy;
+        if (dx * dx + dy * dy <= r * r) return name;
+      } else {
+        // Rectangular with generous padding
+        const pad = 8;
+        if (screenX >= btn.x - pad && screenX <= btn.x + btn.w + pad &&
+            screenY >= btn.y - pad && screenY <= btn.y + btn.h + pad) {
+          return name;
+        }
+      }
+    }
+    return null;
+  }
+
+  handleTouchStart(e) {
+    e.preventDefault();
+    audio.init();
+    if (!this.active) this.active = true;
+
+    for (const touch of e.changedTouches) {
+      const btn = this.hitTest(touch.clientX, touch.clientY);
+      if (btn) {
+        this.activeTouches.set(touch.identifier, btn);
+        this.pressedButtons.add(btn);
+        const b = this.buttons[btn];
+        if (b) this.game.input[b.input] = true;
+        if (navigator.vibrate) navigator.vibrate(12);
+      }
+    }
+  }
+
+  handleTouchMove(e) {
+    e.preventDefault();
+    for (const touch of e.changedTouches) {
+      const oldBtn = this.activeTouches.get(touch.identifier);
+      const newBtn = this.hitTest(touch.clientX, touch.clientY);
+
+      if (oldBtn !== newBtn) {
+        // Release old button
+        if (oldBtn) {
+          this.pressedButtons.delete(oldBtn);
+          const b = this.buttons[oldBtn];
+          if (b) {
+            // Only release if no other touch is pressing this button
+            let stillHeld = false;
+            for (const [tid, tbtn] of this.activeTouches) {
+              if (tid !== touch.identifier && tbtn === oldBtn) { stillHeld = true; break; }
+            }
+            if (!stillHeld) this.game.input[b.input] = false;
+          }
+        }
+        // Press new button
+        if (newBtn) {
+          this.activeTouches.set(touch.identifier, newBtn);
+          this.pressedButtons.add(newBtn);
+          const b = this.buttons[newBtn];
+          if (b) this.game.input[b.input] = true;
+        } else {
+          this.activeTouches.delete(touch.identifier);
+        }
+      }
+    }
+  }
+
+  handleTouchEnd(e) {
+    e.preventDefault();
+    for (const touch of e.changedTouches) {
+      const btn = this.activeTouches.get(touch.identifier);
+      if (btn) {
+        this.activeTouches.delete(touch.identifier);
+        this.pressedButtons.delete(btn);
+        const b = this.buttons[btn];
+        if (b) {
+          // Only release if no other touch is still on this button
+          let stillHeld = false;
+          for (const [, tbtn] of this.activeTouches) {
+            if (tbtn === btn) { stillHeld = true; break; }
+          }
+          if (!stillHeld) this.game.input[b.input] = false;
+        }
+      }
+    }
+  }
+
+  draw(ctx, screenW, screenH, canvasW, canvasH) {
+    if (!this.active) return;
+
+    const scaleX = canvasW / screenW;
+    const scaleY = canvasH / screenH;
+
+    ctx.save();
+
+    for (const [name, btn] of Object.entries(this.buttons)) {
+      const pressed = this.pressedButtons.has(name);
+      const bx = btn.x * scaleX;
+      const by = btn.y * scaleY;
+      const bw = btn.w * scaleX;
+      const bh = btn.h * scaleY;
+
+      ctx.globalAlpha = pressed ? 0.9 : this.opacity;
+
+      if (btn.round) {
+        // Circular action buttons
+        const cx = bx + bw / 2;
+        const cy = by + bh / 2;
+        const r = bw / 2;
+
+        ctx.fillStyle = pressed ? 'rgba(255, 255, 255, 0.3)' : (btn.color || 'rgba(30, 24, 46, 0.7)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = btn.borderColor || '#ffd700';
+        ctx.lineWidth = pressed ? 3 : 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold ${Math.round(r * 0.6)}px "Press Start 2P", monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(btn.label, cx, cy - (btn.sublabel ? r * 0.15 : 0));
+
+        if (btn.sublabel) {
+          ctx.font = `${Math.max(5, Math.round(r * 0.22))}px "Press Start 2P", monospace`;
+          ctx.globalAlpha *= 0.8;
+          ctx.fillText(btn.sublabel, cx, cy + r * 0.4);
+        }
+      } else {
+        // D-Pad square buttons
+        ctx.fillStyle = pressed ? 'rgba(255, 215, 0, 0.85)' : 'rgba(30, 24, 46, 0.7)';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bh, [bw * 0.15]);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = pressed ? 3 : 2;
+        ctx.stroke();
+
+        ctx.fillStyle = pressed ? '#000' : '#fff';
+        ctx.font = `${Math.round(bw * 0.35)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(btn.label, bx + bw / 2, by + bh / 2);
+      }
+    }
+
+    ctx.restore();
+  }
+}
 
 // ── Game Engine ─────────────────────────────────────────────
 class PlatformerGame {
@@ -500,12 +600,15 @@ class PlatformerGame {
     this.selectedCharId = 'papa';
     this.state = 'MENU'; // 'MENU' or 'PLAYING'
 
-    // Core Anti-Gravity: 1 (Normal 1G), -1 (Inverted -1G)
     this.globalGravity = 1;
     this.flashTimer = 0;
-
-    // Economy
     this.starDust = 0;
+    this.soundMuted = false;
+
+    // Screen dimensions (updated on resize)
+    this.screenW = window.innerWidth;
+    this.screenH = window.innerHeight;
+    this.isMobile = false;
 
     // Player State
     this.player = {
@@ -514,13 +617,10 @@ class PlatformerGame {
       vx: 0, vy: 0,
       onGround: false,
       facingRight: true,
-      // Coyote & Buffer
       lastGroundedAt: -Infinity,
       lastJumpPressAt: -Infinity,
       jumpHeld: false,
-      // Mount Logic (Ultimate Power-Up)
       isRiding: false,
-      // Asymmetrical logic states
       isGroundPounding: false,
       hasDoubleJumped: false,
       isGliding: false,
@@ -529,11 +629,11 @@ class PlatformerGame {
     };
 
     // Level Entities
-    this.unicorns = [];         // Unicorn Entities on the map
-    this.gSwitches = [];        // Green 'G' Switches
-    this.starDustItems = [];    // Collectible Yellow Star-Dust Items
-    this.spawnedPlatforms = []; // Candela platforms
-    this.projectiles = [];      // Cayetana bouncing shells
+    this.unicorns = [];
+    this.gSwitches = [];
+    this.starDustItems = [];
+    this.spawnedPlatforms = [];
+    this.projectiles = [];
     this.particles = [];
     this.scatterDustParticles = [];
     this.floatingTexts = [];
@@ -541,46 +641,70 @@ class PlatformerGame {
     // Inputs
     this.input = {
       left: false, right: false, up: false, down: false,
-      jump: false,    // Button A
-      action: false   // Button B
+      jump: false, action: false
     };
     this.prevJump = false;
     this.prevAction = false;
 
+    // Mobile Touch Controller (rendered on canvas)
+    this.touchCtrl = new TouchController(this);
+
     this.initResize();
     this.initControls();
     this.initEntities();
+    this.detectMobile();
 
     this.lastTime = performance.now();
+    this.accumulator = 0;
     requestAnimationFrame(this.loop.bind(this));
+  }
+
+  detectMobile() {
+    this.isMobile = ('ontouchstart' in window) ||
+                    (navigator.maxTouchPoints > 0) ||
+                    window.matchMedia('(pointer: coarse)').matches;
   }
 
   initResize() {
     const resize = () => {
-      const wrap = document.getElementById('game-wrapper');
-      const ww = wrap.clientWidth;
-      const wh = wrap.clientHeight;
-      const scale = Math.min(ww / VIRT_W, wh / VIRT_H);
-      this.canvas.style.width = (VIRT_W * scale) + 'px';
-      this.canvas.style.height = (VIRT_H * scale) + 'px';
+      this.screenW = window.innerWidth;
+      this.screenH = window.innerHeight;
+
+      // Canvas fills the full screen, game renders at virtual res then scales
+      this.canvas.style.width = this.screenW + 'px';
+      this.canvas.style.height = this.screenH + 'px';
+
+      // Actual canvas resolution: use virtual res for crisp pixels
+      // We render game at VIRT_W x VIRT_H and then the touch overlay at a
+      // higher res overlay. Actually, let's keep canvas at virtual res and
+      // let CSS scale it. Touch coords will be mapped.
+      this.canvas.width = VIRT_W;
+      this.canvas.height = VIRT_H;
+      this.ctx.imageSmoothingEnabled = false;
+
+      // Update touch controller layout
+      this.touchCtrl.updateLayout(this.screenW, this.screenH);
     };
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', () => setTimeout(resize, 200));
     resize();
   }
 
   initControls() {
+    // ── Keyboard ─────────────────────────────────
     window.addEventListener('keydown', e => {
       audio.init();
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
 
       if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.input.left = true;
       if (e.code === 'ArrowRight' || e.code === 'KeyD') this.input.right = true;
       if (e.code === 'ArrowUp' || e.code === 'KeyW') this.input.up = true;
       if (e.code === 'ArrowDown' || e.code === 'KeyS') this.input.down = true;
-      if (e.code === 'Space' || e.code === 'KeyZ') this.input.jump = true; // Button A
-      if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = true; // Button B
+      if (e.code === 'Space' || e.code === 'KeyZ') this.input.jump = true;
+      if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = true;
       if (e.code === 'KeyG') this.triggerGravityShift();
       if (e.code === 'KeyC') this.openCharacterSelect();
+      if (e.code === 'KeyM') this.toggleMute();
     });
 
     window.addEventListener('keyup', e => {
@@ -592,37 +716,16 @@ class PlatformerGame {
       if (e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = false;
     });
 
-    const bindTouch = (id, key) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const on  = e => { e.preventDefault(); audio.init(); this.input[key] = true; el.classList.add('held'); if (navigator.vibrate) navigator.vibrate(8); };
-      const off = e => { e.preventDefault(); this.input[key] = false; el.classList.remove('held'); };
-      el.addEventListener('touchstart', on, { passive: false });
-      el.addEventListener('touchend',   off, { passive: false });
-      el.addEventListener('touchcancel',off, { passive: false });
-      el.addEventListener('mousedown', on);
-      el.addEventListener('mouseup',   off);
-      el.addEventListener('mouseleave',off);
-    };
+    // ── Multi-Touch on Canvas ───────────────────
+    this.canvas.addEventListener('touchstart', e => this.touchCtrl.handleTouchStart(e), { passive: false });
+    this.canvas.addEventListener('touchmove', e => this.touchCtrl.handleTouchMove(e), { passive: false });
+    this.canvas.addEventListener('touchend', e => this.touchCtrl.handleTouchEnd(e), { passive: false });
+    this.canvas.addEventListener('touchcancel', e => this.touchCtrl.handleTouchEnd(e), { passive: false });
 
-    bindTouch('tp-left',   'left');
-    bindTouch('tp-right',  'right');
-    bindTouch('tp-up',     'up');
-    bindTouch('tp-down',   'down');
-    bindTouch('tp-a',      'jump');   // A = Jump
-    bindTouch('tp-b',      'action'); // B = Action
+    // Prevent any default touch behavior on body too
+    document.body.addEventListener('touchmove', e => { if (this.state === 'PLAYING') e.preventDefault(); }, { passive: false });
 
-    window.addEventListener('touchstart', () => {
-      const tl = document.getElementById('touch-layer');
-      if (tl && this.state === 'PLAYING') tl.style.display = 'block';
-    }, { once: true });
-
-    document.getElementById('btn-char-select').addEventListener('click', () => this.openCharacterSelect());
-    document.getElementById('btn-sound').addEventListener('click', () => {
-      audio.muted = !audio.muted;
-      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
-    });
-
+    // ── Character Selection ──────────────────────
     document.querySelectorAll('.char-card').forEach(card => {
       card.addEventListener('click', () => {
         audio.click();
@@ -630,9 +733,15 @@ class PlatformerGame {
         card.classList.add('selected');
         this.selectedCharId = card.dataset.id;
       });
+      // Also handle touch on cards
+      card.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        card.click();
+      }, { passive: false });
     });
 
     document.getElementById('btn-start').addEventListener('click', () => {
+      audio.init();
       audio.jump();
       document.getElementById('modal-select').classList.remove('active');
       this.startGame();
@@ -640,18 +749,13 @@ class PlatformerGame {
   }
 
   initEntities() {
-    // 1. Unicorn Entity on high ledge (x: 160, y: 56)
     this.unicorns = [
       { x: 160, y: 56, w: 26, h: 22, collected: false }
     ];
-
-    // 2. Green 'G' Switches
     this.gSwitches = [
       { x: 310, y: 242, w: 24, h: 14, pressed: 0, cooldown: 0 },
       { x: 100, y: 182, w: 24, h: 14, pressed: 0, cooldown: 0 }
     ];
-
-    // 3. Star-Dust Collectibles
     this.starDustItems = [
       { x: 80, y: 176, collected: false },
       { x: 140, y: 176, collected: false },
@@ -666,24 +770,18 @@ class PlatformerGame {
     ];
   }
 
+  toggleMute() {
+    this.soundMuted = !this.soundMuted;
+    audio.muted = this.soundMuted;
+  }
+
   triggerGravityShift() {
     this.globalGravity *= -1;
     this.flashTimer = 6;
     audio.gravityShift();
 
-    const badge = document.getElementById('hud-gravity');
-    if (badge) {
-      if (this.globalGravity === -1) {
-        badge.textContent = '-1G INVERTIDO';
-        badge.classList.add('g-inv');
-      } else {
-        badge.textContent = '1G NORMAL';
-        badge.classList.remove('g-inv');
-      }
-    }
-
     this.addFloatingText(
-      this.globalGravity === -1 ? "🌀 ANTI-GRAVITY (-1G) 🌀" : "🌍 GRAVEDAD NORMAL (1G) 🌍",
+      this.globalGravity === -1 ? "ANTI-GRAVITY (-1G)" : "GRAVEDAD NORMAL (1G)",
       VIRT_W / 2, 70,
       this.globalGravity === -1 ? '#E040FB' : '#00E5FF'
     );
@@ -697,7 +795,6 @@ class PlatformerGame {
     audio.click();
     this.state = 'MENU';
     document.getElementById('modal-select').classList.add('active');
-    document.getElementById('hud').style.display = 'none';
   }
 
   startGame() {
@@ -719,6 +816,7 @@ class PlatformerGame {
     this.player.hasDoubleJumped = false;
     this.player.isGliding = false;
     this.player.invincibleTimer = 0;
+    this.player.facingRight = true;
 
     this.starDust = 0;
     this.initEntities();
@@ -728,20 +826,9 @@ class PlatformerGame {
     this.scatterDustParticles = [];
     this.floatingTexts = [];
 
-    document.getElementById('hud').style.display = 'flex';
-    document.getElementById('hud-name').textContent = char.name;
-    document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
-    document.getElementById('hud-perk').textContent = char.perk;
-    document.getElementById('hud-mount').style.display = 'none';
-
-    const badge = document.getElementById('hud-gravity');
-    if (badge) {
-      badge.textContent = '1G NORMAL';
-      badge.classList.remove('g-inv');
-    }
-
-    if (window.matchMedia('(pointer: coarse)').matches) {
-      document.getElementById('touch-layer').style.display = 'block';
+    // Activate touch controls on mobile
+    if (this.isMobile) {
+      this.touchCtrl.active = true;
     }
   }
 
@@ -760,11 +847,21 @@ class PlatformerGame {
   }
 
   addFloatingText(txt, x, y, col = '#FFF') {
-    this.floatingTexts.push({ txt, x, y, vy: -1.2, life: 38, col });
+    this.floatingTexts.push({ txt, x, y, vy: -1.2, life: 50, col });
   }
 
+  // ── GAME LOOP with delta-time accumulator ─────────────────
   loop(now) {
-    this.update(now);
+    const dt = Math.min(now - this.lastTime, 100); // cap at 100ms to avoid spiral
+    this.lastTime = now;
+    this.accumulator += dt;
+
+    // Fixed timestep physics (60 FPS equivalent)
+    while (this.accumulator >= FRAME_TIME) {
+      this.update(now);
+      this.accumulator -= FRAME_TIME;
+    }
+
     this.render(now);
     requestAnimationFrame(this.loop.bind(this));
   }
@@ -785,7 +882,7 @@ class PlatformerGame {
     this.prevAction = this.input.action;
   }
 
-  // ── 1. Player Movement & Unicorn Upgraded Moves ─────────────
+  // ── 1. Player Movement ────────────────────────────────────
   updatePlayer(now) {
     const char = CHARACTERS[this.selectedCharId];
     const p = this.player;
@@ -798,7 +895,7 @@ class PlatformerGame {
 
     if (jumpEdge) p.lastJumpPressAt = now;
 
-    // Horizontal Speed (Unicorn mount gives high baseline agility)
+    // Horizontal Speed
     let baseSpd = p.isRiding ? char.baseSpeed * 1.25 : char.baseSpeed;
     let sprintSpd = p.isRiding ? char.sprintSpeed * 1.35 : char.sprintSpeed;
 
@@ -816,7 +913,7 @@ class PlatformerGame {
       else if (p.vx < 0) p.vx = Math.min(0, p.vx + DECEL);
     }
 
-    // Gravity Acceleration
+    // Gravity Acceleration (FIX: char.weight is now defined for all characters)
     if (this.globalGravity === 1) {
       p.isGliding = false;
       if (char.id === 'mama' && this.input.jump && !p.onGround && p.vy > 0 && !p.isRiding) {
@@ -866,7 +963,7 @@ class PlatformerGame {
       p.hasDoubleJumped = false;
     }
 
-    // ── Jump Logic / Unicorn Flutter-Jump ──────────────────
+    // Jump Logic
     const coyoteOk = (now - p.lastGroundedAt) <= COYOTE_MS;
     const bufferOk = (now - p.lastJumpPressAt) <= BUFFER_MS;
 
@@ -880,11 +977,11 @@ class PlatformerGame {
       audio.jump();
       this.addParticles(p.x + p.w / 2, this.globalGravity === 1 ? p.y + p.h : p.y, 6, ['#FFF', '#E0E0E0']);
     } else if (jumpEdge && p.isRiding && !p.onGround) {
-      // 🦄 UNICORN UPGRADE: Flutter-Jump (slight upward velocity boost mid-air)
+      // Unicorn Flutter-Jump
       p.vy = this.globalGravity === 1 ? -6.2 : 6.2;
       p.jumpHeld = true;
       audio.flutter();
-      this.addFloatingText("FLUTTER! ✨", p.x + p.w/2, p.y - 12, '#E040FB');
+      this.addFloatingText("FLUTTER!", p.x + p.w/2, p.y - 12, '#E040FB');
       this.addParticles(p.x + p.w/2, this.globalGravity === 1 ? p.y + p.h + 6 : p.y - 6, 6, [
         '#E040FB', '#00E5FF', '#FFD700', '#FF4081', '#76FF03'
       ], 2.2);
@@ -904,19 +1001,18 @@ class PlatformerGame {
       p.jumpHeld = false;
     }
 
-    // ── Action Button / Unicorn Fast Horizontal Dash ─────────
+    // Action Button
     if (actionEdge) {
       if (p.isRiding) {
-        // 🦄 UNICORN UPGRADE: Fast Horizontal Dash
+        // Unicorn Dash
         const dashDir = p.facingRight ? 1 : -1;
         p.vx = dashDir * 10.5;
         audio.dash();
-        this.addFloatingText("DASH! ⚡", p.x + p.w/2, p.y - 12, '#00E5FF');
+        this.addFloatingText("DASH!", p.x + p.w/2, p.y - 12, '#00E5FF');
         this.addParticles(p.x + (p.facingRight ? -10 : p.w + 10), p.y + p.h/2, 12, [
           '#00E5FF', '#E040FB', '#FFD700', '#FFFFFF'
         ], 3.8);
       } else {
-        // Normal Character Action (B) Abilities
         if (char.id === 'candela') {
           const platX = p.x + (p.facingRight ? 2 : -20);
           const platY = this.globalGravity === 1 ? p.y + p.h + 2 : p.y - 12;
@@ -924,8 +1020,7 @@ class PlatformerGame {
             x: Math.max(14, Math.min(450, platX)),
             y: Math.max(16, Math.min(240, platY)),
             w: 52, h: 10,
-            life: 240,
-            maxLife: 240
+            life: 240, maxLife: 240
           });
           audio.platformSpawn();
           this.addFloatingText("STAR PLATFORM!", p.x + p.w/2, p.y - 12, '#FFD700');
@@ -940,9 +1035,7 @@ class PlatformerGame {
             w: 12, h: 12,
             vx: dir * 5.2,
             vy: this.globalGravity === 1 ? -2.0 : 2.0,
-            bounces: 0,
-            maxBounces: 8,
-            life: 300
+            bounces: 0, maxBounces: 8, life: 300
           });
           audio.shellShoot();
           this.addFloatingText("BOUNCING SHELL!", p.x + p.w/2, p.y - 12, '#4CAF50');
@@ -951,7 +1044,7 @@ class PlatformerGame {
 
         if (char.id === 'tommy') {
           audio.bark();
-          this.addFloatingText("WOOF! 🐶", p.x + p.w/2, p.y - 12, '#FFD700');
+          this.addFloatingText("WOOF!", p.x + p.w/2, p.y - 12, '#FFD700');
           this.addParticles(p.x + p.w/2, p.y + p.h/2, 10, ['#FFD700', '#FF9800'], 2);
         }
       }
@@ -967,16 +1060,16 @@ class PlatformerGame {
     if (p.x < 12) { p.x = 12; p.vx = 0; }
     if (p.x + p.w > 500) { p.x = 500 - p.w; p.vx = 0; }
 
+    // Safety net: respawn if out of bounds
     if (p.y > VIRT_H + 40 || p.y < -40) {
       p.y = 120;
       p.vy = 0;
     }
   }
 
-  // ── 2. Unicorn Mount Collision & Respawn ───────────────────
+  // ── 2. Unicorn Mount ──────────────────────────────────────
   updateUnicornMountCollisions() {
     const p = this.player;
-
     for (const uc of this.unicorns) {
       if (!uc.collected && !p.isRiding) {
         if (p.x < uc.x + uc.w && p.x + p.w > uc.x &&
@@ -984,8 +1077,7 @@ class PlatformerGame {
           uc.collected = true;
           p.isRiding = true;
           audio.mountUnicorn();
-          document.getElementById('hud-mount').style.display = 'inline-block';
-          this.addFloatingText("UNICORN MOUNT! 🦄", p.x + p.w/2, p.y - 16, '#E040FB');
+          this.addFloatingText("UNICORN MOUNT!", p.x + p.w/2, p.y - 16, '#E040FB');
           this.addParticles(p.x + p.w/2, p.y + p.h/2, 22, [
             '#E040FB', '#00E5FF', '#FFD700', '#FF4081', '#76FF03', '#FFFFFF'
           ], 3.5);
@@ -994,14 +1086,12 @@ class PlatformerGame {
     }
   }
 
-  // ── 3. 'G' Switch Entity Interaction Loop ───────────────────
+  // ── 3. G-Switch ───────────────────────────────────────────
   updateGSwitches() {
     const p = this.player;
-
     for (const sw of this.gSwitches) {
       if (sw.cooldown > 0) sw.cooldown--;
       if (sw.pressed > 0) sw.pressed--;
-
       if (sw.cooldown === 0) {
         if (p.x < sw.x + sw.w && p.x + p.w > sw.x &&
             p.y < sw.y + sw.h + 2 && p.y + p.h > sw.y - 2) {
@@ -1016,14 +1106,12 @@ class PlatformerGame {
 
   updateStarDustCollisions() {
     const p = this.player;
-
     for (const item of this.starDustItems) {
       if (!item.collected) {
         if (p.x < item.x + 12 && p.x + p.w > item.x - 4 &&
             p.y < item.y + 12 && p.y + p.h > item.y - 4) {
           item.collected = true;
           this.starDust += 1;
-          document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
           audio.starCollect();
           this.addFloatingText("+1 STAR-DUST", item.x + 4, item.y - 8, '#FFD700');
           this.addParticles(item.x + 4, item.y + 4, 10, ['#FFD700', '#FFF', '#FFE082', '#FFF59D'], 3.0);
@@ -1038,62 +1126,57 @@ class PlatformerGame {
           item.collected = false;
           this.addParticles(item.x + 4, item.y + 4, 6, ['#FFD700', '#FFF']);
         }
-        this.addFloatingText("✨ STAR-DUST RESPAWNED! ✨", VIRT_W / 2, 70, '#FFD700');
+        this.addFloatingText("STAR-DUST RESPAWNED!", VIRT_W / 2, 70, '#FFD700');
       }, 1000);
     }
   }
 
-  // ── 4. Hazard Collisions & Unicorn Armor Buffer ─────────────
+  // ── 4. Hazard Collisions ──────────────────────────────────
   updateHazardCollisions() {
     const p = this.player;
-
     if (p.invincibleTimer <= 0) {
       for (const hz of hazardBlocks) {
         if (p.x < hz.x + hz.w && p.x + p.w > hz.x &&
             p.y < hz.y + hz.h && p.y + p.h > hz.y) {
-          
+
           const knockDir = (p.x + p.w / 2) < (hz.x + hz.w / 2) ? -1 : 1;
 
           if (p.isRiding) {
-            // 🦄 UNICORN ARMOR BUFFER:
-            // Ignore Star-Dust penalty! Dispel unicorn, give 2s invincibility
+            // Unicorn Armor Buffer
             p.isRiding = false;
-            document.getElementById('hud-mount').style.display = 'none';
-
-            p.invincibleTimer = 120; // 2 seconds of flashing invincibility
+            p.invincibleTimer = 120;
             p.vx = knockDir * 4.2;
             p.vy = this.globalGravity === 1 ? -6.0 : 6.0;
             p.onGround = false;
 
             audio.armorBreak();
-            this.addFloatingText("ARMOR BUFFER! 🛡️🦄", p.x + p.w/2, p.y - 16, '#00E5FF');
+            this.addFloatingText("ARMOR BUFFER!", p.x + p.w/2, p.y - 16, '#00E5FF');
             this.addParticles(p.x + p.w/2, p.y + p.h/2, 24, [
               '#E040FB', '#00E5FF', '#FFD700', '#FF1744', '#FFFFFF'
             ], 4.0);
 
-            // Respawn unicorn on high ledge after 6 seconds
+            // Respawn unicorn after 6s
             setTimeout(() => {
               for (const uc of this.unicorns) {
                 uc.collected = false;
                 this.addParticles(uc.x + uc.w/2, uc.y + uc.h/2, 12, ['#E040FB', '#FFD700', '#FFF']);
               }
-              this.addFloatingText("🦄 UNICORN RESPAWNED!", 175, 50, '#E040FB');
+              this.addFloatingText("UNICORN RESPAWNED!", 175, 50, '#E040FB');
             }, 6000);
 
           } else {
-            // Standard Penalty: Star-Dust Scatter
+            // Standard Star-Dust Scatter
             const lostAmount = Math.min(this.starDust, 10);
             this.starDust = Math.max(0, this.starDust - 10);
-            document.getElementById('hud-stardust').textContent = this.starDust.toString().padStart(2, '0');
 
             p.vx = knockDir * 4.8;
             p.vy = this.globalGravity === 1 ? -6.5 : 6.5;
             p.onGround = false;
             p.isGroundPounding = false;
-            p.invincibleTimer = 120; // 2s invincibility
+            p.invincibleTimer = 120;
 
             audio.hazardScatter();
-            this.addFloatingText(`-${lostAmount} STAR-DUST 💥`, p.x + p.w/2, p.y - 16, '#FF5252');
+            this.addFloatingText("-" + lostAmount + " STAR-DUST", p.x + p.w/2, p.y - 16, '#FF5252');
 
             for (let i = 0; i < 10; i++) {
               const ang = (Math.PI * 2 * i) / 10 + (Math.random() - 0.5) * 0.5;
@@ -1141,7 +1224,6 @@ class PlatformerGame {
   resolveHorizontalCollisions() {
     const p = this.player;
     const allPlats = this.getAllSolidPlatforms();
-
     for (const plat of allPlats) {
       if (p.x < plat.x + plat.w && p.x + p.w > plat.x && p.y < plat.y + plat.h && p.y + p.h > plat.y) {
         if (p.vx > 0) p.x = plat.x - p.w;
@@ -1163,12 +1245,11 @@ class PlatformerGame {
             p.y = plat.y - p.h;
             p.vy = 0;
             p.onGround = true;
-
             if (p.isGroundPounding) {
               p.isGroundPounding = false;
               audio.groundPoundImpact();
               this.addParticles(p.x + p.w/2, p.y + p.h, 24, ['#FF5252', '#FFD700', '#FF9800', '#FFF'], 4.5);
-              this.addFloatingText("BOOM! 💥", p.x + p.w/2, p.y - 14, '#FFD700');
+              this.addFloatingText("BOOM!", p.x + p.w/2, p.y - 14, '#FFD700');
             }
           } else if (p.vy < 0) {
             p.y = plat.y + plat.h;
@@ -1179,12 +1260,11 @@ class PlatformerGame {
             p.y = plat.y + plat.h;
             p.vy = 0;
             p.onGround = true;
-
             if (p.isGroundPounding) {
               p.isGroundPounding = false;
               audio.groundPoundImpact();
               this.addParticles(p.x + p.w/2, p.y, 24, ['#FF5252', '#FFD700', '#FF9800', '#FFF'], 4.5);
-              this.addFloatingText("BOOM! 💥", p.x + p.w/2, p.y + p.h + 14, '#FFD700');
+              this.addFloatingText("BOOM!", p.x + p.w/2, p.y + p.h + 14, '#FFD700');
             }
           } else if (p.vy > 0) {
             p.y = plat.y - p.h;
@@ -1205,7 +1285,8 @@ class PlatformerGame {
 
       pr.x += pr.vx;
       for (const plat of allPlats) {
-        if (pr.x < plat.x + plat.w && pr.x + pr.w > plat.x && pr.y < plat.y + plat.h && pr.y + p.h > plat.y) {
+        // FIX: was pr.y + p.h (used player height), now correctly pr.y + pr.h
+        if (pr.x < plat.x + plat.w && pr.x + pr.w > plat.x && pr.y < plat.y + plat.h && pr.y + pr.h > plat.y) {
           pr.vx *= -1;
           pr.bounces++;
           audio.shellBounce();
@@ -1313,7 +1394,7 @@ class PlatformerGame {
       ctx.fill();
     }
 
-    // Static Platforms & Ceiling
+    // Static Platforms
     for (const plat of platforms) {
       ctx.fillStyle = plat.color;
       ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
@@ -1323,7 +1404,7 @@ class PlatformerGame {
       ctx.fillRect(plat.x, plat.y + plat.h - 1, plat.w, 1);
     }
 
-    // Green 'G' Switches
+    // Green G Switches
     for (const sw of this.gSwitches) {
       const isPressed = sw.pressed > 0;
       const curH = isPressed ? 6 : sw.h;
@@ -1337,7 +1418,7 @@ class PlatformerGame {
       ctx.fillStyle = '#00E676';
       ctx.fillRect(sw.x, curY, sw.w, curH);
 
-      ctx.strokeStyle = `rgba(105, 240, 174, ${gPulse})`;
+      ctx.strokeStyle = 'rgba(105, 240, 174, ' + gPulse + ')';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(sw.x - 0.5, curY - 0.5, sw.w + 1, curH + 1);
 
@@ -1348,7 +1429,7 @@ class PlatformerGame {
       ctx.restore();
     }
 
-    // Red Hazard Blocks
+    // Hazard Blocks
     for (const hz of hazardBlocks) {
       const pulse = Math.sin(now * 0.008) * 0.2 + 0.8;
       ctx.save();
@@ -1356,35 +1437,32 @@ class PlatformerGame {
       ctx.fillRect(hz.x, hz.y, hz.w, hz.h);
       ctx.fillStyle = '#FF1744';
       ctx.fillRect(hz.x + 3, hz.y + 3, hz.w - 6, hz.h - 6);
-      ctx.strokeStyle = `rgba(255, 23, 68, ${pulse})`;
+      ctx.strokeStyle = 'rgba(255, 23, 68, ' + pulse + ')';
       ctx.lineWidth = 2;
       ctx.strokeRect(hz.x - 1, hz.y - 1, hz.w + 2, hz.h + 2);
+      // Draw X instead of emoji (more reliable cross-platform)
       ctx.fillStyle = '#FFF';
-      ctx.font = '8px monospace';
+      ctx.font = 'bold 10px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('⚠️', hz.x + hz.w / 2, hz.y + hz.h / 2 + 3);
+      ctx.textBaseline = 'middle';
+      ctx.fillText('X', hz.x + hz.w / 2, hz.y + hz.h / 2);
       ctx.restore();
     }
 
-    // 🦄 Unicorn Entity (Waiting on high ledge when not mounted)
+    // Unicorn Entity
     for (const uc of this.unicorns) {
       if (!uc.collected) {
         const floatY = Math.sin(now * 0.005) * 3;
         ctx.save();
         ctx.translate(uc.x + uc.w/2, uc.y + uc.h/2 + floatY);
-
-        // Rainbow sparkle aura
         ctx.fillStyle = 'rgba(224, 64, 251, 0.35)';
         ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
-
-        // Draw Unicorn Sprite
         this.drawUnicornSprite(ctx, 0, 0, true, 0);
-
         ctx.restore();
       }
     }
 
-    // Yellow Star-Dust Collectibles
+    // Star-Dust Collectibles
     for (const item of this.starDustItems) {
       if (!item.collected) {
         const floatOffset = Math.sin(now * 0.006 + item.x) * 3;
@@ -1416,7 +1494,7 @@ class PlatformerGame {
       }
     }
 
-    // Scattered Star-Dust Particles
+    // Scattered Star-Dust
     for (const sp of this.scatterDustParticles) {
       ctx.fillStyle = '#FFD700';
       ctx.beginPath();
@@ -1426,24 +1504,24 @@ class PlatformerGame {
       ctx.fillRect(sp.x - 1, sp.y - 1, 2, 2);
     }
 
-    // Candela's Spawned Star Platforms
+    // Candela Star Platforms
     for (const sp of this.spawnedPlatforms) {
       const alpha = sp.life < 40 ? sp.life / 40 : 1;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = '#FFD700';
       ctx.beginPath();
-      ctx.roundRect(sp.x, sp.y, sp.w, sp.h, 4);
+      ctx.roundRect(sp.x, sp.y, sp.w, sp.h, [4]);
       ctx.fill();
       ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
-
       ctx.fillStyle = '#FFF';
-      ctx.font = '8px sans-serif';
-      ctx.fillText('⭐', sp.x + 4, sp.y + 8);
-      ctx.fillText('⭐', sp.x + sp.w - 14, sp.y + 8);
+      ctx.font = '6px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('*', sp.x + 4, sp.y + 8);
+      ctx.fillText('*', sp.x + sp.w - 10, sp.y + 8);
       ctx.globalAlpha = 1.0;
     }
 
-    // Cayetana's Bouncing Projectiles
+    // Cayetana Projectiles
     for (const pr of this.projectiles) {
       ctx.save();
       ctx.translate(pr.x + pr.w/2, pr.y + pr.h/2);
@@ -1454,42 +1532,124 @@ class PlatformerGame {
       ctx.restore();
     }
 
-    // Player Sprite Render (with Unicorn mount if active)
+    // Player
     if (this.state === 'PLAYING') {
       this.renderPlayer(ctx);
     }
 
-    // Particles & Floating Text
+    // Particles
     for (const p of this.particles) {
+      const alpha = p.life / p.maxLife;
+      ctx.globalAlpha = alpha;
       ctx.fillStyle = p.col;
-      ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.5 * alpha + 0.5, 0, Math.PI * 2); ctx.fill();
     }
+    ctx.globalAlpha = 1;
 
+    // Floating Text
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.font = '7px "Press Start 2P", monospace';
     for (const t of this.floatingTexts) {
+      const alpha = Math.min(1, t.life / 15);
+      ctx.globalAlpha = alpha;
       ctx.fillStyle = '#000'; ctx.fillText(t.txt, t.x + 1, t.y + 1);
       ctx.fillStyle = t.col; ctx.fillText(t.txt, t.x, t.y);
     }
+    ctx.globalAlpha = 1;
 
-    // Feedback: 100ms Full Canvas White Flash on Gravity Shift
+    // Gravity Flash
     if (this.flashTimer > 0) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${this.flashTimer / 6})`;
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + (this.flashTimer / 6) + ')';
       ctx.fillRect(0, 0, VIRT_W, VIRT_H);
       this.flashTimer--;
     }
+
+    // ── Canvas HUD (drawn directly, no DOM overlay issues) ────
+    if (this.state === 'PLAYING') {
+      this.renderHUD(ctx, now);
+    }
+
+    // ── Mobile Touch Controls (drawn on canvas) ──────────────
+    if (this.state === 'PLAYING' && this.touchCtrl.active) {
+      this.touchCtrl.draw(ctx, this.screenW, this.screenH, VIRT_W, VIRT_H);
+    }
   }
 
-  // ── Procedural Unicorn Sprite ──────────────────────────────
+  renderHUD(ctx, now) {
+    const char = CHARACTERS[this.selectedCharId];
+    const p = this.player;
+
+    ctx.save();
+    ctx.textBaseline = 'top';
+
+    // Background pill
+    ctx.fillStyle = 'rgba(18, 14, 28, 0.82)';
+    ctx.beginPath();
+    ctx.roundRect(6, 4, 210, 22, [6]);
+    ctx.fill();
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Character name
+    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff5252';
+    ctx.fillText(char.name, 12, 10);
+
+    // Star-Dust counter
+    ctx.fillStyle = '#FFD700';
+    const sdText = 'SD:' + this.starDust.toString().padStart(2, '0');
+    ctx.fillText(sdText, 72, 10);
+
+    // Gravity badge
+    if (this.globalGravity === -1) {
+      ctx.fillStyle = '#E040FB';
+      ctx.fillText('-1G', 128, 10);
+    } else {
+      ctx.fillStyle = '#64B5F6';
+      ctx.fillText('1G', 128, 10);
+    }
+
+    // Unicorn mount badge
+    if (p.isRiding) {
+      ctx.fillStyle = '#E040FB';
+      ctx.fillText('MOUNT', 158, 10);
+    }
+
+    // Right side: mute button hint & ability
+    ctx.fillStyle = 'rgba(18, 14, 28, 0.82)';
+    ctx.beginPath();
+    ctx.roundRect(VIRT_W - 158, 4, 152, 22, [6]);
+    ctx.fill();
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = '5px "Press Start 2P", monospace';
+    ctx.fillStyle = '#85f8ce';
+    ctx.textAlign = 'right';
+    ctx.fillText(char.perk, VIRT_W - 12, 11);
+
+    // Sound indicator
+    ctx.fillStyle = this.soundMuted ? '#666' : '#fff';
+    ctx.font = '6px monospace';
+    ctx.fillText(this.soundMuted ? '[M]MUTE' : '[M]SND', VIRT_W - 12, 19);
+
+    ctx.restore();
+  }
+
+  // ── Procedural Unicorn Sprite ─────────────────────────────
   drawUnicornSprite(ctx, x, y, facingRight, legCycle = 0) {
     ctx.save();
     ctx.translate(x, y);
     if (!facingRight) ctx.scale(-1, 1);
 
-    // Body (White with soft shading)
+    // Body
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.roundRect(-10, -4, 20, 12, 4);
+    ctx.roundRect(-10, -4, 20, 12, [4]);
     ctx.fill();
 
     // Neck & Head
@@ -1510,7 +1670,7 @@ class PlatformerGame {
     ctx.closePath();
     ctx.fill();
 
-    // Rainbow Mane (3 Vibrant Locks)
+    // Rainbow Mane
     ctx.fillStyle = '#FF4081';
     ctx.fillRect(5, -14, 3, 5);
     ctx.fillStyle = '#00E5FF';
@@ -1518,13 +1678,13 @@ class PlatformerGame {
     ctx.fillStyle = '#FFD700';
     ctx.fillRect(1, -4, 3, 5);
 
-    // Cute Eye & Muzzle
+    // Eye
     ctx.fillStyle = '#1A237E';
     ctx.fillRect(11, -11, 2, 2);
     ctx.fillStyle = '#FF80AB';
-    ctx.fillRect(14, -8, 2, 2); // Blush
+    ctx.fillRect(14, -8, 2, 2);
 
-    // Magical Star Tail
+    // Tail
     ctx.fillStyle = '#E040FB';
     ctx.beginPath();
     ctx.moveTo(-10, -2);
@@ -1533,7 +1693,7 @@ class PlatformerGame {
     ctx.closePath();
     ctx.fill();
 
-    // Golden Hooves & Legs
+    // Legs & Hooves
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(-8 + legCycle, 8, 3, 5);
     ctx.fillRect(-2 - legCycle, 8, 3, 5);
@@ -1565,12 +1725,12 @@ class PlatformerGame {
     // Horizontal flip
     if (!p.facingRight) ctx.scale(-1, 1);
 
-    // Inverted Gravity: Vertical Flip (scaleY(-1))
+    // Inverted Gravity flip
     if (this.globalGravity === -1) {
       ctx.scale(1, -1);
     }
 
-    // Ground Pound rotation / squash effect
+    // Ground Pound squash
     if (p.isGroundPounding) {
       ctx.scale(0.85, 1.25);
     }
@@ -1579,10 +1739,10 @@ class PlatformerGame {
     const legCycle = isRunning ? Math.sin(p.frame * 0.4) * 3 : 0;
 
     if (p.isRiding) {
-      // 🦄 1. Draw Unicorn Sprite Underneath
+      // Unicorn underneath
       this.drawUnicornSprite(ctx, 0, 8, true, legCycle);
 
-      // 🦄 2. Draw Player's PNG Mounted On Top
+      // Player on top
       if (img && img.complete && img.naturalWidth > 0) {
         const drawW = p.w * 1.4;
         const drawH = p.h * 1.1;
@@ -1592,7 +1752,7 @@ class PlatformerGame {
         ctx.fillRect(-p.w / 2, -p.h / 2 - 8, p.w, p.h);
       }
 
-      // Rainbow particle trail while moving on unicorn
+      // Rainbow trail while moving on unicorn
       if (isRunning && p.frame % 3 === 0) {
         this.addParticles(p.x + (p.facingRight ? -6 : p.w + 6), p.y + p.h - 2, 2, [
           '#E040FB', '#00E5FF', '#FFD700', '#FF4081'
@@ -1600,7 +1760,7 @@ class PlatformerGame {
       }
 
     } else {
-      // Normal Unmounted Player Rendering
+      // Normal player render
       if (img && img.complete && img.naturalWidth > 0) {
         const drawW = p.w * 1.6;
         const drawH = p.h * 1.25;
