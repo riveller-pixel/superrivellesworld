@@ -328,17 +328,26 @@ const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
 const CHARACTERS = {
-  candela:  { id:'candela',  name:'CANDELA',   dressColor:'#FFFFFF', hairColor:'#5D4037', crown:true, wand:true,
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:22, h:34 },
-  cayetana: { id:'cayetana', name:'CAYETANA',  dressColor:'#FFFFFF', hairColor:'#3E2723', shellHold:true,
-              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:22, h:34 },
-  valentina:{ id:'valentina',name:'VALENTINA', dressColor:'#FFFFFF', hairColor:'#FBC02D', bag:true,
-              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:20, h:30 },
-  mama:     { id:'mama',     name:'MAMÁ',      dressColor:'#FFFFFF', hairColor:'#FFE082', bananaStar:true,
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:22, h:34 },
-  papa:     { id:'papa',     name:'PAPÁ',      suitColor:'#1A237E', hairColor:'#212121', hat:true,
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:22, h:34 }
+  candela:  { id:'candela',  name:'CANDELA',   imgSrc:'candela.png',  fallback:'assets/candela.png',
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:20, h:30 },
+  cayetana: { id:'cayetana', name:'CAYETANA',  imgSrc:'cayetana.png', fallback:'assets/cayetana.png',
+              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:20, h:30 },
+  valentina:{ id:'valentina',name:'VALENTINA', imgSrc:'valentina.png',fallback:'assets/valentina.png',
+              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:18, h:26 },
+  mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:20, h:30 },
+  papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:20, h:30 }
 };
+
+const loadedImages = {};
+for(const [key,char] of Object.entries(CHARACTERS)){
+  const img = new Image(); img.src = char.imgSrc; img.onerror = () => { img.src = char.fallback; };
+  loadedImages[key] = img;
+}
+const tommyImg = new Image();
+tommyImg.src = 'tommy.png';
+tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 
 // 5 Expansive Worlds
 const LEVEL_CONFIGS = [
@@ -452,7 +461,7 @@ class Enemy {
     this.h = (type==='koopa'||type==='paratroopa') ? 24 : (type==='goomba'?18 : (type==='monty_mole'?20 : (type==='cheep_cheep'?18 : 22)));
     this.vx = (type==='koopa'||type==='goomba'||type==='paratroopa'||type==='cheep_cheep') ? -1.2 : 0;
     this.vy = 0;
-    this.onGround=false; this.state='patrol'; // 'patrol', 'shell', 'burrow', 'jump'
+    this.onGround=false; this.state='patrol';
     this.dead=false; this.deadTimer=0; this.deadVy=-5;
     this.alertTimer=0; this.frame=0; this.facingRight=false;
     this.baseX=x; this.baseY=y;
@@ -469,7 +478,6 @@ class Enemy {
     const distToPlayer=Math.sqrt(dx*dx+dy*dy);
 
     if(this.state === 'shell'){
-      // Moving Shell Physics
       this.x += this.shellSpeed;
       if(this.shellSpeed !== 0){
         for(const en of game.enemies){
@@ -559,12 +567,10 @@ class Enemy {
 
   _updateCheepCheep(player,game){
     if(LEVEL_CONFIGS[game.currentLevelIdx].theme === 'marine'){
-      // Swimming fish
       this.x += Math.sin(this.frame * 0.05) * 1.8 + (this.facingRight ? 1.0 : -1.0);
       this.y += Math.cos(this.frame * 0.04) * 0.8;
       if(this.frame % 60 === 0) this.facingRight = !this.facingRight;
     } else {
-      // Jumping Fish from ravines
       this.vy += 0.25;
       this.y += this.vy;
       if(this.y > VIRT_H + 20){ this.y = VIRT_H + 10; this.vy = -9.0; }
@@ -599,7 +605,6 @@ class Enemy {
     if(this.facingRight) ctx.scale(-1,1);
     if(this.dead) ctx.globalAlpha=0.7;
 
-    // Contact drop shadow
     if(this.onGround && !this.dead){
       ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.5, 3, 0, 0, Math.PI*2); ctx.fill();
@@ -621,17 +626,14 @@ class Enemy {
   }
 
   _drawGoomba(ctx){
-    // Brown Mushroom Cap
     const gGrad = ctx.createRadialGradient(-2, -4, 2, 0, 0, 10);
     gGrad.addColorStop(0, '#A1887F'); gGrad.addColorStop(0.6, '#6D4C41'); gGrad.addColorStop(1, '#3E2723');
     ctx.fillStyle = gGrad;
     ctx.beginPath(); ctx.ellipse(0, -2, 9, 8, 0, 0, Math.PI*2); ctx.fill();
 
-    // Cream Snout
     ctx.fillStyle = '#FFE0B2';
     ctx.beginPath(); ctx.ellipse(0, 3, 6, 4, 0, 0, Math.PI*2); ctx.fill();
 
-    // Eyes
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.ellipse(-3, -3, 2, 3, -0.1, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(3, -3, 2, 3, 0.1, 0, Math.PI*2); ctx.fill();
@@ -639,12 +641,10 @@ class Enemy {
     ctx.beginPath(); ctx.arc(-2.5, -3, 1.2, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(2.5, -3, 1.2, 0, Math.PI*2); ctx.fill();
 
-    // Fangs
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.moveTo(-3, 3); ctx.lineTo(-2, 1); ctx.lineTo(-1, 3); ctx.fill();
     ctx.beginPath(); ctx.moveTo(1, 3); ctx.lineTo(2, 1); ctx.lineTo(3, 3); ctx.fill();
 
-    // Feet
     const waddle = Math.sin(this.frame * 0.3) * 3;
     ctx.fillStyle = '#212121';
     ctx.beginPath(); ctx.ellipse(-5+waddle, 8, 4, 2.5, 0, 0, Math.PI*2); ctx.fill();
@@ -654,34 +654,28 @@ class Enemy {
   _drawKoopa(ctx,now){
     const walk = Math.sin(this.frame * 0.25) * 3;
     
-    // Shoes
     ctx.fillStyle='#E65100';
     ctx.beginPath(); ctx.ellipse(-6+walk, 9, 4.5, 3, -0.1, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(4-walk, 9, 4.5, 3, 0.1, 0, Math.PI*2); ctx.fill();
 
-    // 3D Shell
     const shellGrad = ctx.createRadialGradient(-2, 0, 2, 0, 2, 11);
     shellGrad.addColorStop(0, '#81C784'); shellGrad.addColorStop(0.6, '#388E3C'); shellGrad.addColorStop(1, '#1B5E20');
     ctx.fillStyle = shellGrad;
     ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
 
-    // Yellow Shell Rim
     ctx.strokeStyle = '#FFEE58'; ctx.lineWidth = 1.8;
     ctx.beginPath(); ctx.ellipse(0, 1, 9.2, 8.2, 0, 0, Math.PI*2); ctx.stroke();
 
-    // Head & Beak
     ctx.fillStyle = '#FDD835';
     ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#FB8C00';
     ctx.beginPath(); ctx.ellipse(10, -5, 3.5, 2.5, 0.2, 0, Math.PI*2); ctx.fill();
 
-    // Eye
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.ellipse(7, -8, 2.5, 3.5, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#212121';
     ctx.beginPath(); ctx.arc(8, -8, 1.4, 0, Math.PI*2); ctx.fill();
 
-    // Wings if Paratroopa
     if(this.type === 'paratroopa'){
       const flap = Math.sin(now * 0.02) * 5;
       ctx.fillStyle = '#FFFFFF';
@@ -695,13 +689,11 @@ class Enemy {
     ctx.beginPath(); ctx.ellipse(0, 0, 9, 8, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#FFE0B2';
     ctx.beginPath(); ctx.ellipse(0, 2, 6, 4.5, 0, 0, Math.PI*2); ctx.fill();
-    // Nose & Eyes
     ctx.fillStyle = '#D84315';
     ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#000000';
     ctx.beginPath(); ctx.arc(-4, -2, 1.2, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(4, -2, 1.2, 0, Math.PI*2); ctx.fill();
-    // Paws
     ctx.fillStyle = '#D7CCC8';
     ctx.beginPath(); ctx.ellipse(-6, 6, 3, 2, 0, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(6, 6, 3, 2, 0, 0, Math.PI*2); ctx.fill();
@@ -712,12 +704,10 @@ class Enemy {
     ctx.beginPath(); ctx.ellipse(0, 0, 9, 7.5, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#FFE0B2';
     ctx.beginPath(); ctx.ellipse(2, 2, 5, 4, 0, 0, Math.PI*2); ctx.fill();
-    // Big White Eye
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.ellipse(3, -2, 3.5, 3.5, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#000000';
     ctx.beginPath(); ctx.arc(4, -2, 1.5, 0, Math.PI*2); ctx.fill();
-    // Yellow Fins & Tail
     ctx.fillStyle = '#FFD54F';
     ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-12, -4); ctx.lineTo(-12, 4); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(-3, -11); ctx.lineTo(3, -11); ctx.closePath(); ctx.fill();
@@ -776,52 +766,43 @@ class UnicornMount {
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
     if(!this.facingRight) ctx.scale(-1, 1);
 
-    // Contact drop shadow
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.45, 4, 0, 0, Math.PI*2); ctx.fill();
 
     const legMove = this.mounted ? Math.sin(now * 0.02) * 5 : 0;
 
-    // 2.5D Yoshi-style White & Pastel Rainbow Unicorn Body
     const bodyGrad = ctx.createRadialGradient(-4, 0, 2, 0, 2, 14);
     bodyGrad.addColorStop(0, '#FFFFFF'); bodyGrad.addColorStop(0.7, '#F3E5F5'); bodyGrad.addColorStop(1, '#E1BEE7');
     ctx.fillStyle = bodyGrad;
     ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
 
-    // Saddle (Red with Gold Trim)
     ctx.fillStyle = '#D50000';
     ctx.beginPath(); ctx.roundRect(-5, -3, 10, 6, [3]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Legs & Golden Hooves
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(-8+legMove, 8, 4, 8); ctx.fillRect(4-legMove, 8, 4, 8);
     ctx.fillStyle = '#FFD700';
     ctx.fillRect(-8+legMove, 14, 4, 3); ctx.fillRect(4-legMove, 14, 4, 3);
 
-    // Cute Round Head
     const headGrad = ctx.createRadialGradient(8, -6, 2, 8, -6, 10);
     headGrad.addColorStop(0, '#FFFFFF'); headGrad.addColorStop(0.8, '#F8BBD0'); headGrad.addColorStop(1, '#F48FB1');
     ctx.fillStyle = headGrad;
     ctx.beginPath(); ctx.ellipse(9, -6, 8, 7.5, 0.2, 0, Math.PI*2); ctx.fill();
 
-    // Cute Snout
     ctx.fillStyle = '#FF80AB';
     ctx.beginPath(); ctx.ellipse(15, -4, 4, 3, 0.1, 0, Math.PI*2); ctx.fill();
 
-    // Expressive Cartoon Eye
     ctx.fillStyle = '#212121';
     ctx.beginPath(); ctx.ellipse(10, -8, 2, 3, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.arc(9.5, -9, 1, 0, Math.PI*2); ctx.fill();
 
-    // Golden Magical Horn with Radiant Shimmer
     const hornGrad = ctx.createLinearGradient(12, -14, 18, -26);
     hornGrad.addColorStop(0, '#FFD700'); hornGrad.addColorStop(1, '#FFF9C4');
     ctx.fillStyle = hornGrad;
     ctx.beginPath(); ctx.moveTo(10, -12); ctx.lineTo(17, -24); ctx.lineTo(14, -12); ctx.closePath(); ctx.fill();
 
-    // Rainbow Mane & Tail
     const colors = ['#FF1744','#FF9100','#FFEA00','#00E676','#00B0FF','#D500F9'];
     colors.forEach((col, idx)=>{
       ctx.fillStyle = col;
@@ -1087,20 +1068,24 @@ class TommyAI {
     const wag = Math.sin(now * 0.018) * 4;
     const breathe = Math.sin(now * 0.005) * 1;
 
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.ellipse(0, 2, 8, 6, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#8D6E63';
-    ctx.beginPath(); ctx.ellipse(-2, 0, 5, 4, 0.2, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.ellipse(5, -4, 5, 5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#8D6E63';
-    ctx.beginPath(); ctx.ellipse(3, -7, 2.5, 4, -0.4, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#212121';
-    ctx.beginPath(); ctx.arc(7, -5, 1.2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(9, -3, 1.0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-7, 0); ctx.quadraticCurveTo(-10, -5+wag, -11, -3+wag); ctx.stroke();
-
+    if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
+      const dw = this.w * 1.8, dh = this.h * 1.5;
+      ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.2:breathe), dw, dh);
+    } else {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.ellipse(0, 2, 8, 6, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#8D6E63';
+      ctx.beginPath(); ctx.ellipse(-2, 0, 5, 4, 0.2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.ellipse(5, -4, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#8D6E63';
+      ctx.beginPath(); ctx.ellipse(3, -7, 2.5, 4, -0.4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#212121';
+      ctx.beginPath(); ctx.arc(7, -5, 1.2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(9, -3, 1.0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(-7, 0); ctx.quadraticCurveTo(-10, -5+wag, -11, -3+wag); ctx.stroke();
+    }
     ctx.restore();
   }
 }
@@ -1348,7 +1333,7 @@ class PlatformerGame {
     
     this.selectedCharId='candela';
     this.currentLevelIdx=0;
-    this.unlockedLevels=[true, true, true, true, true]; // All 5 levels unlocked for testing
+    this.unlockedLevels=[true, true, true, true, true];
     this.state='MENU';
 
     this.globalGravity=1; this.flashTimer=0;
@@ -1360,18 +1345,18 @@ class PlatformerGame {
     this.isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0)||window.matchMedia('(pointer:coarse)').matches;
 
     this.player={
-      x:80,y:210,w:22,h:34,vx:0,vy:0,onGround:false,facingRight:true,
+      x:80,y:210,w:20,h:30,vx:0,vy:0,onGround:false,facingRight:true,
       jumpHeld:false,isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
       invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false, inWater: false,
-      powerState: 'normal', // 'normal', 'super', 'fire', 'star', 'wing'
+      powerState: 'normal',
       powerTimer: 0,
       coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0,
       powerUp: (type, game)=>{
         this.player.powerState = type;
         this.player.powerTimer = (type==='star'? 600 : (type==='wing'? 400 : 99999));
         audio.powerUp();
-        if(type==='super'){ this.player.w=26; this.player.h=42; }
+        if(type==='super'){ this.player.w=26; this.player.h=38; }
       }
     };
 
@@ -1492,7 +1477,7 @@ class PlatformerGame {
 
       if(this.state!=='WORLD_MAP') return;
 
-      const nodes=[{x:80,y:140},{x:165,y:140},{x:256,y:140},{x:345,y:140},{x:430,y:140}];
+      const nodes=[{x:70,y:140},{x:155,y:140},{x:245,y:140},{x:335,y:140},{x:425,y:140}];
       nodes.forEach((n,idx)=>{
         const dist=Math.hypot(cx-n.x,cy-n.y);
         const inNodeBox=(Math.abs(cx-n.x)<42 && cy>=100 && cy<=195);
@@ -1777,7 +1762,7 @@ class PlatformerGame {
         {x:1300, y:256, w:600, h:32},
         {x:2000, y:256, w:600, h:32},
         {x:2700, y:256, w:600, h:32},
-        {x:3400, y:256, w:1000, h:32}, // Boss Arena
+        {x:3400, y:256, w:1000, h:32},
         {x:220, y:185, w:90, h:16},
         {x:400, y:130, w:90, h:16},
         {x:800, y:180, w:90, h:16},
@@ -1954,7 +1939,7 @@ class PlatformerGame {
 
     // 🏊 FLUID WATER SWIMMING MECHANICS (Marine World)
     if(p.inWater){
-      p.vy = Math.min(p.vy + 0.18, 3.2); // Gentle water gravity
+      p.vy = Math.min(p.vy + 0.18, 3.2);
       let maxSpd = 3.6;
       if(this.input.left){ p.vx = Math.max(p.vx - 0.25, -maxSpd); p.facingRight = false; }
       else if(this.input.right){ p.vx = Math.min(p.vx + 0.25, maxSpd); p.facingRight = true; }
@@ -2155,7 +2140,6 @@ class PlatformerGame {
           p.y = pl.y - p.h;
           if(p.vy > 6) { p.squashX = 1.3; p.squashY = 0.7; this.camera.shake(Math.min(5, p.vy*0.4)); }
           
-          // Bouncy Cloud Platforms
           if(pl.isCloud){
             p.vy = -10.5;
             audio.jump();
@@ -2200,7 +2184,6 @@ class PlatformerGame {
 
     for(const qb of this.questionBlocks) { qb.checkBump(p, this.globalGravity, this); qb.update(); }
 
-    // Mount Yoshi-Unicorn
     if(this.unicornMount && !this.unicornMount.mounted){
       if(Math.hypot((p.x+p.w/2)-(this.unicornMount.x+this.unicornMount.w/2), (p.y+p.h)-(this.unicornMount.y+this.unicornMount.h)) < 28){
         this.unicornMount.mounted = true;
@@ -2211,7 +2194,6 @@ class PlatformerGame {
       }
     }
 
-    // Fireball projectiles
     const allPlats = this.getAllSolidPlatforms();
     for(let i=this.fireballs.length-1; i>=0; i--){
       const fb = this.fireballs[i];
@@ -2251,7 +2233,6 @@ class PlatformerGame {
       en.update(p, allPlats, this.globalGravity, this);
       if(!en.dead && p.invincibleTimer<=0 && p.x<en.x+en.w && p.x+p.w>en.x && p.y<en.y+en.h && p.y+p.h>en.y){
         
-        // Star Power Instant Defeat
         if(p.powerState === 'star'){
           en.die(this); audio.bossHit(); this.camera.shake(5);
           continue;
@@ -2273,7 +2254,6 @@ class PlatformerGame {
             this.hitStopFrames = 3;
           }
         } else {
-          // Take Damage (Super to Normal / Normal lose Stars)
           if(p.powerState === 'super' || p.powerState === 'fire' || p.powerState === 'wing'){
             p.powerState = 'normal';
             p.w = CHARACTERS[this.selectedCharId].w;
@@ -2404,10 +2384,12 @@ class PlatformerGame {
       ctx.restore();
     });
 
-    // Character preview standing on node
     const curNode=nodes[this.currentLevelIdx];
-    ctx.save(); ctx.translate(curNode.x, curNode.y-34+Math.sin(now*0.006)*4);
-    this._drawFullBodyCharacter(ctx, 0, 0, this.selectedCharId, true, 0, 'normal', false, 0.85);
+    const img=loadedImages[this.selectedCharId];
+    ctx.save(); ctx.translate(curNode.x,curNode.y-34+Math.sin(now*0.006)*4);
+    if(img&&img.complete&&img.naturalWidth>0){
+      ctx.drawImage(img,-14,-18,28,34);
+    }
     ctx.restore();
 
     const pulse=Math.sin(now*0.006)*0.2+0.8;
@@ -2430,7 +2412,6 @@ class PlatformerGame {
 
     // 🌊 OCEAN / MARINE PARALLAX
     if(cfg.theme === 'marine'){
-      // Light Rays filtering from water surface
       ctx.save(); ctx.globalAlpha = 0.18; ctx.fillStyle = '#FFFFFF';
       for(let r=0; r<6; r++){
         const rx = ((r*180 - cx*0.08 + Math.sin(now*0.001+r)*20) % (VIRT_W+200)) - 100;
@@ -2438,14 +2419,12 @@ class PlatformerGame {
       }
       ctx.restore();
 
-      // Distant Deep Coral Reefs (parallax 0.20)
       ctx.fillStyle = '#01579B';
       for(let i=0; i<8; i++){
         const rx = ((i*240 - cx*0.2) % 2000) - 200;
         ctx.beginPath(); ctx.ellipse(rx, VIRT_H-20, 80, 50, 0, 0, Math.PI*2); ctx.fill();
       }
 
-      // Foreground Coral Formations (parallax 0.50)
       for(let i=0; i<10; i++){
         const rx = ((i*180 - cx*0.5) % 1800) - 150;
         ctx.fillStyle = '#E91E63';
@@ -2454,7 +2433,6 @@ class PlatformerGame {
         ctx.beginPath(); ctx.arc(rx+15, VIRT_H-10, 18, 0, Math.PI*2); ctx.fill();
       }
 
-      // Floating underwater bubbles
       ctx.fillStyle = 'rgba(255,255,255,0.45)';
       for(let b=0; b<12; b++){
         const bx = ((b*130 - cx*0.3) % VIRT_W);
@@ -2468,7 +2446,6 @@ class PlatformerGame {
         const hx = ((i*220 - cx*0.05 + now*0.01) % (VIRT_W+300)) - 120;
         this._draw3DCloud(ctx, hx, 30 + (i%4)*25, 55 + (i%3)*15);
       }
-      // Floating Cloud Castles (parallax 0.20)
       for(let i=0; i<6; i++){
         const cx2 = ((i*340 - cx*0.2) % 2200) - 200;
         this._draw3DCloud(ctx, cx2, VIRT_H - 80, 90);
@@ -2481,7 +2458,6 @@ class PlatformerGame {
         this._draw3DCloud(ctx, hx, 25 + (i%3)*20, 45 + (i%2)*15);
       }
 
-      // Rainbow Arc
       ctx.save(); ctx.globalAlpha = 0.55;
       const rainbowColors = ['#FF1744','#FF9100','#FFEA00','#00E676','#00B0FF','#651FFF','#D500F9'];
       const rbX = ((800 - cx*0.12) % 1800) - 200;
@@ -2672,7 +2648,6 @@ class PlatformerGame {
     for(const db of this.destructibleBlocks) db.draw(ctx,cam);
     for(const qb of this.questionBlocks) qb.draw(ctx,cam,now);
 
-    // Fireballs
     for(const fb of this.fireballs){
       const fs = cam.toScreen(fb.x, fb.y);
       ctx.save();
@@ -2767,7 +2742,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // 2.5D FULL-BODY ANIMATED CHARACTER SYSTEM
+  // ORIGINAL CHARACTER SPRITE RENDERING + POWER-UP AURAS
   // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
     const p=this.player, cam=this.camera;
@@ -2794,6 +2769,12 @@ class PlatformerGame {
       ctx.beginPath(); ctx.arc(0,0,p.w*0.8 + Math.sin(now*0.02)*4, 0, Math.PI*2); ctx.stroke();
     }
 
+    // Fire Flower Golden Fire Aura
+    if(p.powerState === 'fire'){
+      ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, p.w*0.7 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
+    }
+
     // Zero-G Cosmic Aura Shield
     if(p.inZeroG){
       const auraGrad = ctx.createRadialGradient(0,0,8, 0,0,p.w*1.1);
@@ -2802,92 +2783,15 @@ class PlatformerGame {
       ctx.beginPath(); ctx.arc(0,0,p.w*1.1,0,Math.PI*2); ctx.fill();
     }
 
-    // Full-Body Animated 2.5D Vector Character Rendering
-    const legCycle = Math.abs(p.vx) > 0.2 ? Math.sin(now * 0.02) * 5 : 0;
-    this._drawFullBodyCharacter(ctx, 0, p.isRiding ? -8 : 0, this.selectedCharId, p.facingRight, legCycle, p.powerState, p.isGliding, p.powerState==='super'?1.35:1.0);
-
-    ctx.restore();
-  }
-
-  _drawFullBodyCharacter(ctx, x, y, charId, facingRight, legCycle, powerState, isGliding, scale=1.0){
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
-
-    const isFire = (powerState === 'fire');
-    const isStar = (powerState === 'star');
-
-    // 1. Legs & Shoes
-    ctx.fillStyle = '#212121';
-    ctx.beginPath(); ctx.ellipse(-4+legCycle, 14, 3.5, 2, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(4-legCycle, 14, 3.5, 2, 0, 0, Math.PI*2); ctx.fill();
-
-    // 2. Dress / Suit Body
-    if(charId === 'papa'){
-      // Navy Blue Suit & Red Tie
-      ctx.fillStyle = isFire ? '#FFFFFF' : '#1A237E';
-      ctx.beginPath(); ctx.roundRect(-7, -4, 14, 18, [4]); ctx.fill();
-      ctx.fillStyle = '#D50000'; ctx.fillRect(-1.5, -3, 3, 10);
+    const img = loadedImages[this.selectedCharId];
+    const drawY = p.isRiding ? -8 : 0;
+    if(img && img.complete && img.naturalWidth > 0){
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, -p.w/2, -p.h/2 + drawY, p.w, p.h);
+      ctx.imageSmoothingEnabled = true;
     } else {
-      // Elegant White Dress (with power tints)
-      const dGrad = ctx.createLinearGradient(-8, -4, 8, 14);
-      if(isFire){ dGrad.addColorStop(0, '#FFEB3B'); dGrad.addColorStop(1, '#FF5722'); }
-      else if(isStar){ dGrad.addColorStop(0, '#E040FB'); dGrad.addColorStop(1, '#00E5FF'); }
-      else { dGrad.addColorStop(0, '#FFFFFF'); dGrad.addColorStop(0.7, '#F3E5F5'); dGrad.addColorStop(1, '#E1BEE7'); }
-      ctx.fillStyle = dGrad;
-      ctx.beginPath();
-      ctx.moveTo(-6, -4); ctx.lineTo(6, -4); ctx.lineTo(10, 14); ctx.lineTo(-10, 14); ctx.closePath(); ctx.fill();
-    }
-
-    // 3. Cute Head
-    const skinGrad = ctx.createRadialGradient(0, -10, 1, 0, -10, 8);
-    skinGrad.addColorStop(0, '#FFF3E0'); skinGrad.addColorStop(0.8, '#FFE0B2'); skinGrad.addColorStop(1, '#FFCC80');
-    ctx.fillStyle = skinGrad;
-    ctx.beginPath(); ctx.arc(0, -10, 7.5, 0, Math.PI*2); ctx.fill();
-
-    // 4. Expressive Eyes & Smile
-    ctx.fillStyle = '#212121';
-    ctx.beginPath(); ctx.arc(3, -10, 1.3, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.arc(2.6, -10.5, 0.6, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#D84315'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(2, -7.5, 2, 0, Math.PI); ctx.stroke();
-
-    // 5. Hair & Character Accents
-    if(charId === 'candela'){
-      // Long Brown Hair & Floral Crown & Star Wand
-      ctx.fillStyle = '#4E342E';
-      ctx.beginPath(); ctx.arc(-2, -10, 8.5, Math.PI*0.5, Math.PI*1.8); ctx.fill();
-      // Floral Crown
-      ctx.fillStyle = '#FF4081'; ctx.beginPath(); ctx.arc(-3, -16, 2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(1, -16.5, 2.5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(5, -16, 2, 0, Math.PI*2); ctx.fill();
-      // Star Wand
-      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(6, 4); ctx.lineTo(12, -4); ctx.stroke();
-      ctx.fillStyle = '#FFD700'; ctx.font = 'bold 9px sans-serif'; ctx.fillText('★', 12, -4);
-    } else if(charId === 'cayetana'){
-      // Short Brunette & Koopa Shell
-      ctx.fillStyle = '#3E2723';
-      ctx.beginPath(); ctx.arc(0, -11, 8.5, Math.PI*0.8, Math.PI*2.1); ctx.fill();
-      ctx.fillStyle = '#4CAF50';
-      ctx.beginPath(); ctx.ellipse(6, 4, 4.5, 3.5, 0.2, 0, Math.PI*2); ctx.fill();
-    } else if(charId === 'valentina'){
-      // Golden Blonde Hair & Cute Bag
-      ctx.fillStyle = '#FBC02D';
-      ctx.beginPath(); ctx.arc(-1, -11, 8.5, Math.PI*0.6, Math.PI*1.9); ctx.fill();
-      ctx.fillStyle = '#FF4081';
-      ctx.beginPath(); ctx.roundRect(3, 4, 5, 4, [1]); ctx.fill();
-    } else if(charId === 'mama'){
-      // Elegant Blonde Bun
-      ctx.fillStyle = '#FFE082';
-      ctx.beginPath(); ctx.arc(0, -11, 8.5, Math.PI*0.7, Math.PI*2.0); ctx.fill();
-      ctx.beginPath(); ctx.arc(-5, -16, 4, 0, Math.PI*2); ctx.fill();
-    } else if(charId === 'papa'){
-      // Captain Hat & Beard
-      ctx.fillStyle = '#1A237E';
-      ctx.beginPath(); ctx.ellipse(0, -15, 8, 4, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#D50000'; ctx.fillRect(-3, -18, 6, 4);
-      ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.arc(0, -8, 6, 0.2, Math.PI-0.2); ctx.stroke();
+      ctx.fillStyle = '#FF5252';
+      ctx.fillRect(-p.w/2, -p.h/2 + drawY, p.w, p.h);
     }
 
     ctx.restore();
@@ -2909,15 +2813,16 @@ class PlatformerGame {
         ctx.beginPath(); ctx.roundRect(x+1,y+1,w-2,h/2,[h/4]); ctx.stroke();
     };
 
-    // Top-Left: Hero Portrait + Score + Stars + Paw Meter
     drawPill(6, 6, 210, 30);
-    this._drawFullBodyCharacter(ctx, 20, 22, this.selectedCharId, true, 0, this.player.powerState, false, 0.65);
+    const img = loadedImages[this.selectedCharId];
+    if(img && img.complete) {
+      ctx.drawImage(img, 10, 8, 22, 26);
+    }
     
     ctx.fillStyle='#FFFFFF'; ctx.fillText(char.name, 38, 14);
     ctx.fillStyle='#FFD700'; ctx.fillText('★ ' + String(this.starDust).padStart(2,'0'), 104, 14);
     ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 154, 14);
 
-    // Paw Meter Gauge
     ctx.fillStyle='#3E2723';
     ctx.beginPath(); ctx.roundRect(38, 23, 110, 7, [3.5]); ctx.fill();
     let pmGrad = ctx.createLinearGradient(38, 23, 148, 23);
@@ -2927,20 +2832,17 @@ class PlatformerGame {
     ctx.fillStyle='#FFFFFF'; ctx.font='bold 8px "Fredoka",sans-serif';
     ctx.fillText('🐾', 154, 26);
 
-    // Star Coins Badge (⭐⭐⭐)
     drawPill(224, 6, 74, 30);
     ctx.font='12px sans-serif';
     let coinsStr = '';
     for(let i=0; i<3; i++){ coinsStr += (i < this.starCoinsCollected ? '⭐' : '⚪'); }
     ctx.fillText(coinsStr, 232, 21);
 
-    // Right Pill: Map & Sound Toggle
     drawPill(VIRT_W-125, 6, 118, 30);
     ctx.font='bold 10px "Fredoka",sans-serif';
     ctx.fillStyle='#80DEEA'; ctx.fillText('🗺️ MAPA', VIRT_W-116, 21);
     ctx.fillStyle=this.soundMuted?'#9E9E9E':'#FFD700'; ctx.fillText(this.soundMuted?'🔇 SIL':'🎵 AUD', VIRT_W-52, 21);
 
-    // Boss HP Bar
     if(this.galaxyBoss && this.galaxyBoss.active && this.galaxyBoss.state !== 'defeated'){
       drawPill(VIRT_W/2 - 80, 42, 160, 20);
       ctx.fillStyle = '#D50000';
