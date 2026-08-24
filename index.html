@@ -164,19 +164,19 @@
         <div class="char-card" data-id="mama" id="card-mama">
           <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
           <div class="char-title">MAMÁ</div>
-          <div class="char-ability-tag"><b>Planeo Celestial</b><br>Imán 2.5x Permanente</div>
+          <div class="char-ability-tag"><b>Planeo Celestial</b><br>Imán 3.0x Permanente</div>
         </div>
         <div class="char-card" data-id="papa" id="card-papa">
           <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
           <div class="char-title">PAPÁ</div>
-          <div class="char-ability-tag"><b>Ground Pound 3x</b><br>Shockwave 220px</div>
+          <div class="char-ability-tag"><b>Ground Pound 3x</b><br>Shockwave 240px</div>
         </div>
       </div>
       <div class="tommy-banner">
         <img src="tommy.png" alt="Tommy" class="tommy-banner-img" onerror="this.src='assets/tommy.png'">
         <div class="tommy-banner-text">
           <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO MÁGICO IA</div>
-          Carga el Paw Meter con estrellas o derrotando enemigos. Pulsa el botón 🐾 para congelar enemigos o salvarte de abismos.
+          Salta y corre contigo. Carga el Paw Meter con estrellas o derrotando enemigos. Pulsa el botón 🐾 para congelar enemigos o salvarte de abismos.
         </div>
       </div>
       <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL MAPA DE MUNDOS! 🗺️</button>
@@ -222,7 +222,6 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 
 // ════════════════════════════════════════════════════════════
 // 4-CHANNEL ORCHESTRATED NINTENDO VIDEO GAME MUSIC ENGINE
-// (Lead Pulse, Harmony Arps, Walking Triangle Bass, Dynamic Percussion)
 // ════════════════════════════════════════════════════════════
 class SoundFX {
   constructor(){
@@ -374,7 +373,6 @@ class SoundFX {
     this.musicPlaying = true;
     this.bgmStep = 0;
 
-    // 1-1 Overworld Upbeat Groove
     const overLead = [
       659.25, 659.25, 0, 659.25, 0, 523.25, 659.25, 0, 783.99, 0, 0, 0, 392.00, 0, 0, 0,
       523.25, 0, 0, 392.00, 0, 0, 329.63, 0, 0, 440.00, 0, 493.88, 466.16, 440.00, 0, 392.00,
@@ -391,7 +389,6 @@ class SoundFX {
       130.81, 0, 196.00, 0, 87.31, 0, 130.81, 0, 130.81, 0, 196.00, 0, 98.00, 0, 146.83, 0
     ];
 
-    // 1-2 Marine Underwater Waltz
     const marLead = [
       329.63, 392.00, 523.25, 493.88, 440.00, 392.00, 329.63, 0, 261.63, 293.66, 329.63, 0,
       349.23, 440.00, 587.33, 523.25, 493.88, 440.00, 349.23, 0, 293.66, 329.63, 349.23, 0
@@ -401,7 +398,6 @@ class SoundFX {
       87.31, 130.81, 174.61, 87.31, 130.81, 174.61, 98.00, 146.83, 196.00, 98.00, 146.83, 196.00
     ];
 
-    // 1-3 Sky Kingdom Athletic
     const skyLead = [
       523.25, 0, 659.25, 0, 783.99, 659.25, 523.25, 0, 587.33, 0, 698.46, 0, 880.00, 698.46, 587.33, 0,
       659.25, 0, 783.99, 0, 1046.50, 783.99, 659.25, 0, 587.33, 523.25, 493.88, 523.25, 587.33, 0, 0, 0
@@ -413,7 +409,6 @@ class SoundFX {
       146.83, 130.81, 123.47, 130.81, 146.83, 0, 0, 0
     ];
 
-    // 1-4 Cave Zero-G Cosmic
     const caveLead = [
       220.00, 261.63, 329.63, 440.00, 329.63, 261.63, 220.00, 0,
       174.61, 220.00, 261.63, 349.23, 261.63, 220.00, 174.61, 0,
@@ -427,7 +422,6 @@ class SoundFX {
       55.00, 0, 110.00, 0, 55.00, 0, 110.00, 0
     ];
 
-    // 1-5 Castle Boss Battle
     const bossLead = [
       146.83, 146.83, 220.00, 0, 146.83, 146.83, 261.63, 0,
       130.81, 130.81, 196.00, 0, 130.81, 130.81, 246.94, 0,
@@ -456,20 +450,16 @@ class SoundFX {
       const hNote = harm ? harm[step % harm.length] : 0;
       const bNote = bass[step % bass.length];
 
-      // Channel 1: Lead Melody
       if(lNote > 0){
         this.playNote(lNote, (this.currentTrack==='marine'?'sine':(this.currentTrack==='sky'?'triangle':'square')), 0.12, 0.12);
       }
-      // Channel 2: Harmony Arpeggio
       if(hNote > 0 && hNote !== lNote && this.currentTrack !== 'marine'){
         this.playNote(hNote, 'triangle', 0.10, 0.08);
       }
-      // Channel 3: Bassline Groove
       if(bNote > 0){
         this.playNote(bNote, 'triangle', 0.16, 0.18);
       }
 
-      // Channel 4: Percussion Rhythm
       if(this.currentTrack === 'overworld' || this.currentTrack === 'sky' || this.currentTrack === 'boss'){
         if(step % 8 === 0) this.playDrum('kick', 0.16);
         else if(step % 8 === 4) this.playDrum('snare', 0.14);
@@ -489,29 +479,29 @@ class SoundFX {
 }
 const audio = new SoundFX();
 
-// Constants
+// Constants & Responsive Physics
 const VIRT_W = 512;
 const VIRT_H = 288;
 const GRAVITY = 0.52;
 const MAX_FALL = 9.2;
-const ACCEL = 0.35;
-const DECEL = 0.28;
+const ACCEL = 0.46; // Snappy instant response
+const DECEL = 0.38; // Crisp braking
 const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
-// HD Character Profiles with Balanced Dimensions
+// HD Character Profiles with Balanced Dimensions & Mobilities
 const CHARACTERS = {
   candela:  { id:'candela',  name:'CANDELA',   imgSrc:'candela.png',  fallback:'assets/candela.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:24, h:36 },
+              baseSpeed:3.6, sprintSpeed:5.2, jumpForce:-10.0, weight:1.0, accelMult:1.05, w:24, h:36 },
   cayetana: { id:'cayetana', name:'CAYETANA',  imgSrc:'cayetana.png', fallback:'assets/cayetana.png',
-              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:24, h:36 },
+              baseSpeed:4.4, sprintSpeed:6.2, jumpForce:-9.4, weight:1.0, accelMult:0.92, w:24, h:36 },
   valentina:{ id:'valentina',name:'VALENTINA', imgSrc:'valentina.png',fallback:'assets/valentina.png',
-              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:22, h:34 },
+              baseSpeed:4.0, sprintSpeed:5.6, jumpForce:-9.2, weight:0.72, accelMult:1.18, w:22, h:34 },
   mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:25, h:38 },
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.6, weight:0.75, accelMult:1.0, w:25, h:38 },
   papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:26, h:42 }
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.5, weight:1.35, accelMult:1.05, w:26, h:42 }
 };
 
 const loadedImages = {};
@@ -626,7 +616,7 @@ class TouchController {
 }
 
 // ════════════════════════════════════════════════════════════
-// ENEMY — 2.5D NINTENDO ROSTER (Goombas, Koopas, Moles, Fish, Piranhas, Wings)
+// ENEMY — 2.5D NINTENDO ROSTER
 // ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
@@ -768,6 +758,7 @@ class Enemy {
     game.addFloatingText('+100',this.x+this.w/2,this.y-10,'#FFD700');
     game.score+=100; audio.enemyDie(); game.hitStopFrames=3; game.camera.shake(4);
     game.pawMeter = Math.min(100, game.pawMeter + 5);
+    if(game.tommyAI) game.tommyAI.doSpinJoy();
   }
 
   draw(ctx,cam,now){
@@ -1156,6 +1147,9 @@ class GalaxyBoss {
   }
 }
 
+// ════════════════════════════════════════════════════════════
+// TOMMY AI — DYNAMIC COMPANION PHYSICS & JUMP MECHANICS
+// ════════════════════════════════════════════════════════════
 class TommyAI {
   constructor(startX, startY){
     this.x = startX; this.y = startY;
@@ -1166,52 +1160,75 @@ class TommyAI {
     this.idleTimer = 0;
     this.barkTimer = 0;
     this.sonicWaves = [];
+    this.spinAngle = 0;
+    this.isSpinning = false;
+    this.bobPhase = 0;
   }
   update(player, enemies, allPlatforms, globalGravity, game){
     this.frame++;
     if(this.barkTimer > 0) this.barkTimer--;
 
-    const targetX = player.x + (player.facingRight ? -30 : player.w + 10);
+    // Dynamic Companion Follow Target
+    const followDist = player.facingRight ? -24 : player.w + 6;
+    const targetX = player.x + followDist;
     const targetY = player.y + (player.h - this.h);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
 
-    this.vx += (dx * 0.12);
-    this.vx *= 0.65;
-    this.vy += (dy * 0.12);
-    this.vy *= 0.65;
+    this.vx += (dx * 0.16);
+    this.vx *= 0.68;
+    this.vy += (dy * 0.16);
+    this.vy *= 0.68;
 
     this.x += this.vx;
     this.y += this.vy;
-    if(Math.abs(this.vx) > 0.3) this.facingRight = this.vx > 0;
 
-    if(Math.abs(player.vx) < 0.2 && Math.abs(this.vx) < 0.2){
+    if(Math.abs(this.vx) > 0.3) this.facingRight = this.vx > 0;
+    else this.facingRight = player.facingRight;
+
+    if(Math.abs(this.vx) > 0.3){
+      this.bobPhase += Math.abs(this.vx) * 0.22;
+      this.idleTimer = 0;
+    } else {
+      this.bobPhase = 0;
       this.idleTimer++;
       if(this.idleTimer === 120){
         game.addFloatingText('❤️🐶', this.x + this.w/2, this.y - 16, '#FF4081');
       } else if(this.idleTimer === 300){
         game.addFloatingText('💤', this.x + this.w/2, this.y - 16, '#80DEEA');
       }
-    } else {
-      this.idleTimer = 0;
+    }
+
+    if(this.isSpinning){
+      this.spinAngle += 0.25;
+      if(this.spinAngle >= Math.PI * 2){
+        this.spinAngle = 0;
+        this.isSpinning = false;
+      }
     }
 
     for(let i = this.sonicWaves.length - 1; i >= 0; i--){
       const sw = this.sonicWaves[i];
-      sw.r += 4.5;
+      sw.r += 5.5;
       if(sw.r >= sw.maxR) this.sonicWaves.splice(i, 1);
     }
   }
 
+  doSpinJoy(){
+    this.isSpinning = true;
+    this.spinAngle = 0;
+  }
+
   triggerSonicBark(game, enemies){
     this.barkTimer = 60;
+    this.doSpinJoy();
     audio.bark();
-    game.camera.shake(6);
-    this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 4, maxR: 180 });
-    game.addParticles(this.x + this.w/2, this.y + this.h/2, 20, ['#00E5FF','#FFD700','#FFF'], 4.0);
+    game.camera.shake(7);
+    this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 6, maxR: 200 });
+    game.addParticles(this.x + this.w/2, this.y + this.h/2, 24, ['#00E5FF','#FFD700','#FFF','#76FF03'], 4.5);
     enemies.forEach(en => {
       if(!en.dead && game.camera.isVisible(en.x, en.y, en.w, en.h)){
-        en.stunTimer = 150;
+        en.stunTimer = 180;
         game.addFloatingText('¡CONGELADO! 💫', en.x, en.y - 12, '#00E5FF');
       }
     });
@@ -1224,34 +1241,32 @@ class TommyAI {
     for(const sw of this.sonicWaves){
       const ws = cam.toScreen(sw.x, sw.y);
       ctx.save();
-      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3;
+      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
       ctx.globalAlpha = Math.max(0, 1 - sw.r / sw.maxR);
       ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke();
-      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.8;
       ctx.beginPath(); ctx.arc(ws.x, ws.y, Math.max(0, sw.r-8), 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     }
 
     ctx.save();
-    ctx.translate(s.x + this.w/2, s.y + this.h/2);
+    const bob = Math.abs(Math.sin(this.bobPhase)) * -2.5;
+    ctx.translate(s.x + this.w/2, s.y + this.h/2 + bob);
     if(!this.facingRight) ctx.scale(-1, 1);
+    if(this.isSpinning) ctx.rotate(this.spinAngle);
 
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.45, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(0, this.h/2 - bob, this.w*0.5, 3, 0, 0, Math.PI*2); ctx.fill();
 
-    const wag = Math.sin(now * 0.018) * 4;
-    const breathe = Math.sin(now * 0.005) * 1;
+    const wag = Math.sin(now * 0.02) * 5;
+    const breathe = Math.sin(now * 0.006) * 1;
 
     if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
       const dw = this.w * 1.5, dh = this.h * 1.5;
-      ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.2:breathe), dw, dh);
+      ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.15:breathe), dw, dh);
     } else {
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath(); ctx.ellipse(0, 2, 8, 6, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#8D6E63';
-      ctx.beginPath(); ctx.ellipse(-2, 0, 5, 4, 0.2, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath(); ctx.ellipse(5, -4, 5, 5, 0, 0, Math.PI*2); ctx.fill();
     }
     ctx.restore();
   }
@@ -1269,6 +1284,7 @@ class StarCoin {
       game.starCoinsCollected++;
       game.score += 500;
       game.pawMeter = Math.min(100, game.pawMeter + 10);
+      if(game.tommyAI) game.tommyAI.doSpinJoy();
       audio.starCoinCollect();
       game.camera.shake(6);
       game.addFloatingText('+500 ★', this.x, this.y - 20, '#FFD700');
@@ -1659,19 +1675,16 @@ class PlatformerGame {
       const cy=(clientY-rect.top)*(VIRT_H/rect.height);
 
       if(this.state === 'PLAYING' && cy <= 36){
-        // Audio Toggle
         if(cx >= VIRT_W - 46 && cx <= VIRT_W - 6){
           this.soundMuted = !this.soundMuted;
           audio.muted = this.soundMuted;
           if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
           return;
         }
-        // Map Button
         if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){
           this.state = 'WORLD_MAP';
           return;
         }
-        // Pause Button
         if(cx >= VIRT_W - 150 && cx <= VIRT_W - 100){
           this.togglePause();
           return;
@@ -2116,9 +2129,9 @@ class PlatformerGame {
         for(const it of this.starDustItems){
           if(it.collected)continue;
           const d=Math.hypot((this.player.x+this.player.w/2)-it.x, (this.player.y+this.player.h/2)-it.y);
-          if(d < 120){
-            it.x += ((this.player.x+this.player.w/2)-it.x)*0.18;
-            it.y += ((this.player.y+this.player.h/2)-it.y)*0.18;
+          if(d < 140){
+            it.x += ((this.player.x+this.player.w/2)-it.x)*0.22;
+            it.y += ((this.player.y+this.player.h/2)-it.y)*0.22;
           }
         }
       }
@@ -2144,11 +2157,11 @@ class PlatformerGame {
       }
     }
 
-    if(p.onGround) p.coyoteFrames = 4;
+    if(p.onGround) p.coyoteFrames = 5;
     else p.coyoteFrames--;
 
     const jumpJustPressed = this.input.jump && !this.prevJump;
-    if(jumpJustPressed) p.bufferFrames = 3;
+    if(jumpJustPressed) p.bufferFrames = 4;
     else p.bufferFrames--;
 
     const isMarineLevel = LEVEL_CONFIGS[this.currentLevelIdx].theme === 'marine';
@@ -2172,32 +2185,32 @@ class PlatformerGame {
     // 🏊 FLUID WATER SWIMMING MECHANICS (Marine World)
     if(p.inWater){
       p.vy = Math.min(p.vy + 0.18, 3.2);
-      let maxSpd = 3.6;
-      if(this.input.left){ p.vx = Math.max(p.vx - 0.25, -maxSpd); p.facingRight = false; }
-      else if(this.input.right){ p.vx = Math.min(p.vx + 0.25, maxSpd); p.facingRight = true; }
+      let maxSpd = 3.8;
+      if(this.input.left){ p.vx = Math.max(p.vx - 0.32, -maxSpd); p.facingRight = false; }
+      else if(this.input.right){ p.vx = Math.min(p.vx + 0.32, maxSpd); p.facingRight = true; }
       else { p.vx *= 0.88; }
 
       if(jumpJustPressed){
-        p.vy = -6.2;
+        p.vy = -6.5;
         audio.swimStroke();
         this.addParticles(p.x+p.w/2, p.y+p.h, 6, ['#80DEEA','#E1F5FE','#FFF'], 2.2);
       }
     }
     // 🌌 ZERO-G SWIMMING
     else if(p.inZeroG){
-      const zgSpeed = 4.2;
+      const zgSpeed = 4.5;
       let targetVx = 0, targetVy = 0;
       if(this.input.left) { targetVx = -zgSpeed; p.facingRight = false; }
       if(this.input.right){ targetVx = zgSpeed;  p.facingRight = true; }
       if(this.input.up)    targetVy = -zgSpeed;
       if(this.input.down)  targetVy = zgSpeed;
 
-      p.vx += (targetVx - p.vx) * 0.22;
-      p.vy += (targetVy - p.vy) * 0.22;
+      p.vx += (targetVx - p.vx) * 0.25;
+      p.vy += (targetVy - p.vy) * 0.25;
 
       if(jumpJustPressed){
         const boostDir = p.facingRight ? 1 : -1;
-        p.vx = boostDir * 6.5; p.vy = (this.input.up ? -5.5 : (this.input.down ? 5.5 : 0));
+        p.vx = boostDir * 6.8; p.vy = (this.input.up ? -5.8 : (this.input.down ? 5.8 : 0));
         audio.dash();
         this.addParticles(p.x+p.w/2, p.y+p.h/2, 12, ['#00E5FF','#FFD700','#FFF'], 3.8);
       }
@@ -2223,8 +2236,8 @@ class PlatformerGame {
 
       // Animated Walk & Skid Dynamics
       if(p.onGround && Math.abs(p.vx) > 0.2){
-        p.walkCycle += Math.abs(p.vx) * 0.16;
-        if(Math.abs(p.vx) > char.baseSpeed * 1.1 && p.frame % 4 === 0){
+        p.walkCycle += Math.abs(p.vx) * 0.18;
+        if(Math.abs(p.vx) > char.baseSpeed * 1.05 && p.frame % 4 === 0){
           this.addParticles(p.x + (p.facingRight ? 2 : p.w - 2), p.y + p.h, 1, ['#E0D6C3', '#C5B59A'], 1.2);
         }
       } else {
@@ -2240,7 +2253,7 @@ class PlatformerGame {
       // Ground Pound (Papá)
       if(char.id==='papa' && this.input.down && !p.onGround && !p.isGroundPounding){
         p.isGroundPounding = true;
-        p.vy = this.globalGravity === 1 ? 14 : -14;
+        p.vy = this.globalGravity === 1 ? 15 : -15;
         audio.groundPoundStart();
         this.addParticles(p.x+p.w/2, p.y+p.h/2, 12, ['#FF5722','#FFD700'], 3.5);
       }
@@ -2248,20 +2261,20 @@ class PlatformerGame {
       // Mamá Celestial Glide
       if(char.id==='mama' && this.input.jump && !p.onGround && ((this.globalGravity===1 && p.vy>0.5)||(this.globalGravity===-1 && p.vy<-0.5))){
         p.isGliding = true;
-        p.vy = this.globalGravity === 1 ? 1.1 : -1.1;
+        p.vy = this.globalGravity === 1 ? 0.9 : -0.9;
         if(p.frame % 8 === 0){ audio.glide(); this.addParticles(p.x+p.w/2, p.y+p.h, 3, ['#FFF','#80DEEA','#FFD700'], 1.8); }
       } else { p.isGliding = false; }
 
       // 🦄 YOSHI UNICORN FLUTTER JUMP
       if(p.isRiding && this.input.jump && !p.onGround && p.vy > 0 && p.frame % 4 === 0){
-        p.vy = Math.max(-1.5, p.vy - 0.9);
+        p.vy = Math.max(-1.8, p.vy - 1.1);
         audio.flutter();
         this.addParticles(p.x+p.w/2, p.y+p.h, 3, ['#FFD700','#FF80AB','#FFF'], 2.0);
       }
 
       // 🪽 PROPELLER WING HIGH JUMP
       if(p.powerState === 'wing' && jumpJustPressed && !p.onGround){
-        p.vy = -12.5;
+        p.vy = -13.0;
         audio.tripleJump();
         this.addParticles(p.x+p.w/2, p.y+p.h, 14, ['#80DEEA','#FFF','#E1F5FE'], 4.0);
       }
@@ -2273,25 +2286,26 @@ class PlatformerGame {
         p.jumpCount++;
         p.onGround = false;
         p.coyoteFrames = 0; p.bufferFrames = 0;
-        p.jumpHoldFrames = 12;
+        p.jumpHoldFrames = 13;
 
         let force = char.jumpForce;
         if(p.isRiding) force *= 1.25;
         if(char.id==='valentina'){
-          if(p.jumpCount===2) force *= 1.15;
-          if(p.jumpCount===3) { force *= 1.45; audio.tripleJump(); }
+          if(p.jumpCount===2) force *= 1.18;
+          if(p.jumpCount===3) { force *= 1.48; audio.tripleJump(); }
           else audio.jump();
         } else {
           audio.jump();
         }
 
         p.vy = this.globalGravity === 1 ? force : -force;
-        p.squashX = 0.76; p.squashY = 1.32;
+        p.squashX = 0.75; p.squashY = 1.35;
         this.addParticles(p.x+p.w/2, p.y+p.h, 6, ['#FFFFFF','#E0E0E0'], 2.0);
+        if(this.tommyAI) this.tommyAI.doSpinJoy();
       }
 
       if(this.input.jump && p.jumpHoldFrames > 0){
-        p.vy += (this.globalGravity === 1 ? -0.55 : 0.55);
+        p.vy += (this.globalGravity === 1 ? -0.58 : 0.58);
         p.jumpHoldFrames--;
       }
       if(!this.input.jump && p.jumpHoldFrames > 0){
@@ -2312,7 +2326,7 @@ class PlatformerGame {
       this.fireballs.push({
         x: p.x + (p.facingRight ? p.w + 4 : -8),
         y: p.y + p.h/2,
-        vx: dir * 6.5,
+        vx: dir * 7.0,
         vy: 2.5,
         bounces: 3,
         life: 180
@@ -2340,7 +2354,7 @@ class PlatformerGame {
       this.projectiles.push({
         x: p.x + (p.facingRight ? p.w + 4 : -16),
         y: p.y + p.h - 14,
-        w: 16, h: 14, vx: dir * 7.5, vy: 0, life: 180, bounces: 4
+        w: 16, h: 14, vx: dir * 8.0, vy: 0, life: 180, bounces: 4
       });
       audio.shellShoot();
       this.addParticles(p.x+p.w/2, p.y+p.h/2, 8, ['#4CAF50','#FFD700'], 2.5);
@@ -2389,7 +2403,7 @@ class PlatformerGame {
           if(p.vy > 6) { p.squashX = 1.32; p.squashY = 0.72; this.camera.shake(Math.min(5, p.vy*0.4)); }
           
           if(pl.isCloud){
-            p.vy = -10.5;
+            p.vy = -11.0;
             audio.jump();
             this.addParticles(p.x+p.w/2, p.y+p.h, 10, ['#FFFFFF','#E1F5FE','#B3E5FC'], 3.0);
           } else {
@@ -2398,11 +2412,11 @@ class PlatformerGame {
 
           if(p.isGroundPounding){
             p.isGroundPounding = false;
-            audio.groundPoundImpact(); this.camera.shake(12);
-            this.addParticles(p.x+p.w/2, p.y+p.h, 24, ['#FF5722','#FFD700','#FFF','#8D6E63'], 4.8);
+            audio.groundPoundImpact(); this.camera.shake(14);
+            this.addParticles(p.x+p.w/2, p.y+p.h, 28, ['#FF5722','#FFD700','#FFF','#8D6E63'], 5.2);
             for(const en of this.enemies){
-              if(!en.dead && Math.hypot(en.x-p.x, en.y-p.y) < 220){
-                en.stunTimer = 180;
+              if(!en.dead && Math.hypot(en.x-p.x, en.y-p.y) < 240){
+                en.stunTimer = 200;
                 this.addFloatingText('¡ATURDIDO! 💫', en.x, en.y-12, '#FFD700');
               }
             }
@@ -2491,13 +2505,13 @@ class PlatformerGame {
         if(stompHit || en.stunTimer>0 || p.isGroundPounding){
           if(en.type === 'koopa' && en.state !== 'shell'){
             en.state = 'shell'; en.shellSpeed = 0; audio.kickShell();
-            p.vy = -7.5;
+            p.vy = -7.8;
           } else if(en.state === 'shell' && en.shellSpeed === 0){
-            en.shellSpeed = (p.x < en.x ? 8.5 : -8.5);
+            en.shellSpeed = (p.x < en.x ? 9.0 : -9.0);
             audio.kickShell(); this.camera.shake(4);
           } else {
             en.die(this);
-            p.vy = this.globalGravity===1 ? -8.5 : 8.5;
+            p.vy = this.globalGravity===1 ? -8.8 : 8.8;
             p.squashX = 1.25; p.squashY = 0.75;
             this.hitStopFrames = 3;
           }
@@ -2647,7 +2661,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // 2.5D PARALLAX BACKGROUNDS (Garden, Marine, Sky, Cave, Castle)
+  // 2.5D PARALLAX BACKGROUNDS
   // ════════════════════════════════════════════════════════════
   renderBackground(ctx,now){
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
@@ -3078,7 +3092,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // 2.5D FROSTED-GLASS HUD (Nintendo Switch Style with Pause Button)
+  // 2.5D FROSTED-GLASS HUD
   // ════════════════════════════════════════════════════════════
   renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
@@ -3118,7 +3132,6 @@ class PlatformerGame {
     for(let i=0; i<3; i++){ coinsStr += (i < this.starCoinsCollected ? '⭐' : '⚪'); }
     ctx.fillText(coinsStr, 232, 21);
 
-    // Top Right Controls: ⏸️ PAUSA, 🗺️ MAPA, 🎵 AUD
     drawPill(VIRT_W-155, 6, 149, 30);
     ctx.font='bold 9.5px "Fredoka",sans-serif';
     ctx.fillStyle='#FFD700'; ctx.fillText('⏸️', VIRT_W-146, 21);
