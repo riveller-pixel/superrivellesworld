@@ -220,6 +220,10 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   };
 }
 
+// ════════════════════════════════════════════════════════════
+// 4-CHANNEL ORCHESTRATED NINTENDO VIDEO GAME MUSIC ENGINE
+// (Lead Pulse, Harmony Arps, Walking Triangle Bass, Dynamic Percussion)
+// ════════════════════════════════════════════════════════════
 class SoundFX {
   constructor(){
     this.ctx = null;
@@ -237,15 +241,74 @@ class SoundFX {
     if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
     if(!this.musicPlaying && !this.muted) this.startBGM();
   }
+
   playTone(f, type='square', dur=0.1, gainVal=0.22, fEnd=null){
     this.init();
-    if(!this.ctx || this.muted) return;
+    if(!this.ctx || this.muted || f <= 0) return;
     try{
       const osc = this.ctx.createOscillator(), gain = this.ctx.createGain(), now = this.ctx.currentTime;
       osc.type = type; osc.frequency.setValueAtTime(f, now);
       if(fEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(10, fEnd), now + dur);
-      gain.gain.setValueAtTime(gainVal, now); gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      gain.gain.setValueAtTime(gainVal, now); gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
       osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + dur);
+    }catch(e){}
+  }
+
+  playNote(f, type='square', dur=0.12, vol=0.15){
+    if(!this.ctx || this.muted || f <= 0) return;
+    try{
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(f, now);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(vol, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(vol * 0.6, now + dur * 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(now); osc.stop(now + dur + 0.02);
+    }catch(e){}
+  }
+
+  playDrum(type='snare', vol=0.12){
+    if(!this.ctx || this.muted) return;
+    try{
+      const now = this.ctx.currentTime;
+      if(type==='kick'){
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(32, now + 0.09);
+        gain.gain.setValueAtTime(vol * 1.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.09);
+      } else if(type==='snare'){
+        const bufLen = Math.floor(this.ctx.sampleRate * 0.08);
+        const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0; i<bufLen; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i/(bufLen*0.35));
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buf;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(vol * 1.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        noise.connect(gain); gain.connect(this.ctx.destination);
+        noise.start(now); noise.stop(now + 0.08);
+      } else if(type==='hihat'){
+        const bufLen = Math.floor(this.ctx.sampleRate * 0.03);
+        const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0; i<bufLen; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i/(bufLen*0.2));
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buf;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(vol * 0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        noise.connect(gain); gain.connect(this.ctx.destination);
+        noise.start(now); noise.stop(now + 0.03);
+      }
     }catch(e){}
   }
 
@@ -311,54 +374,112 @@ class SoundFX {
     this.musicPlaying = true;
     this.bgmStep = 0;
 
-    const overworldMelody = [
-      261.63, 0, 329.63, 392.00, 0, 523.25, 392.00, 0,
-      349.23, 0, 440.00, 523.25, 0, 587.33, 523.25, 0,
-      392.00, 0, 493.88, 587.33, 0, 659.25, 587.33, 0,
-      523.25, 0, 392.00, 329.63, 261.63, 0, 0, 0
+    // 1-1 Overworld Upbeat Groove
+    const overLead = [
+      659.25, 659.25, 0, 659.25, 0, 523.25, 659.25, 0, 783.99, 0, 0, 0, 392.00, 0, 0, 0,
+      523.25, 0, 0, 392.00, 0, 0, 329.63, 0, 0, 440.00, 0, 493.88, 466.16, 440.00, 0, 392.00,
+      659.25, 783.99, 880.00, 0, 698.46, 783.99, 0, 659.25, 0, 523.25, 587.33, 493.88, 0, 0, 0, 0
     ];
-    const marineMelody = [
-      329.63, 0, 392.00, 0, 523.25, 493.88, 440.00, 0,
-      392.00, 0, 329.63, 0, 261.63, 293.66, 329.63, 0,
-      349.23, 0, 440.00, 0, 587.33, 523.25, 493.88, 0,
-      440.00, 0, 349.23, 0, 293.66, 329.63, 349.23, 0
+    const overHarm = [
+      329.63, 329.63, 0, 329.63, 0, 261.63, 329.63, 0, 392.00, 0, 0, 0, 196.00, 0, 0, 0,
+      261.63, 0, 0, 196.00, 0, 0, 164.81, 0, 0, 220.00, 0, 246.94, 233.08, 220.00, 0, 196.00,
+      329.63, 392.00, 440.00, 0, 349.23, 392.00, 0, 329.63, 0, 261.63, 293.66, 246.94, 0, 0, 0, 0
     ];
-    const skyMelody = [
-      523.25, 0, 659.25, 0, 783.99, 659.25, 523.25, 0,
-      587.33, 0, 698.46, 0, 880.00, 698.46, 587.33, 0,
-      659.25, 0, 783.99, 0, 1046.50, 783.99, 659.25, 0,
-      587.33, 523.25, 493.88, 523.25, 587.33, 0, 0, 0
+    const overBass = [
+      130.81, 0, 196.00, 0, 130.81, 0, 196.00, 0, 98.00, 0, 146.83, 0, 98.00, 0, 146.83, 0,
+      130.81, 0, 196.00, 0, 110.00, 0, 164.81, 0, 87.31, 0, 130.81, 0, 98.00, 0, 146.83, 0,
+      130.81, 0, 196.00, 0, 87.31, 0, 130.81, 0, 130.81, 0, 196.00, 0, 98.00, 0, 146.83, 0
     ];
-    const caveMelody = [
+
+    // 1-2 Marine Underwater Waltz
+    const marLead = [
+      329.63, 392.00, 523.25, 493.88, 440.00, 392.00, 329.63, 0, 261.63, 293.66, 329.63, 0,
+      349.23, 440.00, 587.33, 523.25, 493.88, 440.00, 349.23, 0, 293.66, 329.63, 349.23, 0
+    ];
+    const marBass = [
+      130.81, 196.00, 261.63, 130.81, 196.00, 261.63, 110.00, 164.81, 220.00, 110.00, 164.81, 220.00,
+      87.31, 130.81, 174.61, 87.31, 130.81, 174.61, 98.00, 146.83, 196.00, 98.00, 146.83, 196.00
+    ];
+
+    // 1-3 Sky Kingdom Athletic
+    const skyLead = [
+      523.25, 0, 659.25, 0, 783.99, 659.25, 523.25, 0, 587.33, 0, 698.46, 0, 880.00, 698.46, 587.33, 0,
+      659.25, 0, 783.99, 0, 1046.50, 783.99, 659.25, 0, 587.33, 523.25, 493.88, 523.25, 587.33, 0, 0, 0
+    ];
+    const skyBass = [
+      130.81, 130.81, 196.00, 130.81, 130.81, 196.00, 130.81, 196.00,
+      146.83, 146.83, 220.00, 146.83, 146.83, 220.00, 146.83, 220.00,
+      164.81, 164.81, 246.94, 164.81, 164.81, 246.94, 164.81, 246.94,
+      146.83, 130.81, 123.47, 130.81, 146.83, 0, 0, 0
+    ];
+
+    // 1-4 Cave Zero-G Cosmic
+    const caveLead = [
       220.00, 261.63, 329.63, 440.00, 329.63, 261.63, 220.00, 0,
       174.61, 220.00, 261.63, 349.23, 261.63, 220.00, 174.61, 0,
       196.00, 246.94, 293.66, 392.00, 293.66, 246.94, 196.00, 0,
       220.00, 329.63, 440.00, 523.25, 440.00, 329.63, 220.00, 0
     ];
-    const bossMelody = [
+    const caveBass = [
+      55.00, 0, 110.00, 0, 55.00, 0, 110.00, 0,
+      43.65, 0, 87.31, 0, 43.65, 0, 87.31, 0,
+      49.00, 0, 98.00, 0, 49.00, 0, 98.00, 0,
+      55.00, 0, 110.00, 0, 55.00, 0, 110.00, 0
+    ];
+
+    // 1-5 Castle Boss Battle
+    const bossLead = [
       146.83, 146.83, 220.00, 0, 146.83, 146.83, 261.63, 0,
       130.81, 130.81, 196.00, 0, 130.81, 130.81, 246.94, 0,
       123.47, 123.47, 185.00, 0, 123.47, 123.47, 233.08, 0,
       146.83, 220.00, 293.66, 370.00, 293.66, 220.00, 146.83, 0
     ];
+    const bossBass = [
+      73.42, 73.42, 146.83, 73.42, 73.42, 146.83, 73.42, 146.83,
+      65.41, 65.41, 130.81, 65.41, 65.41, 130.81, 65.41, 130.81,
+      61.74, 61.74, 123.47, 61.74, 61.74, 123.47, 61.74, 123.47,
+      73.42, 110.00, 146.83, 185.00, 146.83, 110.00, 73.42, 0
+    ];
+
+    const stepInterval = (this.currentTrack === 'boss' ? 100 : (this.currentTrack === 'sky' ? 105 : (this.currentTrack === 'marine' ? 140 : 115)));
 
     this.bgmTimer = setInterval(() => {
       if(this.muted || !this.ctx) return;
-      let track = overworldMelody;
-      if(this.currentTrack === 'marine') track = marineMelody;
-      else if(this.currentTrack === 'sky') track = skyMelody;
-      else if(this.currentTrack === 'cave') track = caveMelody;
-      else if(this.currentTrack === 'boss') track = bossMelody;
+      let lead = overLead, harm = overHarm, bass = overBass;
+      if(this.currentTrack === 'marine'){ lead = marLead; harm = marLead; bass = marBass; }
+      else if(this.currentTrack === 'sky'){ lead = skyLead; harm = skyLead; bass = skyBass; }
+      else if(this.currentTrack === 'cave'){ lead = caveLead; harm = caveLead; bass = caveBass; }
+      else if(this.currentTrack === 'boss'){ lead = bossLead; harm = bossLead; bass = bossBass; }
 
-      const note = track[this.bgmStep % track.length];
-      if(note > 0){
-        this.playTone(note, this.currentTrack === 'marine' ? 'sine' : (this.currentTrack === 'sky' ? 'triangle' : 'square'), 0.14, 0.08);
-        if(this.bgmStep % 4 === 0){
-          this.playTone(note * 0.5, 'triangle', 0.22, 0.11);
-        }
+      const step = this.bgmStep;
+      const lNote = lead[step % lead.length];
+      const hNote = harm ? harm[step % harm.length] : 0;
+      const bNote = bass[step % bass.length];
+
+      // Channel 1: Lead Melody
+      if(lNote > 0){
+        this.playNote(lNote, (this.currentTrack==='marine'?'sine':(this.currentTrack==='sky'?'triangle':'square')), 0.12, 0.12);
       }
+      // Channel 2: Harmony Arpeggio
+      if(hNote > 0 && hNote !== lNote && this.currentTrack !== 'marine'){
+        this.playNote(hNote, 'triangle', 0.10, 0.08);
+      }
+      // Channel 3: Bassline Groove
+      if(bNote > 0){
+        this.playNote(bNote, 'triangle', 0.16, 0.18);
+      }
+
+      // Channel 4: Percussion Rhythm
+      if(this.currentTrack === 'overworld' || this.currentTrack === 'sky' || this.currentTrack === 'boss'){
+        if(step % 8 === 0) this.playDrum('kick', 0.16);
+        else if(step % 8 === 4) this.playDrum('snare', 0.14);
+        else if(step % 2 === 0) this.playDrum('hihat', 0.06);
+      } else if(this.currentTrack === 'marine'){
+        if(step % 6 === 0) this.playDrum('hihat', 0.05);
+      }
+
       this.bgmStep++;
-    }, 150);
+    }, stepInterval);
   }
 
   stopBGM(){
@@ -1398,6 +1519,7 @@ class PlatformerGame {
       powerState: 'normal',
       powerTimer: 0,
       coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0,
+      walkCycle: 0, skidTimer: 0,
       powerUp: (type, game)=>{
         this.player.powerState = type;
         this.player.powerTimer = (type==='star'? 600 : (type==='wing'? 400 : 99999));
@@ -1623,7 +1745,8 @@ class PlatformerGame {
       facingRight:true,jumpHeld:false,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false, inWater: (cfg.theme==='marine'),
       powerState: 'normal', powerTimer: 0,
-      coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0
+      coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0,
+      walkCycle: 0, skidTimer: 0
     });
 
     this.tommyAI=new TommyAI(50,220);
@@ -2098,6 +2221,22 @@ class PlatformerGame {
         else if(p.vx < 0) p.vx = Math.min(0, p.vx + dec);
       }
 
+      // Animated Walk & Skid Dynamics
+      if(p.onGround && Math.abs(p.vx) > 0.2){
+        p.walkCycle += Math.abs(p.vx) * 0.16;
+        if(Math.abs(p.vx) > char.baseSpeed * 1.1 && p.frame % 4 === 0){
+          this.addParticles(p.x + (p.facingRight ? 2 : p.w - 2), p.y + p.h, 1, ['#E0D6C3', '#C5B59A'], 1.2);
+        }
+      } else {
+        p.walkCycle = 0;
+      }
+
+      if((p.vx > 2.0 && this.input.left) || (p.vx < -2.0 && this.input.right)){
+        p.skidTimer = 8;
+        if(p.frame % 3 === 0) this.addParticles(p.x + p.w/2, p.y + p.h, 3, ['#FFF', '#D7CCC8'], 2.0);
+      }
+      if(p.skidTimer > 0) p.skidTimer--;
+
       // Ground Pound (Papá)
       if(char.id==='papa' && this.input.down && !p.onGround && !p.isGroundPounding){
         p.isGroundPounding = true;
@@ -2147,7 +2286,7 @@ class PlatformerGame {
         }
 
         p.vy = this.globalGravity === 1 ? force : -force;
-        p.squashX = 0.8; p.squashY = 1.2;
+        p.squashX = 0.76; p.squashY = 1.32;
         this.addParticles(p.x+p.w/2, p.y+p.h, 6, ['#FFFFFF','#E0E0E0'], 2.0);
       }
 
@@ -2247,7 +2386,7 @@ class PlatformerGame {
       if(p.x < pl.x + pl.w && p.x + p.w > pl.x && p.y < pl.y + pl.h && p.y + p.h > pl.y){
         if(this.globalGravity === 1 && p.vy >= 0){
           p.y = pl.y - p.h;
-          if(p.vy > 6) { p.squashX = 1.3; p.squashY = 0.7; this.camera.shake(Math.min(5, p.vy*0.4)); }
+          if(p.vy > 6) { p.squashX = 1.32; p.squashY = 0.72; this.camera.shake(Math.min(5, p.vy*0.4)); }
           
           if(pl.isCloud){
             p.vy = -10.5;
@@ -2851,7 +2990,8 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // HD CHARACTER SPRITE RENDERING + POWER-UP AURAS
+  // HD CHARACTER SPRITE RENDERING WITH PROCEDURAL ANIMATIONS:
+  // (Walking bob, Running lean, Skid dust, Jump stretch, Landing squash)
   // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
     const p=this.player, cam=this.camera;
@@ -2860,40 +3000,72 @@ class PlatformerGame {
     ctx.save();
     ctx.translate(s.x+p.w/2, s.y+p.h/2);
 
+    let bobY = 0;
+    let tiltAngle = 0;
+    let legWobble = 0;
+
     if(p.onGround && !p.isRiding){
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.beginPath(); ctx.ellipse(0, p.h/2, p.w*0.55, 3.5, 0, 0, Math.PI*2); ctx.fill();
+      if(Math.abs(p.vx) > 0.2){
+        bobY = Math.abs(Math.sin(p.walkCycle)) * -3.2;
+        legWobble = Math.sin(p.walkCycle) * 0.07;
+        tiltAngle = (p.facingRight ? 1 : -1) * Math.min(0.18, Math.abs(p.vx) * 0.035);
+        if(p.skidTimer > 0){
+          tiltAngle = (p.facingRight ? -1 : 1) * 0.22;
+          bobY = 1;
+        }
+      } else {
+        bobY = Math.sin(now * 0.005) * 1.0;
+      }
+    } else if(!p.onGround && !p.isRiding){
+      if(this.globalGravity === 1){
+        if(p.vy < -1){
+          tiltAngle = (p.facingRight ? 1 : -1) * -0.12;
+        } else if(p.vy > 1){
+          tiltAngle = (p.facingRight ? 1 : -1) * 0.12;
+        }
+      }
     }
 
-    if(!p.facingRight) ctx.scale(-1,1);
-    if(this.globalGravity===-1) ctx.scale(1,-1);
-    ctx.scale(p.squashX, p.squashY);
+    // Shadow on ground
+    if(p.onGround && !p.isRiding){
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      const shWidth = p.w * (0.55 + Math.sin(p.walkCycle)*0.08);
+      ctx.beginPath(); ctx.ellipse(0, p.h/2 - bobY, shWidth, 3.5, 0, 0, Math.PI*2); ctx.fill();
+    }
 
-    if(p.invincibleTimer>0 && Math.floor(p.frame/4)%2===0) ctx.globalAlpha=0.4;
+    // Facing direction flip & gravity
+    if(!p.facingRight) ctx.scale(-1, 1);
+    if(this.globalGravity === -1) ctx.scale(1, -1);
+
+    // Apply squash, stretch, and movement tilt
+    ctx.scale(p.squashX, p.squashY);
+    ctx.rotate(tiltAngle + legWobble);
+
+    if(p.invincibleTimer > 0 && Math.floor(p.frame/4)%2 === 0) ctx.globalAlpha = 0.4;
 
     // Star Power Sparkling Rainbow Aura
     if(p.powerState === 'star'){
       const sCols = ['#FF1744','#FFD700','#00E5FF','#76FF03','#E040FB'];
-      ctx.strokeStyle = sCols[Math.floor(now/60)%sCols.length]; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(0,0,p.w*0.8 + Math.sin(now*0.02)*4, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = sCols[Math.floor(now/60)%sCols.length]; ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.arc(0, bobY, p.w*0.8 + Math.sin(now*0.02)*4, 0, Math.PI*2); ctx.stroke();
     }
 
     // Fire Flower Golden Fire Aura
     if(p.powerState === 'fire'){
-      ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(0, 0, p.w*0.7 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, bobY, p.w*0.75 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
     }
 
     // Zero-G Cosmic Aura Shield
     if(p.inZeroG){
-      const auraGrad = ctx.createRadialGradient(0,0,8, 0,0,p.w*1.1);
-      auraGrad.addColorStop(0, 'rgba(0,229,255,0.4)'); auraGrad.addColorStop(1, 'rgba(224,64,251,0)');
+      const auraGrad = ctx.createRadialGradient(0, bobY, 8, 0, bobY, p.w*1.15);
+      auraGrad.addColorStop(0, 'rgba(0,229,255,0.45)'); auraGrad.addColorStop(1, 'rgba(224,64,251,0)');
       ctx.fillStyle = auraGrad;
-      ctx.beginPath(); ctx.arc(0,0,p.w*1.1,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, bobY, p.w*1.15, 0, Math.PI*2); ctx.fill();
     }
 
     const img = loadedImages[this.selectedCharId];
-    const drawY = p.isRiding ? -8 : 0;
+    const drawY = (p.isRiding ? -8 : 0) + bobY;
     if(img && img.complete && img.naturalWidth > 0){
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(img, -p.w/2, -p.h/2 + drawY, p.w, p.h);
