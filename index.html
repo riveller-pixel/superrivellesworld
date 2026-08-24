@@ -18,8 +18,7 @@
   #game-wrapper { position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
     background:#090712;
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges;
-    position:absolute; top:0; left:0; width:100%; height:100%; }
+  canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; }
 
   /* ── Character Select Modal ── */
   .screen-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.94); backdrop-filter:blur(6px);
@@ -79,7 +78,6 @@
 <body>
 <div id="game-wrapper">
   <canvas id="game-canvas"></canvas>
-  
   <!-- Character Selection Modal -->
   <div class="screen-overlay active" id="modal-select">
     <div class="select-modal">
@@ -95,52 +93,37 @@
         <div class="char-card" data-id="cayetana" id="card-cayetana">
           <div class="char-thumb-wrap"><img src="cayetana.png" alt="Cayetana" class="char-thumb" onerror="this.src='assets/cayetana.png'"></div>
           <div class="char-title">CAYETANA</div>
-          <div class="char-ability-tag"><b>Caparazón Koopa</b><br>Rompe y Da Monedas</div>
+          <div class="char-ability-tag"><b>Caparazón Koopa</b><br>Surf 4s</div>
         </div>
         <div class="char-card" data-id="valentina" id="card-valentina">
           <div class="char-thumb-wrap"><img src="valentina.png" alt="Valentina" class="char-thumb" onerror="this.src='assets/valentina.png'"></div>
           <div class="char-title">VALENTINA</div>
-          <div class="char-ability-tag"><b>Triple Salto Rosa</b><br>Acrobacias con Flores</div>
+          <div class="char-ability-tag"><b>Triple Salto Rosa</b><br>Caída de Pétalos</div>
         </div>
         <div class="char-card" data-id="mama" id="card-mama">
           <div class="char-thumb-wrap"><img src="mama.png" alt="Mamá" class="char-thumb" onerror="this.src='assets/mama.png'"></div>
           <div class="char-title">MAMÁ</div>
-          <div class="char-ability-tag"><b>Planeo Celestial</b><br>Imán de Estrellas</div>
+          <div class="char-ability-tag"><b>Planeo 2s</b><br>Imán 2.5x Permanente</div>
         </div>
         <div class="char-card" data-id="papa" id="card-papa">
           <div class="char-thumb-wrap"><img src="papa.png" alt="Papá" class="char-thumb" onerror="this.src='assets/papa.png'"></div>
           <div class="char-title">PAPÁ</div>
-          <div class="char-ability-tag"><b>Terremoto Estelar</b><br>Ground Pound ▼</div>
+          <div class="char-ability-tag"><b>Ground Pound 3x</b><br>Stun 220px</div>
         </div>
       </div>
-
-      <!-- Tommy Sidekick Banner -->
       <div class="tommy-banner">
         <img src="tommy.png" alt="Tommy" class="tommy-banner-img" onerror="this.src='assets/tommy.png'">
         <div class="tommy-banner-text">
           <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO MÁGICO IA</div>
-          Ladrido sónico que congela enemigos, súper trampolín de salto, recolección de estrellas y rescate automático en fosos.
+          Carga el Paw Meter para congelar enemigos o salvarte de caídas. ¡Divertidas animaciones!
         </div>
       </div>
-
       <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL MAPA DE MUNDOS! 🗺️</button>
     </div>
   </div>
 </div>
-
 <script>
 'use strict';
-/**
- * SUPER RIVELLES PERIS WORLD v5.0 - NINTENDO FAMILY EDITION 10/10
- * - Polyphonic Nintendo Chiptune Music Synthesizer (BGM)
- * - Personalized Wonder Magic for Candela, Cayetana, Valentina, Mamá & Papá
- * - Tommy Cute Idle Animations (tail wag, sleeping, hearts) & Sonic Stun
- * - 3 Star Coins per Level for High Replayability
- * - Zero Frustration Cloud Rescue & Encouraging Family Voice Bubbles
- * - Flawless Mobile Touch UI with HUD Mute & Map Shortcuts
- */
-
-// ── Polyfill: roundRect ──────────────────────────────────────
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
     const rv = typeof r==='number'?[r,r,r,r]:(Array.isArray(r)?r:[0,0,0,0]);
@@ -151,10 +134,7 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     this.quadraticCurveTo(x,y+h,x,y+h-bl); this.lineTo(x,y+tl);
     this.quadraticCurveTo(x,y,x+tl,y); this.closePath(); return this;
   };
-}
-
-// ── Nintendo Polyphonic Audio & Music Engine ─────────────────
-class SoundFX {
+}\nclass SoundFX {
   constructor(){
     this.ctx = null;
     this.muted = false;
@@ -278,40 +258,30 @@ class SoundFX {
     this.musicPlaying = false;
   }
 }
-const audio = new SoundFX();
-
-// ── Virtual Constants ───────────────────────────────────────
+const audio = new SoundFX();\n
+// Constants
 const VIRT_W = 512;
 const VIRT_H = 288;
 const GRAVITY = 0.52;
 const MAX_FALL = 9.2;
 const ACCEL = 0.35;
 const DECEL = 0.28;
-const COYOTE_MS = 150;
-const BUFFER_MS = 150;
 const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
-// ── 5 Playable Characters with Family Wonder Magic ──────────
 const CHARACTERS = {
   candela:  { id:'candela',  name:'CANDELA',   imgSrc:'candela.png',  fallback:'assets/candela.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.5, weight:0.92, w:20, h:30,
-              canSpawnPlatform:true, perk:'Varita Estelar: Pulsar B' },
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:20, h:30 },
   cayetana: { id:'cayetana', name:'CAYETANA',  imgSrc:'cayetana.png', fallback:'assets/cayetana.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.5, weight:0.95, w:20, h:30,
-              canShootBouncingShell:true, perk:'Caparazón Koopa: Pulsar B' },
+              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:20, h:30 },
   valentina:{ id:'valentina',name:'VALENTINA', imgSrc:'valentina.png',fallback:'assets/valentina.png',
-              baseSpeed:3.6, sprintSpeed:5.0, jumpForce:-9.3, weight:0.85, w:18, h:26,
-              canTripleJump:true, perk:'Triple Salto Rosa: A en aire' },
+              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:18, h:26 },
   mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.9, w:20, h:30,
-              canGlide:true, perk:'Planeo Celestial + Imán de Estrellas' },
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:20, h:30 },
   papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.4, weight:1.0, w:20, h:30,
-              perk:'Terremoto Ground Pound: ▼ en aire' }
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:20, h:30 }
 };
-
 const loadedImages = {};
 for(const [key,char] of Object.entries(CHARACTERS)){
   const img = new Image(); img.src = char.imgSrc; img.onerror = () => { img.src = char.fallback; };
@@ -320,17 +290,11 @@ for(const [key,char] of Object.entries(CHARACTERS)){
 const tommyImg = new Image();
 tommyImg.src = 'tommy.png';
 tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
-
-// ── 3 Level Configs for World 1 ──────────────────────────────
-const LEVEL_CONFIGS = [
+\nconst LEVEL_CONFIGS = [
   { id: 1, name: "1-1: El Jardín de las Rosas", width: 2800, theme: "garden", sky: ["#5C94FC","#89b8ff","#d4eaff"], track: "overworld" },
   { id: 2, name: "1-2: Caverna Anti-Gravedad",   width: 3200, theme: "cave",   sky: ["#150626","#2d0d4e","#4a148c"], track: "cave" },
   { id: 3, name: "1-3: Castillo & Jefe Cósmico", width: 3600, theme: "castle", sky: ["#0b0410","#1c0b2b","#31124d"], track: "boss" }
-];
-
-// ════════════════════════════════════════════════════════════
-// CAMERA
-// ════════════════════════════════════════════════════════════
+];\n
 class Camera {
   constructor(){
     this.x=0; this.y=0;
@@ -341,9 +305,17 @@ class Camera {
   update(player,levelW){
     this.facingRight=player.facingRight;
     const lookahead=this.facingRight?70:-70;
-    let tx=player.x+player.w/2 - VIRT_W/2 + lookahead;
+    const lookVel = player.vx * 5; 
+    let tx=player.x+player.w/2 - VIRT_W/2 + lookahead + lookVel;
     tx=Math.max(0,Math.min(levelW-VIRT_W,tx));
-    this.x+=(tx-this.x)*0.09;
+    let ty=player.y+player.h/2 - VIRT_H/2;
+    
+    // Deadzone
+    let dx = tx - this.x;
+    let dy = ty - this.y;
+    if(Math.abs(dx) > 24) this.x += (dx - Math.sign(dx)*24) * 0.08;
+    if(Math.abs(dy) > 16) this.y += (dy - Math.sign(dy)*16) * 0.08;
+    
     if(this.shakeIntensity>0.4){
       this.offX=(Math.random()-0.5)*this.shakeIntensity*2;
       this.offY=(Math.random()-0.5)*this.shakeIntensity;
@@ -351,12 +323,9 @@ class Camera {
     } else { this.shakeIntensity=0; this.offX=0; this.offY=0; }
   }
   toScreen(wx,wy){ return {x:wx-this.x+this.offX, y:wy-this.y+this.offY}; }
-  isVisible(wx,wy,ww,wh){ return wx+ww>this.x-32 && wx<this.x+VIRT_W+32 && wy+wh>-32 && wy<VIRT_H+32; }
+  isVisible(wx,wy,ww,wh){ return wx+ww>this.x-32 && wx<this.x+VIRT_W+32 && wy+wh>this.y-32 && wy<this.y+VIRT_H+32; }
 }
 
-// ════════════════════════════════════════════════════════════
-// TOUCH CONTROLLER
-// ════════════════════════════════════════════════════════════
 class TouchController {
   constructor(game){ this.game=game; this.active=false; this.activeTouches=new Map(); this.buttons={}; this.pressedButtons=new Set(); }
   updateLayout(sw,sh){
@@ -369,7 +338,8 @@ class TouchController {
       down:  {x:safeL+dSz+gap,  y:dpadY,          w:dSz,h:dSz,label:'▼',input:'down'},
       right: {x:safeL+(dSz+gap)*2,y:dpadY,        w:dSz,h:dSz,label:'▶',input:'right'},
       btnB:  {x:sw-safeR-dSz*2.3,y:sh-safeB-dSz*2.2,w:dSz*1.25,h:dSz*1.25,label:'B',sublabel:'ACCION',input:'action',color:'rgba(198,40,40,0.82)',borderColor:'#ef9a9a',round:true},
-      btnA:  {x:sw-safeR-dSz*1.15,y:sh-safeB-dSz*2.5,w:dSz*1.25,h:dSz*1.25,label:'A',sublabel:'SALTO',input:'jump',color:'rgba(56,142,60,0.82)',borderColor:'#81c784',round:true}
+      btnA:  {x:sw-safeR-dSz*1.15,y:sh-safeB-dSz*2.5,w:dSz*1.25,h:dSz*1.25,label:'A',sublabel:'SALTO',input:'jump',color:'rgba(56,142,60,0.82)',borderColor:'#81c784',round:true},
+      btnPaw:{x:sw-safeR-dSz*1.7,y:sh-safeB-dSz*1.6,w:dSz,h:dSz,label:'🐾',sublabel:'TOMMY',input:'paw',color:'rgba(141,110,99,0.82)',borderColor:'#D7CCC8',round:true}
     };
   }
   hitTest(sx,sy){
@@ -428,7 +398,7 @@ class TouchController {
 // ════════════════════════════════════════════════════════════
 // ENEMY — FSM
 // ════════════════════════════════════════════════════════════
-class Enemy {
+class Enemyclass Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
     this.type=type; this.x=x; this.y=y;
     this.w=type==='koopa'?18:14; this.h=type==='koopa'?20:10;
@@ -697,127 +667,58 @@ class GalaxyBoss {
 // ════════════════════════════════════════════════════════════
 // TOMMY IA (Cute Idles, Sonic Stun & Canine Trampoline)
 // ════════════════════════════════════════════════════════════
+class TommyAI
 class TommyAI {
   constructor(startX, startY){
     this.x = startX; this.y = startY;
     this.vx = 0; this.vy = 0;
     this.w = 18; this.h = 18;
     this.onGround = false; this.facingRight = true;
-    this.mode = 'follow';
-    this.targetItem = null; this.barkTimer = 0; this.frame = 0;
-    this.jumpCooldown = 0; this.rescueCooldown = 0;
-    this.sonicWaves = [];
+    this.frame = 0;
     this.idleTimer = 0;
+    this.barkTimer = 0;
+    this.sonicWaves = [];
   }
-  update(player, starDustItems, starCoins, enemies, allPlatforms, globalGravity, game){
+  update(player, game){
     this.frame++;
     if(this.barkTimer > 0) this.barkTimer--;
-    if(this.jumpCooldown > 0) this.jumpCooldown--;
-    if(this.rescueCooldown > 0) this.rescueCooldown--;
-
-    if(globalGravity === 1) this.vy = Math.min(this.vy + GRAVITY * 0.85, MAX_FALL);
-    else                    this.vy = Math.max(this.vy - GRAVITY * 0.68, -MAX_FALL);
-
-    // Idle Cute Hearts Animation
+    
     if(Math.abs(player.vx) < 0.2 && Math.abs(this.vx) < 0.2){
       this.idleTimer++;
-      if(this.idleTimer === 120){
-        game.addFloatingText('❤️🐶', this.x + this.w/2, this.y - 16, '#FF4081');
-      }
+      if(this.idleTimer === 120) game.addFloatingText('❤️', this.x + this.w/2, this.y - 16, '#FF4081');
+      if(this.idleTimer === 300) game.addFloatingText('Zzz', this.x + this.w/2, this.y - 16, '#85f8ce');
     } else {
       this.idleTimer = 0;
     }
 
-    // 1. Sonic Stun Bark
-    const danger = enemies.find(e => !e.dead && Math.hypot(e.x - player.x, e.y - player.y) < 110);
-    if(danger && this.barkTimer <= 0){
-      this.mode = 'warn'; this.barkTimer = 90; audio.bark();
-      game.addFloatingText('¡LADRIDO SÓNICO! 🔊🐶', this.x, this.y - 18, '#00E5FF');
-      this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 4, maxR: 70 });
-      enemies.forEach(en => {
-        if(!en.dead && Math.hypot(en.x - this.x, en.y - this.y) < 120){
-          en.stunTimer = 90;
-          game.addFloatingText('¡ATURDIDO! 💫', en.x, en.y - 12, '#FFD700');
-        }
-      });
-    }
-
-    // 2. Canine Trampoline
-    if(player.x + player.w > this.x - 2 && player.x < this.x + this.w + 2 && player.y + player.h >= this.y - 4 && player.y + player.h <= this.y + 10 && player.vy > 0){
-      player.vy = globalGravity === 1 ? -10.5 : 10.5;
-      player.squashX = 0.7; player.squashY = 1.4;
-      audio.jump(); audio.bark();
-      game.addFloatingText('¡SUPER SALTO CANINO! 🚀', this.x, this.y - 20, '#FFD700');
-      game.addParticles(this.x + this.w/2, this.y, 14, ['#FFD700','#00E5FF','#FFF'], 3.5);
-    }
-
-    // 3. Failsafe Rescue Jump
-    if(player.y > VIRT_H - 18 && this.rescueCooldown <= 0 && Math.abs(player.x - this.x) < 140){
-      this.mode = 'rescue'; this.rescueCooldown = 320;
-      this.x = player.x; this.y = VIRT_H - 10; this.vy = -12;
-      player.y = VIRT_H - 40; player.vy = -11;
-      audio.bark(); audio.jump();
-      game.addFloatingText('¡NUBE DE RESCATE TOMMY! 🐶✨', player.x, player.y - 20, '#00E5FF');
-      game.addParticles(player.x, player.y, 18, ['#FFD700','#00E5FF','#FFF'], 4);
-    }
-
-    // 4. Star & Coin Seek
-    let nearStar = null, nearDist = 180;
-    for(const sd of starDustItems){
-      if(sd.collected) continue;
-      const d = Math.hypot(sd.x - this.x, sd.y - this.y);
-      if(d < nearDist){ nearDist = d; nearStar = sd; }
-    }
-    if(this.mode !== 'warn' && this.mode !== 'rescue'){
-      if(nearStar && Math.hypot(player.x - this.x, player.y - this.y) < 300){
-        this.mode = 'collect'; this.targetItem = nearStar;
-      } else {
-        this.mode = 'follow'; this.targetItem = null;
-      }
-    }
-
-    let targetX = player.x + (player.facingRight ? -26 : player.w + 8);
-    if(this.mode === 'collect' && this.targetItem) targetX = this.targetItem.x;
-    const dx = targetX - this.x;
-    if(Math.abs(dx) > 8){
-      this.vx += (Math.sign(dx) * 0.52);
-      this.vx = Math.max(-4.4, Math.min(4.4, this.vx));
-      this.facingRight = dx > 0;
-    } else { this.vx *= 0.72; }
-
-    if(this.onGround && this.jumpCooldown <= 0 && (player.y < this.y - 20 || (this.targetItem && this.targetItem.y < this.y - 20))){
-      this.vy = globalGravity === 1 ? -9.0 : 9.0; this.jumpCooldown = 35;
-    }
-
-    this.x += this.vx;
-    for(const p of allPlatforms){
-      if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
-        if(this.vx > 0) this.x = p.x - this.w; else this.x = p.x + p.w; this.vx = 0;
-      }
-    }
-    this.y += this.vy; this.onGround = false;
-    for(const p of allPlatforms){
-      if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
-        if(globalGravity === 1 && this.vy >= 0){ this.y = p.y - this.h; this.vy = 0; this.onGround = true; }
-        else if(globalGravity === -1 && this.vy <= 0){ this.y = p.y + p.h; this.vy = 0; this.onGround = true; }
-      }
-    }
-
-    if(this.targetItem && !this.targetItem.collected){
-      if(Math.hypot(this.targetItem.x - this.x, this.targetItem.y - this.y) < 22){
-        this.targetItem.collected = true; game.starDust += 1; audio.starCollect();
-        game.addFloatingText('+1 ★ (Tommy)', this.x + this.w/2, this.y - 14, '#FFD700');
-        this.targetItem = null; this.mode = 'follow';
-      }
-    }
-
-    if(this.y > VIRT_H + 40){ this.y = player.y; this.x = player.x + 20; this.vy = 0; }
-
+    // Spring Lerp follow
+    let targetX = player.x + (player.facingRight ? -30 : player.w + 10);
+    let targetY = player.y;
+    this.vx += (targetX - this.x) * 0.05;
+    this.vy += (targetY - this.y) * 0.05;
+    this.vx *= 0.8; this.vy *= 0.8;
+    
+    this.x += this.vx; this.y += this.vy;
+    if(Math.abs(this.vx)>0.1) this.facingRight = this.vx > 0;
+    
     for(let i = this.sonicWaves.length - 1; i >= 0; i--){
       const sw = this.sonicWaves[i];
-      sw.r += 3.5;
+      sw.r += 6.5;
       if(sw.r >= sw.maxR) this.sonicWaves.splice(i, 1);
     }
+  }
+  
+  activate(game) {
+    this.barkTimer = 150;
+    audio.bark();
+    game.addFloatingText('¡LADRIDO SÓNICO!', this.x, this.y - 18, '#00E5FF');
+    this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 4, maxR: VIRT_W });
+    game.enemies.forEach(en => {
+      if(!en.dead && camIsVisible(game.camera, en)){
+        en.stunTimer = 150;
+        game.addFloatingText('¡CONGELADO!', en.x, en.y - 12, '#00E5FF');
+      }
+    });
   }
 
   draw(ctx, cam, now){
@@ -828,34 +729,30 @@ class TommyAI {
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
     if(!this.facingRight) ctx.scale(-1, 1);
     
-    // Tail Wag Animation
-    const wag = Math.sin(now * 0.015) * 3;
+    const wag = this.idleTimer > 60 ? Math.sin(now * 0.015) * 3 : 0;
+    const sleep = this.idleTimer > 300;
 
     if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
       const dw = this.w * 1.8, dh = this.h * 1.5;
-      ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.3:0), dw, dh);
-    } else {
-      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-8, -4, 16, 10);
-      ctx.fillStyle = '#8D6E63'; ctx.fillRect(-8, -4, 7, 6);
-      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(4, -9, 10, 9);
-      ctx.fillStyle = '#1A1A1A'; ctx.fillRect(10, -7, 2, 2);
+      ctx.globalAlpha = sleep ? 0.7 : 1;
+      ctx.drawImage(tommyImg, -dw/2, -dh/2 + wag*0.3, dw, dh);
     }
     ctx.restore();
 
     for(const sw of this.sonicWaves){
       const ws = cam.toScreen(sw.x, sw.y);
       ctx.save();
-      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 4;
       ctx.globalAlpha = Math.max(0, 1 - sw.r / sw.maxR);
       ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     }
   }
 }
+function camIsVisible(cam, obj) {
+    return obj.x+obj.w>cam.x-32 && obj.x<cam.x+VIRT_W+32 && obj.y+obj.h>cam.y-32 && obj.y<cam.y+VIRT_H+32;
+}
 
-// ════════════════════════════════════════════════════════════
-// STAR COIN (3 Monedas Gigantes Coleccionables por Nivel)
-// ════════════════════════════════════════════════════════════
 class StarCoin {
   constructor(x, y, id){
     this.x = x; this.y = y; this.id = id;
@@ -1017,12 +914,13 @@ class FlagPole {
 // ════════════════════════════════════════════════════════════
 // MAIN GAME ENGINE
 // ════════════════════════════════════════════════════════════
+class PlatformerGame
+
 class PlatformerGame {
   constructor(){
     this.canvas=document.getElementById('game-canvas');
     this.ctx=this.canvas.getContext('2d');
     this.canvas.width=VIRT_W; this.canvas.height=VIRT_H;
-    this.ctx.imageSmoothingEnabled=false;
     
     this.selectedCharId='candela';
     this.currentLevelIdx=0;
@@ -1032,16 +930,17 @@ class PlatformerGame {
     this.globalGravity=1; this.flashTimer=0;
     this.starDust=0; this.score=0;
     this.starCoinsCollected=0;
+    this.pawMeter=0;
     this.soundMuted=false; this.frameCount=0; this.hitStopFrames=0;
     this.screenW=window.innerWidth; this.screenH=window.innerHeight;
     this.isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0)||window.matchMedia('(pointer:coarse)').matches;
 
     this.player={
       x:80,y:210,w:20,h:30,vx:0,vy:0,onGround:false,facingRight:true,
-      lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity,jumpHeld:false,
-      isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
+      jumpHeld:false,isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
       invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
-      inZeroG: false
+      inZeroG: false,
+      coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0, lastJumpPressAt:0
     };
 
     this.camera=new Camera();
@@ -1056,8 +955,8 @@ class PlatformerGame {
     this.zeroGBubbles=[]; this.flagPole=null;
     this.projectiles=[]; this.particles=[]; this.scatterDust=[]; this.floatingTexts=[];
 
-    this.input={left:false,right:false,up:false,down:false,jump:false,action:false};
-    this.prevJump=false; this.prevAction=false;
+    this.input={left:false,right:false,up:false,down:false,jump:false,action:false,paw:false};
+    this.prevJump=false; this.prevAction=false; this.prevPaw=false;
 
     this.initResize();
     this.initControls();
@@ -1065,8 +964,7 @@ class PlatformerGame {
     this.accumulator=0;
     requestAnimationFrame(this.loop.bind(this));
   }
-
-  initResize(){
+initResize(){
     const resize=()=>{
       this.screenW=window.innerWidth; this.screenH=window.innerHeight;
       this.canvas.style.width=this.screenW+'px'; this.canvas.style.height=this.screenH+'px';
@@ -1183,6 +1081,7 @@ class PlatformerGame {
   }
 
   startSelectedLevel(){
+  startSelectedLevel(){
     this.state='PLAYING';
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
     const char=CHARACTERS[this.selectedCharId];
@@ -1190,6 +1089,7 @@ class PlatformerGame {
     this.globalGravity=1; this.flashTimer=0;
     this.frameCount=0; this.hitStopFrames=0;
     this.starCoinsCollected=0;
+    this.pawMeter=0;
 
     Object.assign(this.player,{
       w:char.w,h:char.h,x:80,y:256-char.h,vx:0,vy:0,
@@ -1197,18 +1097,16 @@ class PlatformerGame {
       jumpCount:0,isGliding:false,invincibleTimer:0,
       facingRight:true,jumpHeld:false,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false,
-      lastGroundedAt:-Infinity,lastJumpPressAt:-Infinity
+      coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0
     });
 
     this.tommyAI=new TommyAI(50,210);
     this.buildLevel(cfg);
     this.camera.x=0;
 
-    // Start level specific soundtrack
     audio.currentTrack = cfg.track;
     audio.startBGM();
 
-    // Encouraging family intro voice
     const quotes = {
       candela: '¡VAMOS CANDELA! ✨🌟',
       cayetana: '¡A POR TODAS CAYETANA! 🐢💨',
@@ -1217,11 +1115,9 @@ class PlatformerGame {
       papa: '¡VAMOS EQUIPO! 👔🚀'
     };
     this.addFloatingText(quotes[char.id]||'¡A JUGAR!', 160, 100, '#FFD700');
-
     if(this.isMobile) this.touchCtrl.active=true;
   }
-
-  buildLevel(cfg){
+buildLevel(cfg){
     const P=(x,y,w,h,col,top)=>({x,y,w,h,color:col||'#5D4037',topColor:top||'#8D6E63'});
     const lw=cfg.width;
 
@@ -1353,7 +1249,7 @@ class PlatformerGame {
     this.scatterDust=[]; this.floatingTexts=[];
   }
 
-  completeLevel(){
+  completeLevel(){completeLevel(){
     if(this.currentLevelIdx<2){
       this.unlockedLevels[this.currentLevelIdx+1]=true;
     }
@@ -1379,6 +1275,7 @@ class PlatformerGame {
 
   // ── GAME LOOP ────────────────────────────────────────────
   loop(now){
+  loop(now){
     const dt=Math.min(now-this.lastTime,100);
     this.lastTime=now; this.accumulator+=dt;
     while(this.accumulator>=FRAME_TIME){ this.update(now); this.accumulator-=FRAME_TIME; }
@@ -1389,22 +1286,38 @@ class PlatformerGame {
   update(now){
     if(this.state==='PLAYING'){
       this.frameCount++;
-      if(this.hitStopFrames>0){ this.hitStopFrames--; this.updateParticles(); this.prevJump=this.input.jump; this.prevAction=this.input.action; return; }
+      
+      const pawEdge = (this.input.paw && !this.prevPaw) || (this.input.action && this.input.jump && !this.prevAction && !this.prevJump);
+      if(pawEdge && this.pawMeter >= 50) {
+        this.pawMeter -= 50;
+        this.tommyAI.activate(this);
+      }
+
+      if(this.hitStopFrames>0){ this.hitStopFrames--; this.updateParticles(); this.prevJump=this.input.jump; this.prevAction=this.input.action; this.prevPaw=this.input.paw; return; }
+      
       this.updatePlayer(now);
       this.camera.update(this.player,LEVEL_CONFIGS[this.currentLevelIdx].width);
       this.updateEntities(now);
       this.updateEnemies();
       if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
-      this.tommyAI.update(this.player,this.starDustItems,this.starCoins,this.enemies,this.getAllSolidPlatforms(),this.globalGravity,this);
+      this.tommyAI.update(this.player, this);
       this.dda.evaluate(this.frameCount);
 
-      // Star Coins Check
-      for(const sc of this.starCoins){ sc.check(this.player, this); }
+      for(const sc of this.starCoins){
+        if(!sc.collected && Math.hypot(this.player.x + this.player.w/2 - sc.x, this.player.y + this.player.h/2 - sc.y) < sc.r + 14){
+          sc.collected = true;
+          this.starCoinsCollected++;
+          this.score += 500;
+          this.pawMeter = Math.min(100, this.pawMeter + 10);
+          audio.starCoinCollect();
+          this.camera.shake(6);
+          this.addFloatingText('+500', sc.x, sc.y - 20, '#FFD700');
+          this.addParticles(sc.x, sc.y, 24, ['#FFD700','#FFF','#FFA000','#FF4081'], 4.5);
+        }
+      }
 
-      // DDA & Mamá Magnet
       const char = CHARACTERS[this.selectedCharId];
-      const isMamaMagnet = (char.id === 'mama' && this.player.isGliding);
-      const effectiveRadius = isMamaMagnet ? 120 : this.dda.magnetRadius;
+      const effectiveRadius = char.id === 'mama' ? 120 : this.dda.magnetRadius;
 
       if(effectiveRadius > 0){
         for(const sd of this.starDustItems){
@@ -1417,22 +1330,27 @@ class PlatformerGame {
     this.updateParticles();
     this.prevJump=this.input.jump;
     this.prevAction=this.input.action;
+    this.prevPaw = this.input.paw;
   }
 
-  // ── Player Movement with Wonder Magic ──────────────────────
+
   updatePlayer(now){
     const char=CHARACTERS[this.selectedCharId];
     const p=this.player; p.frame++;
     if(p.invincibleTimer>0)p.invincibleTimer--;
     if(p.superSpeedTimer>0)p.superSpeedTimer--;
 
-    p.squashX+=(1-p.squashX)*0.18; p.squashY+=(1-p.squashY)*0.18;
+    p.squashX+=(1-p.squashX)*0.15; p.squashY+=(1-p.squashY)*0.15;
 
     const jumpEdge=(this.input.jump&&!this.prevJump);
     const actionEdge=(this.input.action&&!this.prevAction);
-    if(jumpEdge)p.lastJumpPressAt=now;
+    
+    if(jumpEdge) p.bufferFrames = 3;
+    if(p.bufferFrames > 0) p.bufferFrames--;
+    
+    if(p.onGround) p.coyoteFrames = 4;
+    else p.coyoteFrames--;
 
-    // Check Zero-G Bubbles
     const wasInZeroG = p.inZeroG;
     p.inZeroG = false;
     for(const zb of this.zeroGBubbles){
@@ -1442,11 +1360,7 @@ class PlatformerGame {
         if(!wasInZeroG){
           audio.zeroGBubble();
           this.camera.shake(3);
-          this.addFloatingText('🌌 ¡CAMPO ZERO-G! 🌌', p.x + p.w/2, p.y - 18, '#00E5FF');
           this.addParticles(p.x + p.w/2, p.y + p.h/2, 16, ['#00E5FF','#E040FB','#FFF'], 3.0);
-        }
-        if(p.frame % 6 === 0){
-          this.addParticles(p.x + p.w/2, p.y + p.h/2, 2, ['#E040FB','#00E5FF','#FFF'], 1.2);
         }
         break;
       }
@@ -1457,7 +1371,6 @@ class PlatformerGame {
       p.isGroundPounding = false;
       p.vy *= 0.90;
       p.vx *= 0.90;
-
       const zSpd = 0.85;
       const maxZSpd = 5.2;
 
@@ -1473,20 +1386,30 @@ class PlatformerGame {
         p.vy = dirY !== 0 ? dirY * 6.0 : (this.globalGravity === 1 ? -3.5 : 3.5);
         audio.zeroGBubble();
         this.camera.shake(3);
-        this.addFloatingText('¡TURBO ZERO-G! 🚀', p.x + p.w/2, p.y - 16, '#00E5FF');
         this.addParticles(p.x + p.w/2, p.y + p.h/2, 14, ['#00E5FF','#E040FB','#FFD700','#FFF'], 3.5);
       }
     } else {
       const speedMult=(p.superSpeedTimer>0?1.7:1)*(p.isRiding?1.25:1);
       let baseSpd=char.baseSpeed*speedMult;
       let sprintSpd=char.sprintSpeed*speedMult;
-      const topSpd=this.input.action&&!char.canShootBouncingShell&&!char.canSpawnPlatform&&!p.isRiding?sprintSpd:baseSpd;
+      const topSpd=this.input.action&&char.id!=='cayetana'&&char.id!=='candela'&&!p.isRiding?sprintSpd:baseSpd;
       
-      if(this.input.left){ p.vx=Math.max(p.vx-ACCEL,-topSpd); p.facingRight=false; }
-      else if(this.input.right){ p.vx=Math.min(p.vx+ACCEL,topSpd); p.facingRight=true; }
+      const acc = ACCEL * char.accelMult;
+      if(this.input.left){ 
+        if(p.onGround && p.vx > 0) this.addParticles(p.x+p.w/2, p.y+p.h, 1, ['#8D6E63'], 0.5);
+        p.vx=Math.max(p.vx-acc,-topSpd); p.facingRight=false; 
+      }
+      else if(this.input.right){ 
+        if(p.onGround && p.vx < 0) this.addParticles(p.x+p.w/2, p.y+p.h, 1, ['#8D6E63'], 0.5);
+        p.vx=Math.min(p.vx+acc,topSpd); p.facingRight=true; 
+      }
       else {
         if(p.vx>0) p.vx=Math.max(0,p.vx-DECEL);
         else if(p.vx<0) p.vx=Math.min(0,p.vx+DECEL);
+      }
+
+      if(Math.abs(p.vx)>3 && p.frame%4===0 && p.onGround) {
+         this.addParticles(p.x+(p.facingRight?0:p.w), p.y+p.h, 1, ['#A1887F','#8D6E63'], 1);
       }
 
       if(this.globalGravity===1){
@@ -1494,11 +1417,14 @@ class PlatformerGame {
         if(char.id==='mama'&&this.input.jump&&!p.onGround&&p.vy>0&&!p.isRiding){
           p.isGliding=true; p.vy=Math.min(p.vy,1.2);
           if(p.frame%5===0){audio.glide();this.addParticles(p.x+p.w/2,p.y+p.h,2,['#FFD700','#FFF','#85F8CE'],1.5);}
+        } else if(char.id==='valentina'&&this.input.jump&&!p.onGround&&p.vy>0){
+          p.isGliding=true; p.vy=Math.min(p.vy,2.0);
+          if(p.frame%5===0){this.addParticles(p.x+p.w/2,p.y+p.h,2,['#FF4081','#FF80AB'],1.5);}
         } else if(!p.isGroundPounding){ p.vy=Math.min(p.vy+GRAVITY*char.weight,MAX_FALL); }
+        
         if(char.id==='papa'&&this.input.down&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
           p.isGroundPounding=true; p.vy=13; p.vx=0;
           audio.groundPoundStart(); this.camera.shake(4);
-          this.addFloatingText('¡TERREMOTO ESTELAR!',p.x+p.w/2,p.y-12,'#FF5252');
         }
       } else {
         p.isGliding=false;
@@ -1511,66 +1437,62 @@ class PlatformerGame {
         if(char.id==='papa'&&(this.input.down||this.input.up)&&!p.onGround&&!p.isGroundPounding&&!p.isRiding){
           p.isGroundPounding=true; p.vy=-13; p.vx=0;
           audio.groundPoundStart(); this.camera.shake(4);
-          this.addFloatingText('¡TERREMOTO DE TECHO!',p.x+p.w/2,p.y+p.h+12,'#FF5252');
         }
       }
 
-      if(p.onGround){ p.lastGroundedAt=now; p.jumpCount=0; }
+      const coyoteOk=(p.coyoteFrames > 0);
+      const bufferOk=(p.bufferFrames > 0);
 
-      const coyoteOk=(now-p.lastGroundedAt)<=COYOTE_MS;
-      const bufferOk=(now-p.lastJumpPressAt)<=BUFFER_MS;
+      if(p.jumpHoldFrames > 0 && this.input.jump) {
+         p.vy -= 0.6 * (this.globalGravity===1?1:-1);
+         p.jumpHoldFrames--;
+      }
 
-      if((jumpEdge&&coyoteOk)||(bufferOk&&p.onGround)){
-        p.vy=this.globalGravity===1?char.jumpForce:-char.jumpForce*0.88;
+      if(bufferOk && coyoteOk){
+        p.vy = this.globalGravity===1 ? -10.2 : 10.2;
         p.onGround=false; p.jumpHeld=true; p.isGroundPounding=false;
         p.jumpCount=1;
-        p.lastGroundedAt=-Infinity; p.lastJumpPressAt=-Infinity;
-        p.squashX=0.82; p.squashY=1.2; audio.jump();
+        p.coyoteFrames=0; p.bufferFrames=0;
+        p.jumpHoldFrames = 14;
+        p.squashX=0.8; p.squashY=1.2; audio.jump();
         this.addParticles(p.x+p.w/2,this.globalGravity===1?p.y+p.h:p.y,7,['#FFF','#E0E0E0']);
-      } else if(jumpEdge&&p.isRiding&&!p.onGround){
-        p.vy=this.globalGravity===1?-6.2:6.2; p.jumpHeld=true; audio.flutter();
-        this.addFloatingText('FLUTTER!',p.x+p.w/2,p.y-12,'#E040FB');
-        this.addParticles(p.x+p.w/2,p.y+p.h/2,7,['#E040FB','#00E5FF','#FFD700'],2.5);
       } else if(jumpEdge&&char.id==='valentina'&&!p.onGround&&!p.isRiding&&p.jumpCount<3){
-        // 🌸 Valentina Triple Jump Wonder Magic
         p.jumpCount++;
         const boost = p.jumpCount === 2 ? 0.95 : 1.15;
         p.vy = this.globalGravity===1 ? char.jumpForce * boost : -char.jumpForce * boost * 0.85;
-        p.jumpHeld = true;
+        p.jumpHeld = true; p.jumpHoldFrames = 0;
         audio.tripleJump();
-        this.addFloatingText(p.jumpCount===3 ? '¡TRIPLE SALTO MÁGICO! 🌸✨' : '¡DOBLE SALTO! 🌸', p.x+p.w/2, p.y-14, '#FF4081');
         this.addParticles(p.x+p.w/2, p.y+p.h/2, 14, ['#FF4081','#FF80AB','#FFF','#FFD700'], 3.8);
       }
-      if(p.jumpHeld&&!this.input.jump){
+      
+      if(!this.input.jump && p.jumpHeld){
         if(this.globalGravity===1&&p.vy<0)p.vy*=JUMP_CUT_MULT;
         else if(this.globalGravity===-1&&p.vy>0)p.vy*=JUMP_CUT_MULT;
         p.jumpHeld=false;
+        p.jumpHoldFrames = 0;
       }
     }
 
-    // Wonder Magic Action Buttons
     if(actionEdge){
       if(p.isRiding){
         const d=p.facingRight?1:-1; p.vx=d*10.5; audio.dash();
-        this.addFloatingText('¡TURBO DASH!',p.x+p.w/2,p.y-12,'#00E5FF');
         this.addParticles(p.x+(p.facingRight?-8:p.w+8),p.y+p.h/2,14,['#00E5FF','#E040FB','#FFD700'],4);
       } else {
         if(char.id==='candela'){
-          // ✨ Candela Star Wand Magic Platform
-          const lw=LEVEL_CONFIGS[this.currentLevelIdx].width;
-          const px=Math.max(14,Math.min(lw-60,p.x+(p.facingRight?2:-20)));
-          const py=this.globalGravity===1?p.y+p.h+2:p.y-12;
-          this.spawnedPlatforms.push({x:px,y:Math.max(16,Math.min(244,py)),w:56,h:10,life:280,maxLife:280,color:'#FFD700',topColor:'#FFF9C4'});
-          audio.platformSpawn();
-          this.addFloatingText('¡VARITA ESTELAR! ✨⭐',p.x+p.w/2,p.y-12,'#FFD700');
-          this.addParticles(px+28,py+5,16,['#FFD700','#FF4081','#00E5FF','#FFF'],3.0);
+          let platCount = this.spawnedPlatforms.filter(sp => sp.isCandela).length;
+          if(platCount < 2) {
+            const lw=LEVEL_CONFIGS[this.currentLevelIdx].width;
+            const px=Math.max(14,Math.min(lw-60,p.x+(p.facingRight?2:-20)));
+            const py=this.globalGravity===1?p.y+p.h+2:p.y-12;
+            this.spawnedPlatforms.push({x:px,y:Math.max(16,Math.min(244,py)),w:56,h:10,life:180,maxLife:180,isCandela:true,color:'rainbow',topColor:'#FFF9C4'});
+            audio.platformSpawn();
+            this.addParticles(px+28,py+5,16,['#FFD700','#FF4081','#00E5FF','#FFF'],3.0);
+          }
         }
         if(char.id==='cayetana'){
-          // 🐢 Cayetana Bouncing Shell
           const dir=p.facingRight?1:-1;
           this.projectiles.push({x:p.x+(p.facingRight?p.w+4:-14),y:p.y+p.h/2-4,w:14,h:14,vx:dir*5.6,vy:this.globalGravity===1?-2:2,bounces:0,maxBounces:10,life:320});
           audio.shellShoot();
-          this.addFloatingText('¡CAPARAZÓN KOOPA! 🐢',p.x+p.w/2,p.y-12,'#4CAF50');
         }
       }
     }
@@ -1582,9 +1504,16 @@ class PlatformerGame {
     if(p.x<12){p.x=12;p.vx=0;}
     if(p.x+p.w>lw-12){p.x=lw-12-p.w;p.vx=0;}
     if(p.y>VIRT_H+60){
-      this.dda.recordFall(); p.y=this.globalGravity===1?226-p.h:30; p.vy=0; p.vx=0;
-      if(p.isRiding){p.isRiding=false;}
-      this.addParticles(p.x+p.w/2,p.y+p.h/2,12,['#FF5252','#FFF'],3);
+      if(this.pawMeter >= 100) {
+         this.pawMeter -= 100;
+         this.spawnedPlatforms.push({x:p.x-16,y:VIRT_H-20,w:56,h:10,life:180,maxLife:180,color:'#00E5FF',topColor:'#FFF9C4',isTrampoline:true});
+         p.vy = -12;
+         audio.bark(); audio.jump();
+      } else {
+         this.dda.recordFall(); p.y=this.globalGravity===1?226-p.h:30; p.vy=0; p.vx=0;
+         if(p.isRiding){p.isRiding=false;}
+         this.addParticles(p.x+p.w/2,p.y+p.h/2,12,['#FF5252','#FFF'],3);
+      }
     }
   }
 
@@ -1603,7 +1532,10 @@ class PlatformerGame {
         if(this.globalGravity===1){
           if(p.vy>=0){
             p.y=pl.y-p.h; p.vy=0; p.onGround=true;
-            if(!p.isGroundPounding){ p.squashX=1.28;p.squashY=0.74; }
+            if(!p.isGroundPounding){ 
+                p.squashX=1.3;p.squashY=0.7; 
+                this.addParticles(p.x+p.w/2, p.y+p.h, 6, ['#FFF'], 2);
+            }
             if(p.isGroundPounding){
               p.isGroundPounding=false; audio.groundPoundImpact();
               this.addParticles(p.x+p.w/2,p.y+p.h,28,['#FF5252','#FFD700','#FF9800','#FFF'],5);
@@ -1611,7 +1543,6 @@ class PlatformerGame {
               for(const db of this.destructibleBlocks){
                 if(!db.destroyed&&Math.abs(db.x-p.x)<55&&Math.abs(db.y-p.y)<36)db.destroy(this);
               }
-              // Stun enemies across floor
               this.enemies.forEach(en=>{
                 if(!en.dead && Math.abs(en.x - p.x) < 220){ en.stunTimer = 60; }
               });
@@ -1621,7 +1552,10 @@ class PlatformerGame {
         } else {
           if(p.vy<=0){
             p.y=pl.y+pl.h; p.vy=0; p.onGround=true;
-            if(!p.isGroundPounding){ p.squashX=1.28;p.squashY=0.74; }
+            if(!p.isGroundPounding){ 
+                p.squashX=1.3;p.squashY=0.7; 
+                this.addParticles(p.x+p.w/2, p.y, 6, ['#FFF'], 2);
+            }
             if(p.isGroundPounding){
               p.isGroundPounding=false; audio.groundPoundImpact();
               this.addParticles(p.x+p.w/2,p.y,28,['#FF5252','#FFD700','#FF9800','#FFF'],5);
@@ -1632,8 +1566,7 @@ class PlatformerGame {
       }
     }
   }
-
-  updateEntities(now){
+updateEntities(now){
     const p=this.player;
     for(const sw of this.gSwitches){
       if(sw.cooldown>0)sw.cooldown--; if(sw.pressed>0)sw.pressed--;
@@ -1698,22 +1631,28 @@ class PlatformerGame {
   }
 
   addParticles(x,y,count,colors,speed=2.5){
+  addParticles(x,y,count,colors,speed=2.5){
     for(let i=0;i<count;i++){
       const a=Math.random()*Math.PI*2, s=(Math.random()*0.7+0.5)*speed;
       this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,col:colors[Math.floor(Math.random()*colors.length)],life:28,maxLife:28});
     }
   }
-  addFloatingText(txt,x,y,col='#FFF'){ this.floatingTexts.push({txt,x,y,vy:-1.3,life:50,col}); }
+  addFloatingText(txt,x,y,col='#FFF'){ this.floatingTexts.push({txt,x,y,vy:-0.8,life:50,col,age:0}); }
 
   updateParticles(){
+    for(let i=this.spawnedPlatforms.length-1;i>=0;i--){
+       this.spawnedPlatforms[i].life--;
+       if(this.spawnedPlatforms[i].life <= 0) this.spawnedPlatforms.splice(i,1);
+    }
     for(let i=this.particles.length-1;i>=0;i--){const p=this.particles[i];p.x+=p.vx;p.y+=p.vy;p.life--;if(p.life<=0)this.particles.splice(i,1);}
-    for(let i=this.floatingTexts.length-1;i>=0;i--){const t=this.floatingTexts[i];t.y+=t.vy;t.life--;if(t.life<=0)this.floatingTexts.splice(i,1);}
+    for(let i=this.floatingTexts.length-1;i>=0;i--){
+        const t=this.floatingTexts[i];
+        t.y+=t.vy; t.age++; t.life--;
+        t.x += Math.sin(t.age*0.1)*0.5;
+        if(t.life<=0)this.floatingTexts.splice(i,1);
+    }
   }
-
-  // ════════════════════════════════════════════════════════
-  // RENDERING (World Map + Playing + Boss + Zero-G)
-  // ════════════════════════════════════════════════════════
-  render(now){
+render(now){
     const ctx=this.ctx;
     if(this.state==='WORLD_MAP'){ this.renderWorldMap(ctx,now); return; }
     if(this.state==='LEVEL_COMPLETE'){ this.renderLevelComplete(ctx,now); return; }
@@ -1792,30 +1731,56 @@ class PlatformerGame {
   }
 
   renderBackground(ctx,now){
+  renderBackground(ctx,now){
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
+    ctx.imageSmoothingEnabled = true;
+    
+    // Layer 0 (0.05): Sky + clouds
     const sky=ctx.createLinearGradient(0,0,0,VIRT_H);
-    if(this.globalGravity===-1){
-      sky.addColorStop(0,'#150626'); sky.addColorStop(1,'#3a0d5c');
-    } else {
-      sky.addColorStop(0,cfg.sky[0]); sky.addColorStop(0.5,cfg.sky[1]); sky.addColorStop(1,cfg.sky[2]);
-    }
+    sky.addColorStop(0,cfg.sky[0]); sky.addColorStop(0.5,cfg.sky[1]); sky.addColorStop(1,cfg.sky[2]);
     ctx.fillStyle=sky; ctx.fillRect(0,0,VIRT_W,VIRT_H);
-
-    if(this.globalGravity === -1){
-      ctx.fillStyle = 'rgba(224, 64, 251, 0.4)';
-      for(let i=0; i<30; i++){
-        const px = (i * 73 + now * 0.02) % VIRT_W;
-        const py = VIRT_H - ((i * 47 + now * 0.08) % VIRT_H);
-        ctx.fillRect(px, py, (i%3)+1, (i%3)+1);
-      }
-    }
-
+    
     const cx=this.camera.x;
-    ctx.fillStyle=this.globalGravity===-1?'#4a148c':(cfg.id===2?'#4A148C':(cfg.id===3?'#1A237E':'#66BB6A'));
-    for(let i=0;i<8;i++){const hx=((i*260-cx*0.12)%1000)-60;const hy=VIRT_H-56-i%3*12;ctx.beginPath();ctx.arc(hx,hy,60+i%2*30,Math.PI,0);ctx.fill();}
+    
+    // Clouds
+    if(cfg.theme === 'garden') {
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        for(let i=0; i<5; i++) {
+            const hx = ((i*300 - cx*0.05 + now*0.01) % 1200) - 100;
+            ctx.beginPath(); ctx.ellipse(hx, 40 + i*15, 60, 20, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(hx-20, 30 + i*15, 40, 20, 0, 0, Math.PI*2); ctx.fill();
+        }
+    } else if(cfg.theme === 'castle') {
+        ctx.fillStyle = 'rgba(100,100,150,0.2)';
+        for(let i=0; i<8; i++) {
+            const hx = ((i*200 - cx*0.05 + now*0.02) % 1200) - 100;
+            ctx.fillRect(hx, 20 + i*20, 80, 4);
+        }
+    }
+    
+    // Layer 1 (0.20): Triangular mountains
+    let mColor = cfg.theme === 'garden' ? '#4CAF50' : (cfg.theme === 'cave' ? '#4A148C' : '#1A237E');
+    let mCap = cfg.theme === 'garden' ? '#FFF' : (cfg.theme === 'cave' ? '#CE93D8' : '#3F51B5');
+    for(let i=0; i<15; i++) {
+        const hx = ((i*180 - cx*0.2) % 1800) - 200;
+        ctx.fillStyle = mColor;
+        ctx.beginPath(); ctx.moveTo(hx, VIRT_H); ctx.lineTo(hx+100, VIRT_H-120); ctx.lineTo(hx+200, VIRT_H); ctx.fill();
+        ctx.fillStyle = mCap;
+        ctx.beginPath(); ctx.moveTo(hx+60, VIRT_H-72); ctx.lineTo(hx+100, VIRT_H-120); ctx.lineTo(hx+140, VIRT_H-72); ctx.lineTo(hx+110, VIRT_H-80); ctx.lineTo(hx+90, VIRT_H-80); ctx.fill();
+    }
+    
+    // Layer 2 (0.50): Sine hills
+    let hColor = cfg.theme === 'garden' ? '#388E3C' : (cfg.theme === 'cave' ? '#311B92' : '#0D47A1');
+    ctx.fillStyle = hColor;
+    ctx.beginPath(); ctx.moveTo(0, VIRT_H);
+    for(let x=0; x<=VIRT_W; x+=10) {
+        ctx.lineTo(x, VIRT_H - 40 + Math.sin((x + cx*0.5)*0.01)*20);
+    }
+    ctx.lineTo(VIRT_W, VIRT_H); ctx.fill();
+    
+    ctx.imageSmoothingEnabled = false;
   }
-
-  renderLevel(ctx,now){
+renderLevel(ctx,now){
     const cam=this.camera;
     // 🌌 Zero-G Cosmic Bubbles
     for(const zb of this.zeroGBubbles){
@@ -1902,6 +1867,7 @@ class PlatformerGame {
   }
 
   renderEntities(ctx,now){
+  renderEntities(ctx,now){
     const cam=this.camera;
     for(const en of this.enemies) en.draw(ctx,cam,now);
     if(this.tommyAI) this.tommyAI.draw(ctx,cam,now);
@@ -1915,16 +1881,22 @@ class PlatformerGame {
       const s=cam.toScreen(p.x,p.y); const alpha=p.life/p.maxLife;
       ctx.globalAlpha=alpha; ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(s.x,s.y,2.5*alpha+0.5,0,Math.PI*2); ctx.fill();
     }
-    ctx.globalAlpha=1; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='7px "Press Start 2P",monospace';
+    ctx.globalAlpha=1; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='6px "Press Start 2P",monospace';
     for(const t of this.floatingTexts){
-      const s=cam.toScreen(t.x,t.y); const alpha=Math.min(1,t.life/15);
-      ctx.globalAlpha=alpha; ctx.fillStyle='#000'; ctx.fillText(t.txt,s.x+1,s.y+1);
-      ctx.fillStyle=t.col; ctx.fillText(t.txt,s.x,s.y);
+      const s=cam.toScreen(t.x,t.y); 
+      const alpha=Math.min(1,t.life/15);
+      const scale=Math.min(1, t.age/5);
+      ctx.globalAlpha=alpha; 
+      ctx.translate(s.x, s.y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle='#000'; ctx.fillText(t.txt,1,1);
+      ctx.fillStyle=t.col; ctx.fillText(t.txt,0,0);
+      ctx.scale(1/scale, 1/scale);
+      ctx.translate(-s.x, -s.y);
     }
     ctx.restore();
   }
-
-  renderPlayer(ctx,now){
+renderPlayer(ctx,now){
     const p=this.player; const img=loadedImages[this.selectedCharId];
     const s=this.camera.toScreen(p.x+p.w/2,p.y+p.h/2);
     ctx.save(); ctx.translate(s.x,s.y);
@@ -1965,46 +1937,61 @@ class PlatformerGame {
   }
 
   renderHUD(ctx,now){
+  renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
-    ctx.save(); ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.font='7px "Press Start 2P",monospace';
+    ctx.save(); ctx.textBaseline='middle'; ctx.textAlign='left'; ctx.font='6px "Press Start 2P",monospace';
+    ctx.imageSmoothingEnabled = true;
     
-    // Left Pill: Name + Stars + Score + Gravity
-    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(5,4,248,24,[6]); ctx.fill();
-    ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle='#ff5252'; ctx.fillText(char.name,11,16);
-    ctx.fillStyle='#FFD700'; ctx.fillText('★:'+String(this.starDust).padStart(2,'0'),82,16);
-    ctx.fillStyle='#85f8ce'; ctx.fillText('SC:'+String(this.score).padStart(4,'0'),135,16);
-    ctx.fillStyle=this.globalGravity===-1?'#E040FB':'#64B5F6'; ctx.fillText(this.globalGravity===-1?'-1G':'1G ',205,16);
+    // Frosted glass background
+    const drawPill = (x,y,w,h) => {
+        ctx.fillStyle='rgba(14,10,24,0.55)'; 
+        ctx.beginPath(); ctx.roundRect(x,y,w,h,[h/2]); ctx.fill();
+        ctx.strokeStyle='rgba(255,215,0,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.roundRect(x+1,y+1,w-2,h/2,[h/4]); ctx.stroke();
+    };
+
+    // Top-left: Portrait + stats
+    drawPill(5, 4, 180, 26);
+    const img=loadedImages[this.selectedCharId];
+    if(img&&img.complete) {
+        ctx.drawImage(img, 10, 5, 20, 24);
+    }
+    ctx.fillStyle='#FFF'; ctx.fillText(char.name, 35, 11);
+    ctx.fillStyle='#FFD700'; ctx.fillText('★:'+String(this.starDust).padStart(2,'0'), 95, 11);
+    ctx.fillStyle='#85f8ce'; ctx.fillText(String(this.score).padStart(5,'0'), 140, 11);
+
+    // Paw meter
+    ctx.fillStyle='#4E342E'; ctx.fillRect(35, 18, 100, 6);
+    let pmGrad = ctx.createLinearGradient(35,18,135,18);
+    pmGrad.addColorStop(0, '#795548'); pmGrad.addColorStop(1, '#FFD700');
+    ctx.fillStyle=pmGrad; ctx.fillRect(35, 18, this.pawMeter, 6);
+    ctx.fillStyle='#FFF'; ctx.fillText('PAW', 140, 21);
 
     // Star Coins Badge (⭐⭐⭐)
-    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(258,4,68,24,[6]); ctx.fill();
-    ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
+    drawPill(195, 4, 60, 26);
     ctx.fillStyle='#FFD700'; ctx.font='8px "Press Start 2P",monospace';
     let coinsStr = '';
     for(let i=0; i<3; i++){ coinsStr += (i < this.starCoinsCollected ? '⭐' : '•'); }
-    ctx.fillText(coinsStr, 263, 16);
+    ctx.fillText(coinsStr, 203, 17);
 
     // Right Pill: Map & Music Buttons
-    ctx.fillStyle='rgba(14,10,24,0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W-120,4,115,24,[6]); ctx.fill();
-    ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.stroke();
+    drawPill(VIRT_W-120, 4, 110, 26);
     ctx.font='6px "Press Start 2P",monospace';
-    ctx.fillStyle='#85f8ce'; ctx.fillText('🗺️MAP', VIRT_W-112, 16);
-    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#00E5FF'; ctx.fillText(this.soundMuted?'🔇SIL':'🎵SND', VIRT_W-60, 16);
+    ctx.fillStyle='#85f8ce'; ctx.fillText('🗺️MAP', VIRT_W-110, 17);
+    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#00E5FF'; ctx.fillText(this.soundMuted?'🔇SIL':'🎵SND', VIRT_W-50, 17);
 
-    // Boss Health Bar in 1-3
     if(this.galaxyBoss && this.galaxyBoss.active && this.galaxyBoss.state !== 'defeated'){
-      ctx.fillStyle = 'rgba(14,10,24,0.85)';
-      ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 70, 32, 140, 14, [4]); ctx.fill();
-      ctx.strokeStyle = '#FF1744'; ctx.lineWidth = 1.5; ctx.stroke();
+      drawPill(VIRT_W/2 - 70, 36, 140, 16);
       ctx.fillStyle = '#FF1744';
-      ctx.fillRect(VIRT_W/2 - 66, 35, (132 * (this.galaxyBoss.hp / this.galaxyBoss.maxHp)), 8);
+      ctx.fillRect(VIRT_W/2 - 60, 40, (120 * (this.galaxyBoss.hp / this.galaxyBoss.maxHp)), 8);
       ctx.fillStyle = '#FFF'; ctx.font = '5px "Press Start 2P", monospace';
-      ctx.textAlign = 'center'; ctx.fillText('JEFE CÓSMICO', VIRT_W/2, 39);
+      ctx.textAlign = 'center'; ctx.fillText('JEFE CÓSMICO', VIRT_W/2, 44);
     }
+    ctx.imageSmoothingEnabled = false;
     ctx.restore();
   }
-
-  renderLevelComplete(ctx,now){
+renderLevelComplete(ctx,now){
     const bg=ctx.createLinearGradient(0,0,0,VIRT_H);
     bg.addColorStop(0,'#1a0a2e'); bg.addColorStop(1,'#0d0620');
     ctx.fillStyle=bg; ctx.fillRect(0,0,VIRT_W,VIRT_H);
@@ -2034,7 +2021,7 @@ class PlatformerGame {
   }
 }
 
-window.addEventListener('DOMContentLoaded',()=>{ window.game=new PlatformerGame(); });
+window.addEventListener('DOMContentLoaded', ()=>{ window.game=new PlatformerGame(); });
 </script>
 </body>
 </html>
