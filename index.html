@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Super Rivelles Peris World - Nintendo 2.5D Mega Edition</title>
+<title>Super Rivelles Peris World - Nintendo 2.5D Mega HD Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; }
 
-  /* ── Modern Nintendo Switch Style Character Select Modal ── */
+  /* ── Modern Nintendo Switch Style Character Select & Pause Modals ── */
   .screen-overlay { position:fixed; inset:0; background:rgba(6, 12, 34, 0.88); backdrop-filter:blur(10px);
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding:16px;
@@ -31,7 +31,7 @@
     background:linear-gradient(180deg, rgba(28, 45, 92, 0.95) 0%, rgba(15, 23, 54, 0.98) 100%);
     border:3px solid rgba(255, 215, 0, 0.8);
     border-radius:24px;
-    padding:22px 28px; max-width:840px; width:96%; text-align:center;
+    padding:22px 28px; max-width:860px; width:96%; text-align:center;
     box-shadow:0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.3);
     max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y;
     position:relative;
@@ -67,8 +67,8 @@
     content:'★ ELEGIDO ★'; position:absolute; top:-10px; background:#FFD700; color:#3E2723;
     font-size:8px; font-weight:900; padding:2px 8px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.4);
   }
-  .char-thumb-wrap { width:70px; height:84px; display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
-  .char-thumb { max-width:100%; max-height:100%; object-fit:contain; filter:drop-shadow(0 6px 8px rgba(0,0,0,0.6)); }
+  .char-thumb-wrap { width:80px; height:96px; display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+  .char-thumb { max-width:100%; max-height:100%; object-fit:contain; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
   .char-title { color:#FFD700; font-size:13px; font-weight:900; margin-bottom:4px; letter-spacing:0.5px; }
   .char-ability-tag { color:#B2EBF2; font-size:9.5px; font-weight:700; line-height:1.25; }
 
@@ -78,7 +78,7 @@
     padding:10px 16px; margin-bottom:18px; display:flex; align-items:center; gap:14px; text-align:left;
     box-shadow:0 4px 15px rgba(0,0,0,0.25);
   }
-  .tommy-banner-img { width:46px; height:46px; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
+  .tommy-banner-img { width:48px; height:48px; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
   .tommy-banner-text { font-size:11px; color:#FFFFFF; line-height:1.35; font-weight:600; }
   .tommy-banner-title { color:#FFD700; font-weight:900; font-size:12.5px; margin-bottom:2px; display:flex; align-items:center; gap:6px; }
 
@@ -92,15 +92,43 @@
   .snes-btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 0 #B26A00, 0 14px 24px rgba(255, 179, 0, 0.4); }
   .snes-btn-gold:active { transform:translateY(4px); box-shadow:0 2px 0 #B26A00, 0 4px 10px rgba(0,0,0,0.4); }
   
+  /* ── In-Game Pause Modal ── */
+  .pause-modal {
+    background:linear-gradient(180deg, rgba(25, 38, 77, 0.96) 0%, rgba(12, 19, 44, 0.98) 100%);
+    border:3px solid #FFD700; border-radius:24px; padding:24px 32px; max-width:540px; width:92%; text-align:center;
+    box-shadow:0 16px 48px rgba(0,0,0,0.7), 0 0 30px rgba(255,215,0,0.4);
+  }
+  .pause-btn-group { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .pause-btn {
+    background:linear-gradient(180deg, #37474F 0%, #263238 100%);
+    border:2px solid rgba(255,255,255,0.25); border-radius:16px; padding:12px 20px;
+    color:#FFFFFF; font-family:'Fredoka','Nunito',sans-serif; font-size:14px; font-weight:800;
+    cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .pause-btn:hover { border-color:#FFD700; background:linear-gradient(180deg, #455A64 0%, #37474F 100%); transform:translateY(-2px); }
+  .pause-btn.primary { background:linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%); border-color:#81C784; }
+  .pause-btn.primary:hover { background:linear-gradient(180deg, #66BB6A 0%, #388E3C 100%); }
+  .pause-char-row { display:flex; justify-content:center; gap:8px; margin:14px 0 6px; }
+  .pause-char-item {
+    width:52px; height:64px; border:2px solid rgba(255,255,255,0.2); border-radius:12px;
+    background:rgba(255,255,255,0.06); cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:4px; transition:transform 0.15s, border-color 0.15s;
+  }
+  .pause-char-item.active, .pause-char-item:hover {
+    border-color:#FFD700; background:rgba(255,215,0,0.18); transform:scale(1.08);
+  }
+  .pause-char-img { max-width:100%; max-height:42px; object-fit:contain; }
+  .pause-char-name { font-size:8px; font-weight:800; color:#FFD700; margin-top:2px; }
+
   @media(max-width:680px) {
     .modal-title { font-size:18px; }
     .char-grid { grid-template-columns:repeat(3,1fr); gap:8px; }
-    .char-thumb-wrap { width:56px; height:68px; }
+    .char-thumb-wrap { width:64px; height:78px; }
     .snes-btn-gold { padding:12px 26px; font-size:13px; }
   }
   @media(max-width:400px) {
     .char-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
-    .char-thumb-wrap { width:46px; height:58px; }
+    .char-thumb-wrap { width:52px; height:66px; }
     .char-title { font-size:11px; } .char-ability-tag { font-size:8px; }
     .select-modal { padding:14px 12px; }
   }
@@ -109,12 +137,13 @@
 <body>
 <div id="game-wrapper">
   <canvas id="game-canvas"></canvas>
+
   <!-- Character Selection Modal -->
   <div class="screen-overlay active" id="modal-select">
     <div class="select-modal">
       <div class="modal-header-badge">🌟 GALAXIA RIVELLES 🌟</div>
       <div class="modal-title">¡ELIGE A TU HÉROE!</div>
-      <div class="modal-subtitle">5 Mundos Épicos: Colinas Bellota, Océano Coral, Cielo de Nubes, Caverna Zero-G y Castillo</div>
+      <div class="modal-subtitle">5 Mundos Épicos • Gráficos 3D HD Remasterizados</div>
       
       <div class="char-grid">
         <div class="char-card selected" data-id="candela" id="card-candela">
@@ -153,6 +182,29 @@
       <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL MAPA DE MUNDOS! 🗺️</button>
     </div>
   </div>
+
+  <!-- In-Game Pause Modal -->
+  <div class="screen-overlay" id="modal-pause">
+    <div class="pause-modal">
+      <div class="modal-header-badge">⏸️ JUEGO EN PAUSA</div>
+      <div class="modal-title" id="pause-level-title">NIVEL 1-1</div>
+      
+      <div style="font-size:12px; color:#80DEEA; font-weight:700; margin-top:8px;">Cambiar de personaje en vivo:</div>
+      <div class="pause-char-row">
+        <div class="pause-char-item" data-id="candela"><img src="candela.png" class="pause-char-img"><div class="pause-char-name">CANDELA</div></div>
+        <div class="pause-char-item" data-id="cayetana"><img src="cayetana.png" class="pause-char-img"><div class="pause-char-name">CAYETANA</div></div>
+        <div class="pause-char-item" data-id="valentina"><img src="valentina.png" class="pause-char-img"><div class="pause-char-name">VALENTINA</div></div>
+        <div class="pause-char-item" data-id="mama"><img src="mama.png" class="pause-char-img"><div class="pause-char-name">MAMÁ</div></div>
+        <div class="pause-char-item" data-id="papa"><img src="papa.png" class="pause-char-img"><div class="pause-char-name">PAPÁ</div></div>
+      </div>
+
+      <div class="pause-btn-group">
+        <button class="pause-btn primary" id="btn-resume">▶️ CONTINUAR PARTIDA</button>
+        <button class="pause-btn" id="btn-restart-level">🔄 REINICIAR NIVEL</button>
+        <button class="pause-btn" id="btn-world-map">🗺️ VOLVER AL MAPA DE MUNDOS</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
 'use strict';
@@ -164,7 +216,7 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     this.quadraticCurveTo(x+w,y,x+w,y+tr); this.lineTo(x+w,y+h-br);
     this.quadraticCurveTo(x+w,y+h,x+w-br,y+h); this.lineTo(x+bl,y+h);
     this.quadraticCurveTo(x,y+h,x,y+h-bl); this.lineTo(x,y+tl);
-    this.quadraticCurveTo(x,y,x+tl,y); this.closePath(); return this;
+    this.quadraticCurveTo(x,y+x+tl,y); this.closePath(); return this;
   };
 }
 
@@ -327,17 +379,18 @@ const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
 
+// HD Character Profiles with Balanced Dimensions
 const CHARACTERS = {
   candela:  { id:'candela',  name:'CANDELA',   imgSrc:'candela.png',  fallback:'assets/candela.png',
-              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:20, h:30 },
+              baseSpeed:3.4, sprintSpeed:4.8, jumpForce:-9.8, weight:1.0, accelMult:1.0, w:24, h:36 },
   cayetana: { id:'cayetana', name:'CAYETANA',  imgSrc:'cayetana.png', fallback:'assets/cayetana.png',
-              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:20, h:30 },
+              baseSpeed:4.25, sprintSpeed:6.0, jumpForce:-9.2, weight:1.0, accelMult:0.8, w:24, h:36 },
   valentina:{ id:'valentina',name:'VALENTINA', imgSrc:'valentina.png',fallback:'assets/valentina.png',
-              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:18, h:26 },
+              baseSpeed:3.9, sprintSpeed:5.5, jumpForce:-9.0, weight:0.72, accelMult:1.15, w:22, h:34 },
   mama:     { id:'mama',     name:'MAMÁ',      imgSrc:'mama.png',     fallback:'assets/mama.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:20, h:30 },
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.5, weight:0.75, accelMult:1.0, w:25, h:38 },
   papa:     { id:'papa',     name:'PAPÁ',      imgSrc:'papa.png',     fallback:'assets/papa.png',
-              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:20, h:30 }
+              baseSpeed:3.2, sprintSpeed:4.6, jumpForce:-9.4, weight:1.4, accelMult:1.0, w:26, h:42 }
 };
 
 const loadedImages = {};
@@ -986,7 +1039,7 @@ class TommyAI {
   constructor(startX, startY){
     this.x = startX; this.y = startY;
     this.vx = 0; this.vy = 0;
-    this.w = 18; this.h = 18;
+    this.w = 20; this.h = 20;
     this.onGround = false; this.facingRight = true;
     this.frame = 0;
     this.idleTimer = 0;
@@ -997,7 +1050,7 @@ class TommyAI {
     this.frame++;
     if(this.barkTimer > 0) this.barkTimer--;
 
-    const targetX = player.x + (player.facingRight ? -28 : player.w + 10);
+    const targetX = player.x + (player.facingRight ? -30 : player.w + 10);
     const targetY = player.y + (player.h - this.h);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
@@ -1069,7 +1122,7 @@ class TommyAI {
     const breathe = Math.sin(now * 0.005) * 1;
 
     if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
-      const dw = this.w * 1.8, dh = this.h * 1.5;
+      const dw = this.w * 1.5, dh = this.h * 1.5;
       ctx.drawImage(tommyImg, -dw/2, -dh/2 + (this.idleTimer>60?wag*0.2:breathe), dw, dh);
     } else {
       ctx.fillStyle = '#FFFFFF';
@@ -1078,13 +1131,6 @@ class TommyAI {
       ctx.beginPath(); ctx.ellipse(-2, 0, 5, 4, 0.2, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath(); ctx.ellipse(5, -4, 5, 5, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#8D6E63';
-      ctx.beginPath(); ctx.ellipse(3, -7, 2.5, 4, -0.4, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#212121';
-      ctx.beginPath(); ctx.arc(7, -5, 1.2, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(9, -3, 1.0, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(-7, 0); ctx.quadraticCurveTo(-10, -5+wag, -11, -3+wag); ctx.stroke();
     }
     ctx.restore();
   }
@@ -1345,7 +1391,7 @@ class PlatformerGame {
     this.isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0)||window.matchMedia('(pointer:coarse)').matches;
 
     this.player={
-      x:80,y:210,w:20,h:30,vx:0,vy:0,onGround:false,facingRight:true,
+      x:80,y:210,w:24,h:36,vx:0,vy:0,onGround:false,facingRight:true,
       jumpHeld:false,isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
       invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false, inWater: false,
@@ -1356,7 +1402,7 @@ class PlatformerGame {
         this.player.powerState = type;
         this.player.powerTimer = (type==='star'? 600 : (type==='wing'? 400 : 99999));
         audio.powerUp();
-        if(type==='super'){ this.player.w=26; this.player.h=38; }
+        if(type==='super'){ this.player.w=32; this.player.h=48; }
       }
     };
 
@@ -1406,7 +1452,11 @@ class PlatformerGame {
       if(e.code==='ArrowDown'||e.code==='KeyS')this.input.down=true;
       if(e.code==='Space'||e.code==='KeyZ')this.input.jump=true;
       if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=true;
-      if(e.code==='KeyP'||e.code==='KeyT')this.input.paw=true;
+      if(e.code==='KeyT')this.input.paw=true;
+      if(e.code==='KeyEscape'||e.code==='KeyP'){
+        if(this.state==='PLAYING') this.togglePause();
+        else if(this.state==='PAUSED') this.resumeGame();
+      }
       if(e.code==='KeyG')this.triggerGravityShift();
       if(e.code==='KeyC')this.openCharacterSelect();
       if(e.code==='KeyM'){
@@ -1422,7 +1472,7 @@ class PlatformerGame {
       if(e.code==='ArrowDown'||e.code==='KeyS')this.input.down=false;
       if(e.code==='Space'||e.code==='KeyZ')this.input.jump=false;
       if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=false;
-      if(e.code==='KeyP'||e.code==='KeyT')this.input.paw=false;
+      if(e.code==='KeyT')this.input.paw=false;
     });
 
     this.canvas.addEventListener('touchstart',e=>this.touchCtrl.handleTouchStart(e),{passive:false});
@@ -1431,6 +1481,7 @@ class PlatformerGame {
     this.canvas.addEventListener('touchcancel',e=>this.touchCtrl.handleTouchEnd(e),{passive:false});
     document.body.addEventListener('touchmove',e=>{if(this.state==='PLAYING')e.preventDefault();},{passive:false});
 
+    // Character Selection Cards
     document.querySelectorAll('.char-card').forEach(card=>{
       card.addEventListener('click',()=>{
         audio.click();
@@ -1450,6 +1501,29 @@ class PlatformerGame {
     startBtn.addEventListener('click', onStart);
     startBtn.addEventListener('touchend', onStart, {passive:false});
 
+    // Pause Menu Handlers
+    document.getElementById('btn-resume').addEventListener('click', ()=>{ this.resumeGame(); });
+    document.getElementById('btn-restart-level').addEventListener('click', ()=>{
+      audio.click();
+      document.getElementById('modal-pause').classList.remove('active');
+      this.startSelectedLevel();
+    });
+    document.getElementById('btn-world-map').addEventListener('click', ()=>{
+      audio.click();
+      document.getElementById('modal-pause').classList.remove('active');
+      this.state='WORLD_MAP';
+    });
+
+    // Pause Character Switchers
+    document.querySelectorAll('.pause-char-item').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        audio.click();
+        document.querySelectorAll('.pause-char-item').forEach(it=>it.classList.remove('active'));
+        item.classList.add('active');
+        this.switchCharacterLive(item.dataset.id);
+      });
+    });
+
     const handleCanvasTap = (e)=>{
       let clientX, clientY;
       if(e.changedTouches && e.changedTouches.length>0){
@@ -1462,15 +1536,22 @@ class PlatformerGame {
       const cx=(clientX-rect.left)*(VIRT_W/rect.width);
       const cy=(clientY-rect.top)*(VIRT_H/rect.height);
 
-      if(this.state === 'PLAYING' && cy <= 34){
-        if(cx >= VIRT_W - 55 && cx <= VIRT_W - 10){
+      if(this.state === 'PLAYING' && cy <= 36){
+        // Audio Toggle
+        if(cx >= VIRT_W - 46 && cx <= VIRT_W - 6){
           this.soundMuted = !this.soundMuted;
           audio.muted = this.soundMuted;
           if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
           return;
         }
-        if(cx >= VIRT_W - 115 && cx <= VIRT_W - 60){
+        // Map Button
+        if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){
           this.state = 'WORLD_MAP';
+          return;
+        }
+        // Pause Button
+        if(cx >= VIRT_W - 150 && cx <= VIRT_W - 100){
+          this.togglePause();
           return;
         }
       }
@@ -1495,6 +1576,34 @@ class PlatformerGame {
         handleCanvasTap(e);
       }
     },{passive:true});
+  }
+
+  togglePause(){
+    if(this.state === 'PLAYING'){
+      audio.click();
+      this.state = 'PAUSED';
+      const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
+      document.getElementById('pause-level-title').innerText = cfg.name;
+      document.querySelectorAll('.pause-char-item').forEach(it=>{
+        it.classList.toggle('active', it.dataset.id === this.selectedCharId);
+      });
+      document.getElementById('modal-pause').classList.add('active');
+    }
+  }
+
+  resumeGame(){
+    audio.click();
+    document.getElementById('modal-pause').classList.remove('active');
+    this.state = 'PLAYING';
+  }
+
+  switchCharacterLive(charId){
+    this.selectedCharId = charId;
+    const char = CHARACTERS[charId];
+    this.player.w = char.w;
+    this.player.h = char.h;
+    this.addFloatingText(`¡CAMBIO A ${char.name}! 🌟`, this.player.x+this.player.w/2, this.player.y-20, '#FFD700');
+    this.addParticles(this.player.x+this.player.w/2, this.player.y+this.player.h/2, 20, ['#FFD700','#FF4081','#00E5FF','#FFF'], 4.0);
   }
 
   startSelectedLevel(){
@@ -2075,7 +2184,7 @@ class PlatformerGame {
 
     // Candela Magic Platform Spawning
     if(char.id==='candela' && actJustPressed && this.spawnedPlatforms.length < 2){
-      const spW = 48, spH = 10;
+      const spW = 54, spH = 10;
       const spX = p.facingRight ? p.x + p.w + 6 : p.x - spW - 6;
       const spY = p.y + p.h - 4;
       this.spawnedPlatforms.push({
@@ -2306,14 +2415,14 @@ class PlatformerGame {
       this.renderWorldMap(ctx,now);
     } else if(this.state==='WORLD_MAP'){
       this.renderWorldMap(ctx,now);
-    } else if(this.state==='PLAYING'){
+    } else if(this.state==='PLAYING' || this.state==='PAUSED'){
       this.renderBackground(ctx,now);
       this.renderLevel(ctx,now);
       this.renderEntities(ctx,now);
       this.renderPlayer(ctx,now);
       this.renderParticles(ctx);
       this.renderHUD(ctx,now);
-      this.touchCtrl.draw(ctx,this.screenW,this.screenH,VIRT_W,VIRT_H);
+      if(this.state==='PLAYING') this.touchCtrl.draw(ctx,this.screenW,this.screenH,VIRT_W,VIRT_H);
 
       if(this.flashTimer>0){
         this.flashTimer--;
@@ -2343,7 +2452,7 @@ class PlatformerGame {
     ctx.fillText('MAPA DE MUNDOS: GALAXIA RIVELLES',VIRT_W/2,28);
 
     ctx.fillStyle='#80DEEA'; ctx.font='700 10px "Fredoka",sans-serif';
-    ctx.fillText('5 Mundos Épicos • Toca un nivel para jugar',VIRT_W/2,45);
+    ctx.fillText('5 Mundos Épicos • Gráficos 3D HD Remasterizados',VIRT_W/2,45);
 
     const nodes=[{x:70,y:140},{x:155,y:140},{x:245,y:140},{x:335,y:140},{x:425,y:140}];
     
@@ -2388,7 +2497,7 @@ class PlatformerGame {
     const img=loadedImages[this.selectedCharId];
     ctx.save(); ctx.translate(curNode.x,curNode.y-34+Math.sin(now*0.006)*4);
     if(img&&img.complete&&img.naturalWidth>0){
-      ctx.drawImage(img,-14,-18,28,34);
+      ctx.drawImage(img,-16,-22,32,44);
     }
     ctx.restore();
 
@@ -2742,7 +2851,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // ORIGINAL CHARACTER SPRITE RENDERING + POWER-UP AURAS
+  // HD CHARACTER SPRITE RENDERING + POWER-UP AURAS
   // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
     const p=this.player, cam=this.camera;
@@ -2786,9 +2895,8 @@ class PlatformerGame {
     const img = loadedImages[this.selectedCharId];
     const drawY = p.isRiding ? -8 : 0;
     if(img && img.complete && img.naturalWidth > 0){
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, -p.w/2, -p.h/2 + drawY, p.w, p.h);
       ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(img, -p.w/2, -p.h/2 + drawY, p.w, p.h);
     } else {
       ctx.fillStyle = '#FF5252';
       ctx.fillRect(-p.w/2, -p.h/2 + drawY, p.w, p.h);
@@ -2798,7 +2906,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // 2.5D FROSTED-GLASS HUD (Nintendo Switch Style)
+  // 2.5D FROSTED-GLASS HUD (Nintendo Switch Style with Pause Button)
   // ════════════════════════════════════════════════════════════
   renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
@@ -2838,10 +2946,12 @@ class PlatformerGame {
     for(let i=0; i<3; i++){ coinsStr += (i < this.starCoinsCollected ? '⭐' : '⚪'); }
     ctx.fillText(coinsStr, 232, 21);
 
-    drawPill(VIRT_W-125, 6, 118, 30);
-    ctx.font='bold 10px "Fredoka",sans-serif';
+    // Top Right Controls: ⏸️ PAUSA, 🗺️ MAPA, 🎵 AUD
+    drawPill(VIRT_W-155, 6, 149, 30);
+    ctx.font='bold 9.5px "Fredoka",sans-serif';
+    ctx.fillStyle='#FFD700'; ctx.fillText('⏸️', VIRT_W-146, 21);
     ctx.fillStyle='#80DEEA'; ctx.fillText('🗺️ MAPA', VIRT_W-116, 21);
-    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#FFD700'; ctx.fillText(this.soundMuted?'🔇 SIL':'🎵 AUD', VIRT_W-52, 21);
+    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#FFD700'; ctx.fillText(this.soundMuted?'🔇 SIL':'🎵 AUD', VIRT_W-50, 21);
 
     if(this.galaxyBoss && this.galaxyBoss.active && this.galaxyBoss.state !== 'defeated'){
       drawPill(VIRT_W/2 - 80, 42, 160, 20);
