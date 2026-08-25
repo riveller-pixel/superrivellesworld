@@ -516,17 +516,37 @@ const worldMapDioramaImg = new Image();
 worldMapDioramaImg.src = 'world_map_diorama.png';
 worldMapDioramaImg.onerror = () => { worldMapDioramaImg.src = 'assets/world_map_diorama.png'; };
 
-// 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES
+// HD 2.5D World Final Boss Assets (9 Bosses)
+const BOSS_ASSETS = {
+  acornus: 'boss_acornus.png',
+  octobeard: 'boss_octobeard.png',
+  tutankobra: 'boss_tutankobra.png',
+  marionetta: 'boss_marionetta.png',
+  frostfang: 'boss_frostfang.png',
+  tempesto: 'boss_tempesto.png',
+  graviton: 'boss_graviton.png',
+  cosmomecha: 'boss_cosmomecha.png',
+  infernus: 'boss_infernus.png'
+};
+const bossImages = {};
+for(const [bKey, bSrc] of Object.entries(BOSS_ASSETS)){
+  const img = new Image();
+  img.src = bSrc;
+  img.onerror = () => { img.src = 'assets/' + bSrc; };
+  bossImages[bKey] = img;
+}
+
+// 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES & FINAL BOSSES
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: Colinas Bellota",     theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 42,  mapY: 195, color: "#2E7D32" },
-  { id: 2, name: "1-2: Océano de Coral",     theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 92,  mapY: 220, color: "#0288D1" },
-  { id: 3, name: "1-3: Pirámides de Egipto", theme: "egypt",  sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 148, mapY: 185, color: "#F57C00" },
-  { id: 4, name: "1-4: Castillo Disney",     theme: "disney", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
-  { id: 5, name: "1-5: Glaciares Frozen",    theme: "frozen", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
-  { id: 6, name: "1-6: Reino del Cielo",     theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
-  { id: 7, name: "1-7: Cavernas Zero-G",     theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
-  { id: 8, name: "1-8: Mario Galaxy",        theme: "galaxy", sky: ["#050014","#1a0836","#00e5ff"], track: "galaxy",    mapX: 420, mapY: 220, color: "#00E5FF" },
-  { id: 9, name: "1-9: Castillo de Lava",    theme: "castle", sky: ["#bf360c","#ff5722","#ffab91"], track: "castle",    mapX: 450, mapY: 175, color: "#D50000" }
+  { id: 1, name: "1-1: Colinas Bellota",     theme: "garden", bossKey: "acornus", bossName: "GRAN BELLOTÓN", bossTitle: "Titán del Roble Dorado", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 42,  mapY: 195, color: "#2E7D32" },
+  { id: 2, name: "1-2: Océano de Coral",     theme: "marine", bossKey: "octobeard", bossName: "CAPITÁN PULPARRO", bossTitle: "Pirata de las Profundidades", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 92,  mapY: 220, color: "#0288D1" },
+  { id: 3, name: "1-3: Pirámides de Egipto", theme: "egypt", bossKey: "tutankobra", bossName: "FARAÓN COBRATÓN", bossTitle: "La Serpiente Esfinge", sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 148, mapY: 185, color: "#F57C00" },
+  { id: 4, name: "1-4: Castillo Disney",     theme: "disney", bossKey: "marionetta", bossName: "MADAME MARIONETTA", bossTitle: "Hechicera de Naipes", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
+  { id: 5, name: "1-5: Glaciares Frozen",    theme: "frozen", bossKey: "frostfang", bossName: "YETI BLIZZARDO", bossTitle: "Monarca Glacial", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
+  { id: 6, name: "1-6: Reino del Cielo",     theme: "sky", bossKey: "tempesto", bossName: "BARÓN TEMPESTO", bossTitle: "Galeón de las Cumbres", sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
+  { id: 7, name: "1-7: Cavernas Zero-G",     theme: "cave", bossKey: "graviton", bossName: "GIGA GRAVITÓN", bossTitle: "Geoda de Masa Oscura", sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
+  { id: 8, name: "1-8: Mario Galaxy",        theme: "galaxy", bossKey: "cosmomecha", bossName: "COSMO-MECHA", bossTitle: "Coloso Planetario Estelar", sky: ["#050014","#1a0836","#00e5ff"], track: "galaxy",    mapX: 420, mapY: 220, color: "#00E5FF" },
+  { id: 9, name: "1-9: Castillo de Lava",    theme: "castle", bossKey: "infernus", bossName: "LORD INFERNUS REX", bossTitle: "Soberano del Núcleo Magmático", sky: ["#bf360c","#ff5722","#ffab91"], track: "castle",    mapX: 450, mapY: 175, color: "#D50000" }
 ];
 
 class Camera {
@@ -1042,78 +1062,308 @@ class RideableMount {
   }
 }
 
-class GalaxyBoss {
-  constructor(x, y){
-    this.x = x; this.y = y;
-    this.w = 56; this.h = 60;
-    this.hp = 3; this.maxHp = 3;
+class WorldBoss {
+  constructor(bossKey, name, title, x, y){
+    this.bossKey = bossKey || 'acornus';
+    this.name = name || 'GRAN JEFE';
+    this.title = title || 'Titán del Nivel';
+    this.x = x || 3520;
+    this.y = y || 185;
+    this.baseY = this.y;
+    
+    // Boss physical dimensions tailored per character
+    const isLarge = (this.bossKey === 'infernus' || this.bossKey === 'cosmomecha');
+    const isMedium = (this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'octobeard');
+    this.w = isLarge ? 80 : (isMedium ? 70 : 62);
+    this.h = isLarge ? 86 : (isMedium ? 76 : 68);
+    
+    this.hp = 3;
+    this.maxHp = 3;
+    this.phase = 1;
     this.state = 'idle';
-    this.frame = 0; this.timer = 0;
-    this.vx = -1.5; this.vy = 0;
+    
+    this.frame = 0;
+    this.timer = 0;
+    this.attackTimer = 0;
+    this.vx = -1.6;
+    this.vy = 0;
     this.facingRight = false;
     this.invincTimer = 0;
-    this.fireballs = [];
+    this.stunTimer = 0;
+    
+    this.projectiles = [];
     this.active = false;
+    this.arenaLeft = 3320;
+    this.arenaRight = 3720;
+    this.floatAngle = 0;
   }
+
   update(player, game){
     if(this.state === 'defeated') return;
     this.frame++;
+    this.floatAngle += 0.05;
     if(this.invincTimer > 0) this.invincTimer--;
+    if(this.stunTimer > 0) this.stunTimer--;
 
-    if(!this.active && player.x > this.x - 300){
-      this.active = true; audio.currentTrack = 'boss'; audio.startBGM(); audio.bossHit();
-      game.camera.shake(12); game.addFloatingText('¡GRAN JEFE CÓSMICO!', this.x, this.y - 30, '#FF1744');
+    // Trigger Activation when player reaches arena
+    if(!this.active && player.x > this.arenaLeft - 60){
+      this.active = true;
+      audio.currentTrack = 'boss';
+      audio.startBGM();
+      audio.bossHit();
+      game.camera.shake(14);
+      game.addFloatingText(`⚔️ ¡${this.name}! ⚔️`, this.x + this.w/2, this.y - 35, '#FFD700');
     }
     if(!this.active) return;
 
-    this.timer++;
-    if(this.timer > 150){
-      this.timer = 0; this.facingRight = player.x > this.x;
-      for(let i=0; i<3; i++){
-        setTimeout(()=>{
-          if(this.state!=='defeated'){
+    // Lock camera and player within boss arena
+    player.x = Math.max(this.arenaLeft, Math.min(this.arenaRight + 40, player.x));
+
+    // Phase Calculation
+    this.phase = Math.max(1, 4 - this.hp);
+    const speedMult = this.phase === 3 ? 2.2 : (this.phase === 2 ? 1.6 : 1.1);
+
+    // AI Logic by Boss Type if not stunned
+    if(this.stunTimer <= 0){
+      this.attackTimer++;
+      this.facingRight = player.x > (this.x + this.w/2);
+
+      switch(this.bossKey){
+        case 'acornus':
+          this.x += (this.facingRight ? 1.8 : -1.8) * speedMult;
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+          if(this.attackTimer > (this.phase === 3 ? 90 : 130)){
+            this.attackTimer = 0;
+            audio.jump();
+            this.vy = -7.5;
+            for(let i=0; i < (this.phase === 3 ? 4 : 2); i++){
+              setTimeout(() => {
+                if(this.state !== 'defeated'){
+                  this.projectiles.push({
+                    type: 'acorn', x: this.arenaLeft + 40 + Math.random() * (this.arenaRight - this.arenaLeft - 80),
+                    y: -10, vx: (Math.random()-0.5)*1.5, vy: 3.5, r: 9, color: '#8D6E63', life: 120
+                  });
+                  audio.shellShoot();
+                }
+              }, i * 250);
+            }
+          }
+          break;
+
+        case 'octobeard':
+          this.y = this.baseY - 15 + Math.sin(this.floatAngle) * 16;
+          this.x += (this.facingRight ? 1.4 : -1.4) * speedMult;
+          if(this.x < this.arenaLeft + 40) this.facingRight = true;
+          if(this.x > this.arenaRight - this.w - 40) this.facingRight = false;
+          if(this.attackTimer > (this.phase === 3 ? 75 : 110)){
+            this.attackTimer = 0;
             const dir = this.facingRight ? 1 : -1;
-            this.fireballs.push({ x: this.x + (this.facingRight ? this.w : 0), y: this.y + 24, vx: dir * (3.5 + i*0.8), vy: (i - 1) * 1.5, life: 140 });
+            for(let i=0; i < (this.phase === 3 ? 3 : 2); i++){
+              this.projectiles.push({
+                type: 'bubble', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 25 + i*10,
+                vx: dir * (3.0 + i*0.8), vy: Math.sin(this.frame + i) * 1.8, r: 8, color: '#00E5FF', life: 130
+              });
+            }
             audio.shellShoot();
           }
-        }, i * 200);
+          break;
+
+        case 'tutankobra':
+          this.x += (this.facingRight ? 2.0 : -2.0) * speedMult;
+          this.y = this.baseY - 8 + Math.sin(this.floatAngle * 1.5) * 18;
+          if(this.x < this.arenaLeft) this.facingRight = true;
+          if(this.x > this.arenaRight - this.w) this.facingRight = false;
+          if(this.attackTimer > (this.phase === 3 ? 80 : 120)){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            this.projectiles.push({
+              type: 'pharaoh_fire', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 20,
+              vx: dir * 4.2, vy: (player.y - this.y) * 0.02, r: 9, color: '#FFD700', life: 110
+            });
+            audio.fireball();
+          }
+          break;
+
+        case 'marionetta':
+          this.y = this.baseY - 30 + Math.sin(this.floatAngle * 1.2) * 22;
+          this.x += Math.cos(this.floatAngle * 0.7) * (2.2 * speedMult);
+          if(this.attackTimer > (this.phase === 3 ? 70 : 100)){
+            this.attackTimer = 0;
+            for(let a = -1; a <= 1; a += (this.phase === 3 ? 1 : 2)){
+              const dir = this.facingRight ? 1 : -1;
+              this.projectiles.push({
+                type: 'card', x: this.x + this.w/2, y: this.y + 20,
+                vx: dir * 3.6, vy: a * 1.6, r: 8, color: '#E040FB', life: 120
+              });
+            }
+            audio.magicPower();
+          }
+          break;
+
+        case 'frostfang':
+          this.x += (this.facingRight ? 2.6 : -2.6) * speedMult;
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+          if(this.attackTimer > (this.phase === 3 ? 85 : 125)){
+            this.attackTimer = 0;
+            game.camera.shake(8);
+            audio.thwomp();
+            for(let i=0; i < (this.phase === 3 ? 4 : 2); i++){
+              this.projectiles.push({
+                type: 'icicle', x: this.arenaLeft + 50 + (i * 80) + (Math.random()*40),
+                y: -10, vx: 0, vy: 4.2, r: 8, color: '#E0F7FA', life: 110
+              });
+            }
+          }
+          break;
+
+        case 'tempesto':
+          this.y = this.baseY - 38 + Math.sin(this.floatAngle) * 14;
+          this.x += (this.facingRight ? 1.7 : -1.7) * speedMult;
+          if(this.x < this.arenaLeft + 30) this.facingRight = true;
+          if(this.x > this.arenaRight - this.w - 30) this.facingRight = false;
+          if(this.attackTimer > (this.phase === 3 ? 65 : 95)){
+            this.attackTimer = 0;
+            this.projectiles.push({
+              type: 'lightning', x: this.x + this.w/2, y: this.y + this.h,
+              vx: (player.x - (this.x + this.w/2)) * 0.025, vy: 3.8, r: 9, color: '#FFEB3B', life: 100
+            });
+            audio.hazardScatter();
+          }
+          break;
+
+        case 'graviton':
+          this.x = (this.arenaLeft + this.arenaRight)/2 - this.w/2 + Math.cos(this.floatAngle * 0.8) * 90;
+          this.y = this.baseY - 25 + Math.sin(this.floatAngle * 1.4) * 20;
+          if(this.attackTimer > (this.phase === 3 ? 60 : 90)){
+            this.attackTimer = 0;
+            const angle = Math.atan2(player.y - this.y, player.x - this.x);
+            for(let i=0; i < (this.phase === 3 ? 3 : 1); i++){
+              const aOff = (i - 1) * 0.35;
+              this.projectiles.push({
+                type: 'gravity_orb', x: this.x + this.w/2, y: this.y + this.h/2,
+                vx: Math.cos(angle + aOff) * 3.6, vy: Math.sin(angle + aOff) * 3.6, r: 8, color: '#9C27B0', life: 130
+              });
+            }
+            audio.magicPower();
+          }
+          break;
+
+        case 'cosmomecha':
+          this.x += (this.facingRight ? 1.5 : -1.5) * speedMult;
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+          if(this.attackTimer > (this.phase === 3 ? 75 : 110)){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            this.projectiles.push({
+              type: 'star_laser', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 30,
+              vx: dir * 5.0, vy: (player.y - (this.y + 30)) * 0.02, r: 10, color: '#FF3D00', life: 110
+            });
+            audio.shellShoot();
+          }
+          break;
+
+        case 'infernus':
+        default:
+          this.x += (this.facingRight ? 1.6 : -1.6) * speedMult;
+          this.y = this.baseY - 6 + Math.sin(this.floatAngle) * 8;
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+          if(this.attackTimer > (this.phase === 3 ? 55 : 85)){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            for(let i=0; i < (this.phase === 3 ? 3 : 2); i++){
+              this.projectiles.push({
+                type: 'magma', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 24 + i*8,
+                vx: dir * (3.8 + i*0.8), vy: (i - 0.5) * 1.5, r: 10, color: '#FF1744', life: 130
+              });
+            }
+            audio.fireball();
+            if(this.phase === 3 && Math.random() < 0.5){
+              game.camera.shake(10);
+              this.projectiles.push({
+                type: 'meteor', x: player.x + (Math.random()-0.5)*100, y: -20,
+                vx: (Math.random()-0.5)*1.2, vy: 4.8, r: 11, color: '#FF5722', life: 100
+              });
+            }
+          }
+          break;
+      }
+
+      // Vertical physics for jumping/stomping bosses
+      if(this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'cosmomecha'){
+        this.y += this.vy;
+        this.vy += 0.38;
+        if(this.y > this.baseY){
+          this.y = this.baseY;
+          if(this.vy > 4){
+            game.camera.shake(10);
+            audio.thwomp();
+            game.addParticles(this.x + this.w/2, this.y + this.h, 15, ['#8D6E63','#FFF','#FFD700'], 4);
+          }
+          this.vy = 0;
+        }
       }
     }
 
-    this.x += this.vx;
-    if(this.x < 3700){ this.x = 3700; this.vx = 2.0; this.facingRight = true; }
-    if(this.x > 4220){ this.x = 4220; this.vx = -2.0; this.facingRight = false; }
-
-    for(let i = this.fireballs.length - 1; i >= 0; i--){
-      const fb = this.fireballs[i];
-      fb.x += fb.vx; fb.y += fb.vy; fb.life--;
-      if(player.invincibleTimer <= 0 && Math.hypot(player.x - fb.x, player.y - fb.y) < 22){
-        player.invincibleTimer = 90; player.vx = Math.sign(fb.vx) * 5; player.vy = -5;
-        game.starDust = Math.max(0, game.starDust - 4); audio.hazardScatter(); game.camera.shake(6);
+    // Update Boss Projectiles
+    for(let i = this.projectiles.length - 1; i >= 0; i--){
+      const p = this.projectiles[i];
+      p.x += p.vx; p.y += p.vy; p.life--;
+      if(player.invincibleTimer <= 0 && Math.hypot(player.x + player.w/2 - p.x, player.y + player.h/2 - p.y) < (p.r + 14)){
+        player.invincibleTimer = 90;
+        player.vx = Math.sign(p.vx || (player.x - this.x)) * 5.5;
+        player.vy = -5.2;
+        game.starDust = Math.max(0, game.starDust - 4);
+        audio.hazardScatter();
+        game.camera.shake(7);
+        game.addParticles(p.x, p.y, 12, [p.color, '#FFF', '#FF1744'], 3.5);
       }
-      if(fb.life <= 0) this.fireballs.splice(i, 1);
+      if(p.life <= 0) this.projectiles.splice(i, 1);
     }
 
+    // Player vs Boss Body Collision
     if(this.invincTimer <= 0 && player.x < this.x + this.w && player.x + player.w > this.x && player.y < this.y + this.h && player.y + player.h > this.y){
-      const stompHit = (player.vy > 0 && player.y + player.h < this.y + 26);
+      const stompHit = (player.vy > 0 && player.y + player.h < this.y + 32);
       if(stompHit || player.isGroundPounding){
-        this.takeDamage(game); player.vy = -9.5; player.squashX = 1.3; player.squashY = 0.7; game.hitStopFrames = 5;
+        this.takeDamage(game);
+        player.vy = -10.5;
+        player.squashX = 1.35;
+        player.squashY = 0.65;
+        game.hitStopFrames = 6;
       } else if(player.invincibleTimer <= 0){
-        player.invincibleTimer = 90; player.vx = (player.x < this.x ? -6 : 6); player.vy = -5;
-        game.starDust = Math.max(0, game.starDust - 5); audio.hazardScatter(); game.camera.shake(7);
+        player.invincibleTimer = 90;
+        player.vx = (player.x < this.x ? -6.5 : 6.5);
+        player.vy = -5.5;
+        game.starDust = Math.max(0, game.starDust - 5);
+        audio.hazardScatter();
+        game.camera.shake(8);
       }
     }
   }
 
   takeDamage(game){
-    this.hp--; this.invincTimer = 75; audio.bossHit(); game.camera.shake(14);
-    game.addParticles(this.x + this.w/2, this.y + this.h/2, 35, ['#FF1744','#FFD700','#FFF'], 5.5);
-    game.addFloatingText(`¡GOLPE AL JEFE! HP: ${this.hp}/${this.maxHp}`, this.x, this.y - 20, '#FF1744');
+    this.hp--;
+    this.invincTimer = 85;
+    this.stunTimer = 40;
+    this.phase = Math.max(1, 4 - this.hp);
+    audio.bossHit();
+    game.camera.shake(16);
+    game.addParticles(this.x + this.w/2, this.y + this.h/2, 40, ['#FF1744','#FFD700','#FFF','#00E5FF'], 6.0);
+    game.addFloatingText(`💥 ¡GOLPE! ${this.name} (${this.hp}/${this.maxHp} HP)`, this.x + this.w/2, this.y - 25, '#FF1744');
+
     if(this.hp <= 0){
-      this.state = 'defeated'; audio.bossDefeat(); game.camera.shake(20); game.score += 2500;
-      game.addParticles(this.x + this.w/2, this.y + this.h/2, 60, ['#FFD700','#FF1744','#00E5FF','#FFF'], 7);
-      game.addFloatingText('¡JEFE DERROTADO! +2500', this.x, this.y - 30, '#FFD700');
-      setTimeout(() => { game.completeLevel(); }, 2400);
+      this.state = 'defeated';
+      audio.bossDefeat();
+      game.camera.shake(24);
+      game.score += 3500;
+      game.addParticles(this.x + this.w/2, this.y + this.h/2, 80, ['#FFD700','#FF1744','#00E5FF','#FFF','#FF4081'], 8.5);
+      game.addFloatingText('👑 ¡JEFE DERROTADO! +3500 ★', this.x + this.w/2, this.y - 40, '#FFD700');
+      for(let k=0; k<15; k++){
+        game.starDust = Math.min(999, game.starDust + 1);
+      }
     }
   }
 
@@ -1122,22 +1372,100 @@ class GalaxyBoss {
     const s = cam.toScreen(this.x, this.y);
     if(!cam.isVisible(this.x, this.y, this.w, this.h)) return;
 
-    for(const fb of this.fireballs){
-      const fs = cam.toScreen(fb.x, fb.y);
-      ctx.save(); ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(fs.x, fs.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    // Draw Projectiles
+    for(const p of this.projectiles){
+      const ps = cam.toScreen(p.x, p.y);
+      ctx.save();
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(ps.x, ps.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
     ctx.save();
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
-    if(this.facingRight) ctx.scale(-1, 1);
-    if(this.invincTimer > 0 && Math.floor(now/50)%2 === 0) ctx.globalAlpha = 0.4;
 
-    const bGrad = ctx.createRadialGradient(-4, -4, 4, 0, 0, 26);
-    bGrad.addColorStop(0, '#424242'); bGrad.addColorStop(0.7, '#212121'); bGrad.addColorStop(1, '#000000');
-    ctx.fillStyle = bGrad;
-    ctx.beginPath(); ctx.ellipse(0, 0, 24, 26, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(-18, -8, 4, 0, Math.PI*2); ctx.fill();
+    if(this.facingRight) ctx.scale(-1, 1);
+
+    if(this.invincTimer > 0 && Math.floor(now/45)%2 === 0){
+      ctx.globalAlpha = 0.35;
+    }
+
+    if(this.phase >= 2){
+      const auraColor = this.phase === 3 ? 'rgba(255, 23, 68, 0.45)' : 'rgba(255, 152, 0, 0.35)';
+      ctx.save();
+      ctx.shadowColor = this.phase === 3 ? '#FF1744' : '#FF9800';
+      ctx.shadowBlur = this.phase === 3 ? 20 : 12;
+      ctx.strokeStyle = auraColor;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.w * 0.52, this.h * 0.52, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const breathe = Math.sin(now * (this.phase === 3 ? 0.015 : 0.008)) * 0.04;
+    ctx.scale(1 + breathe, 1 - breathe);
+
+    const sprite = bossImages[this.bossKey];
+    if(sprite && sprite.complete && sprite.naturalWidth > 0){
+      ctx.drawImage(sprite, -this.w/2, -this.h/2, this.w, this.h);
+    } else {
+      ctx.fillStyle = (this.phase === 3 ? '#FF1744' : (this.phase === 2 ? '#FF9800' : '#424242'));
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.w/2 - 4, this.h/2 - 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3; ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  drawHUD(ctx, now){
+    if(!this.active || this.state === 'defeated') return;
+    ctx.save();
+    
+    const barW = 230, barH = 34;
+    const barX = VIRT_W / 2 - barW / 2;
+    const barY = 8;
+    
+    ctx.fillStyle = 'rgba(10, 15, 36, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barW, barH, [10]);
+    ctx.fill();
+    ctx.strokeStyle = this.phase === 3 ? '#FF1744' : (this.phase === 2 ? '#FF9800' : '#FFD700');
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 10px "Fredoka", sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`👑 ${this.name}`, barX + 12, barY + 12);
+    
+    ctx.font = 'bold 8px "Fredoka", sans-serif';
+    ctx.fillStyle = this.phase === 3 ? '#FF5252' : (this.phase === 2 ? '#FFB74D' : '#80DEEA');
+    ctx.fillText(this.title, barX + 12, barY + 24);
+
+    const heartX = barX + barW - 68;
+    for(let i=0; i<3; i++){
+      const active = (i < this.hp);
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      if(active){
+        ctx.shadowColor = '#FF1744'; ctx.shadowBlur = 6;
+        ctx.fillText('❤️', heartX + (i * 20), barY + 17);
+        ctx.shadowBlur = 0;
+      } else {
+        ctx.globalAlpha = 0.35;
+        ctx.fillText('🖤', heartX + (i * 20), barY + 17);
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
     ctx.restore();
   }
 }
@@ -1178,6 +1506,11 @@ class TommyAI {
         game.addParticles(en.x + en.w/2, en.y + en.h/2, 8, ['#00E5FF', '#E0F7FA', '#FFF'], 3.0);
       }
     });
+    if(game.currentBoss && game.currentBoss.active && game.currentBoss.state !== 'defeated'){
+      game.currentBoss.stunTimer = 100;
+      game.currentBoss.invincTimer = 0;
+      game.addParticles(game.currentBoss.x + game.currentBoss.w/2, game.currentBoss.y + game.currentBoss.h/2, 20, ['#00E5FF', '#FFD700', '#FFF'], 5.0);
+    }
     if(game.starCoins){
       for(const sc of game.starCoins){
         if(!sc.collected && game.camera.isVisible(sc.x, sc.y, 20, 20)) sc.collect(game.player, game);
@@ -1406,6 +1739,7 @@ class FlagPole {
   constructor(x,levelW){ this.x=x; this.y=50; this.w=14; this.h=196; this.flagY=50; this.hit=false; }
   check(player,game){
     if(this.hit)return;
+    if(game.currentBoss && game.currentBoss.state !== 'defeated') return;
     if(player.x+player.w>=this.x&&player.x<=this.x+this.w&&player.y+player.h>=this.y&&player.y<=this.y+this.h){
       this.hit=true; game.score+=500;
       audio.levelComplete(); game.camera.shake(8);
@@ -1494,7 +1828,7 @@ class PlatformerGame {
     this.touchCtrl=new TouchController(this);
     this.tommyAI=new TommyAI(50,210);
     this.currentMount=null;
-    this.galaxyBoss=null;
+    this.currentBoss=null;
 
     this.staticPlatforms=[]; this.spawnedPlatforms=[]; this.enemies=[];
     this.questionBlocks=[]; this.destructibleBlocks=[]; this.starCoins=[];
@@ -1726,7 +2060,7 @@ class PlatformerGame {
     this.particles = [];
     this.floatingTexts = [];
     this.itemEntities = [];
-    this.galaxyBoss = null;
+    this.currentBoss = null;
 
     const _tbl = {
       garden:[
@@ -1907,7 +2241,6 @@ class PlatformerGame {
         new QuestionBlock(1480, 125, 'fireflower'),
         new QuestionBlock(2200, 125, 'star')
       ];
-      this.galaxyBoss = new GalaxyBoss(3620, 196);
     } else if(cfg.theme === 'sky'){
       this.enemies = pos.map((x, i) => {
         const type = (i % 2 === 0) ? 'koopa' : 'paratroopa';
@@ -1946,6 +2279,15 @@ class PlatformerGame {
         new QuestionBlock(2900, 110, 'mushroom')
       ];
     }
+
+    // Initialize 3-Phase World Boss Arena
+    this.currentBoss = new WorldBoss(
+      cfg.bossKey || 'acornus',
+      cfg.bossName || 'GRAN BELLOTÓN',
+      cfg.bossTitle || 'Titán del Nivel',
+      3520,
+      (cfg.theme === 'sky' || cfg.theme === 'disney' || cfg.theme === 'cave') ? 150 : 185
+    );
 
     this.destructibleBlocks = [
       new DestructibleBlock(260, 135),
@@ -2068,7 +2410,7 @@ class PlatformerGame {
         }
       }
 
-      if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
+      if(this.currentBoss) this.currentBoss.update(this.player, this);
       if(this.tommyAI) this.tommyAI.update(this.player, this.enemies, allPlatforms, this.globalGravity, this);
 
       for(const sc of this.starCoins) sc.check(this.player, this);
@@ -2905,7 +3247,7 @@ class PlatformerGame {
       for(const it of this.itemEntities) it.draw(ctx,cam,now);
     }
     if(this.tommyAI) this.tommyAI.draw(ctx,cam,now);
-    if(this.galaxyBoss) this.galaxyBoss.draw(ctx,cam,now);
+    if(this.currentBoss) this.currentBoss.draw(ctx,cam,now);
   }
 
   renderParticles(ctx){
@@ -3028,6 +3370,8 @@ class PlatformerGame {
     ctx.fillStyle = '#FFF'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️', 193, 22);
     ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 140, 22);
     ctx.restore();
+
+    if(this.currentBoss) this.currentBoss.drawHUD(ctx, now);
   }
 
   renderLevelComplete(ctx,now){
