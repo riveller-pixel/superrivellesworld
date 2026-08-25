@@ -391,20 +391,28 @@ class SoundFX {
   }
 
   playTone(f, type='square', dur=0.1, gainVal=0.22, fEnd=null){
-    this.init();
-    if(!this.ctx || this.muted || f <= 0) return;
+    if(!this.ctx || this.muted || !f || f <= 0) return;
     try{
-      const osc = this.ctx.createOscillator(), gain = this.ctx.createGain(), now = this.ctx.currentTime;
-      osc.type = type; osc.frequency.setValueAtTime(f, now);
-      if(fEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(10, fEnd), now + dur);
-      gain.gain.setValueAtTime(gainVal, now); gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-      osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + dur);
+      if(this.ctx.state === 'suspended') this.ctx.resume().catch(()=>{});
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(f, now);
+      if(fEnd && fEnd > 0) osc.frequency.linearRampToValueAtTime(fEnd, now + dur);
+      gain.gain.setValueAtTime(Math.max(0.001, gainVal), now);
+      gain.gain.linearRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + dur + 0.01);
     }catch(e){}
   }
 
   playNote(f, type='square', dur=0.12, vol=0.15){
-    if(!this.ctx || this.muted || f <= 0) return;
+    if(!this.ctx || this.muted || !f || f <= 0) return;
     try{
+      if(this.ctx.state === 'suspended') this.ctx.resume().catch(()=>{});
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -412,8 +420,8 @@ class SoundFX {
       osc.frequency.setValueAtTime(f, now);
       gain.gain.setValueAtTime(0.001, now);
       gain.gain.linearRampToValueAtTime(vol, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(vol * 0.6, now + dur * 0.5);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      gain.gain.linearRampToValueAtTime(vol * 0.6, now + dur * 0.5);
+      gain.gain.linearRampToValueAtTime(0.0001, now + dur);
       osc.connect(gain); gain.connect(this.ctx.destination);
       osc.start(now); osc.stop(now + dur + 0.02);
     }catch(e){}
@@ -422,14 +430,15 @@ class SoundFX {
   playDrum(type='snare', vol=0.12){
     if(!this.ctx || this.muted) return;
     try{
+      if(this.ctx.state === 'suspended') this.ctx.resume().catch(()=>{});
       const now = this.ctx.currentTime;
       if(type==='kick'){
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(32, now + 0.09);
+        osc.frequency.linearRampToValueAtTime(32, now + 0.09);
         gain.gain.setValueAtTime(vol * 1.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        gain.gain.linearRampToValueAtTime(0.001, now + 0.09);
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.start(now); osc.stop(now + 0.09);
       } else if(type==='snare'){
@@ -441,7 +450,7 @@ class SoundFX {
         noise.buffer = buf;
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(vol * 1.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        gain.gain.linearRampToValueAtTime(0.001, now + 0.08);
         noise.connect(gain); gain.connect(this.ctx.destination);
         noise.start(now); noise.stop(now + 0.08);
       } else if(type==='hihat'){
@@ -453,64 +462,66 @@ class SoundFX {
         noise.buffer = buf;
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(vol * 0.6, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        gain.gain.linearRampToValueAtTime(0.001, now + 0.03);
         noise.connect(gain); gain.connect(this.ctx.destination);
         noise.start(now); noise.stop(now + 0.03);
       }
     }catch(e){}
   }
 
-  jump(){ this.playTone(160,'square',0.14,0.22,480); }
-  tripleJump(){ this.playTone(330,'triangle',0.12,0.25,660); setTimeout(()=>this.playTone(660,'sine',0.16,0.25,1100),60); }
-  flutter(){ this.playTone(450,'triangle',0.12,0.25,750); setTimeout(()=>this.playTone(600,'sine',0.14,0.22,900),50); }
-  dash(){ this.playTone(280,'sawtooth',0.15,0.3,140); }
-  glide(){ this.playTone(400,'sine',0.08,0.15,600); }
-  powerUp(){ [330, 392, 659, 523, 587, 784].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.12,0.25,f*1.2), i*55)); }
-  powerDown(){ [784, 587, 523, 392, 330].forEach((f,i)=>setTimeout(()=>this.playTone(f,'sawtooth',0.14,0.28,f*0.8), i*60)); }
-  fireballShoot(){ this.playTone(480,'square',0.12,0.25,220); }
-  iceShoot(){ this.playTone(620,'sine',0.12,0.22,980); }
-  bubbleShoot(){ this.playTone(380,'triangle',0.15,0.22,720); }
-  sandTornado(){ this.playTone(220,'sawtooth',0.2,0.3,440); }
-  royalChime(){ [523, 659, 784, 1046].forEach((f,i)=>setTimeout(()=>this.playTone(f,'sine',0.15,0.2), i*50)); }
-  kickShell(){ this.playTone(550,'sawtooth',0.16,0.35,120); }
-  swimStroke(){ this.playTone(300,'sine',0.15,0.2,450); }
-  groundPoundStart(){ this.playTone(280,'sawtooth',0.12,0.3,100); }
-  groundPoundImpact(){ this.playTone(100,'sawtooth',0.3,0.45,20); }
-  platformSpawn(){ this.playTone(700,'triangle',0.12,0.25,1100); setTimeout(()=>this.playTone(1200,'sine',0.15,0.22,1600),60); }
-  shellShoot(){ this.playTone(340,'sawtooth',0.14,0.25,120); }
-  shellBounce(){ this.playTone(450,'square',0.08,0.2,700); }
-  bark(){ this.playTone(440,'sawtooth',0.1,0.35,180); setTimeout(()=>this.playTone(260,'sawtooth',0.16,0.3,90),40); }
-  gravityShift(){ this.playTone(280,'sine',0.28,0.35,80); setTimeout(()=>this.playTone(560,'triangle',0.22,0.28,1100),60); }
-  zeroGBubble(){ this.playTone(600,'sine',0.18,0.25,900); }
-  starCoinCollect(){ [523, 659, 784, 1046, 1318, 1568].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.18,0.3,f*1.2),i*60)); }
-  bossHit(){ this.playTone(140,'sawtooth',0.25,0.45,40); }
-  bossDefeat(){ [220, 330, 440, 550, 660, 880, 1100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.22, 0.4, f*1.5), i * 90)); }
-  starCollect(){ this.playTone(987.77,'square',0.07,0.18); setTimeout(()=>this.playTone(1318.51,'square',0.14,0.2),65); }
+  jump(){ try{ this.playTone(160,'square',0.14,0.22,480); }catch(e){} }
+  tripleJump(){ try{ this.playTone(330,'triangle',0.12,0.25,660); setTimeout(()=>{ try{this.playTone(660,'sine',0.16,0.25,1100);}catch(e){} },60); }catch(e){} }
+  flutter(){ try{ this.playTone(450,'triangle',0.12,0.25,750); setTimeout(()=>{ try{this.playTone(600,'sine',0.14,0.22,900);}catch(e){} },50); }catch(e){} }
+  dash(){ try{ this.playTone(280,'sawtooth',0.15,0.3,140); }catch(e){} }
+  glide(){ try{ this.playTone(400,'sine',0.08,0.15,600); }catch(e){} }
+  powerUp(){ try{ [330, 392, 659, 523, 587, 784].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'triangle',0.12,0.25,f*1.2);}catch(e){} }, i*50)); }catch(e){} }
+  powerDown(){ try{ [784, 587, 523, 392, 330].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'sawtooth',0.14,0.28,f*0.8);}catch(e){} }, i*50)); }catch(e){} }
+  fireballShoot(){ try{ this.playTone(480,'square',0.12,0.25,220); }catch(e){} }
+  iceShoot(){ try{ this.playTone(620,'sine',0.12,0.22,980); }catch(e){} }
+  bubbleShoot(){ try{ this.playTone(380,'triangle',0.15,0.22,720); }catch(e){} }
+  sandTornado(){ try{ this.playTone(220,'sawtooth',0.2,0.3,440); }catch(e){} }
+  royalChime(){ try{ [523, 659, 784, 1046].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'sine',0.15,0.2);}catch(e){} }, i*45)); }catch(e){} }
+  kickShell(){ try{ this.playTone(550,'sawtooth',0.16,0.35,120); }catch(e){} }
+  swimStroke(){ try{ this.playTone(300,'sine',0.15,0.2,450); }catch(e){} }
+  groundPoundStart(){ try{ this.playTone(280,'sawtooth',0.12,0.3,100); }catch(e){} }
+  groundPoundImpact(){ try{ this.playTone(100,'sawtooth',0.3,0.45,20); }catch(e){} }
+  platformSpawn(){ try{ this.playTone(700,'triangle',0.12,0.25,1100); setTimeout(()=>{ try{this.playTone(1200,'sine',0.15,0.22,1600);}catch(e){} },50); }catch(e){} }
+  shellShoot(){ try{ this.playTone(340,'sawtooth',0.14,0.25,120); }catch(e){} }
+  shellBounce(){ try{ this.playTone(450,'square',0.08,0.2,700); }catch(e){} }
+  bark(){ try{ this.playTone(440,'sawtooth',0.1,0.35,180); setTimeout(()=>{ try{this.playTone(260,'sawtooth',0.16,0.3,90);}catch(e){} },40); }catch(e){} }
+  gravityShift(){ try{ this.playTone(280,'sine',0.28,0.35,80); setTimeout(()=>{ try{this.playTone(560,'triangle',0.22,0.28,1100);}catch(e){} },50); }catch(e){} }
+  zeroGBubble(){ try{ this.playTone(600,'sine',0.18,0.25,900); }catch(e){} }
+  starCoinCollect(){ try{ [523, 659, 784, 1046, 1318, 1568].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'triangle',0.18,0.3,f*1.2);}catch(e){} },i*50)); }catch(e){} }
+  bossHit(){ try{ this.playTone(140,'sawtooth',0.25,0.45,40); }catch(e){} }
+  bossDefeat(){ try{ [220, 330, 440, 550, 660, 880, 1100].forEach((f, i) => setTimeout(()=>{ try{this.playTone(f,'sawtooth',0.22,0.4,f*1.4);}catch(e){} }, i * 70)); }catch(e){} }
+  starCollect(){ try{ this.playTone(987.77,'square',0.07,0.18); setTimeout(()=>{ try{this.playTone(1318.51,'square',0.14,0.2);}catch(e){} },50); }catch(e){} }
   coinStreak(count){
-    const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
-    const idx = Math.min((count - 1), pentatonic.length - 1);
-    const freq = pentatonic[idx];
-    this.playTone(freq, 'triangle', 0.12, 0.22, freq * 1.25);
-    if(count >= 5) setTimeout(() => this.playTone(freq * 1.5, 'sine', 0.16, 0.25), 45);
+    try{
+      const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+      const idx = Math.min((count - 1), pentatonic.length - 1);
+      const freq = pentatonic[idx];
+      this.playTone(freq, 'triangle', 0.12, 0.22, freq * 1.25);
+      if(count >= 5) setTimeout(()=>{ try{this.playTone(freq * 1.5, 'sine', 0.16, 0.25);}catch(e){} }, 40);
+    }catch(e){}
   }
-  warpPipe(){ this.playTone(400, 'sine', 0.25, 0.3, 150); setTimeout(() => this.playTone(200, 'triangle', 0.2, 0.25, 80), 80); }
-  launchStar(){ [440, 554, 659, 880, 1108, 1318, 1760].forEach((f, i) => setTimeout(() => this.playTone(f, 'sine', 0.12, 0.25, f * 1.3), i * 35)); }
-  starlightAssist(){ [784, 987, 1318, 1568].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.1, 0.2), i * 40)); }
+  warpPipe(){ try{ this.playTone(400, 'sine', 0.25, 0.3, 150); setTimeout(()=>{ try{this.playTone(200, 'triangle', 0.2, 0.25, 80);}catch(e){} }, 70); }catch(e){} }
+  launchStar(){ try{ [440, 554, 659, 880, 1108, 1318, 1760].forEach((f, i) => setTimeout(()=>{ try{this.playTone(f, 'sine', 0.12, 0.25, f * 1.3);}catch(e){} }, i * 30)); }catch(e){} }
+  starlightAssist(){ try{ [784, 987, 1318, 1568].forEach((f, i) => setTimeout(()=>{ try{this.playTone(f, 'triangle', 0.1, 0.2);}catch(e){} }, i * 35)); }catch(e){} }
   fanfareVictory(){
-    const chords = [
-      [523, 659, 784], [587, 740, 880], [659, 830, 987], [784, 987, 1318, 1568]
-    ];
-    chords.forEach((chord, step) => {
-      setTimeout(() => {
-        chord.forEach(f => this.playTone(f, step === 3 ? 'sawtooth' : 'triangle', 0.28, 0.35));
-      }, step * 180);
-    });
+    try{
+      const chords = [[523, 659, 784], [587, 740, 880], [659, 830, 987], [784, 987, 1318, 1568]];
+      chords.forEach((chord, step) => {
+        setTimeout(() => {
+          try{ chord.forEach(f => this.playTone(f, step === 3 ? 'sawtooth' : 'triangle', 0.25, 0.3)); }catch(e){}
+        }, step * 150);
+      });
+    }catch(e){}
   }
-  mountUnicorn(){ [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.14,0.25),i*55)); }
-  mountPanic(){ [880,740,620,520].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'sawtooth',0.12,0.28,f*0.7);}catch(e){} },i*65)); }
+  mountUnicorn(){ try{ [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'triangle',0.14,0.25);}catch(e){} },i*45)); }catch(e){} }
+  mountPanic(){ try{ [880,740,620,520].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'sawtooth',0.12,0.28,f*0.7);}catch(e){} },i*55)); }catch(e){} }
   hazardScatter(){ try{ this.playTone(220,'sawtooth',0.2,0.35,60); }catch(e){} }
   enemyDie(){ try{ this.playTone(220,'square',0.12,0.3,80); }catch(e){} }
-  levelComplete(){ [523,659,784,880,1046,1318,1568].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'triangle',0.2,0.3);}catch(e){} },i*80)); }
+  levelComplete(){ try{ [523,659,784,880,1046,1318,1568].forEach((f,i)=>setTimeout(()=>{ try{this.playTone(f,'triangle',0.2,0.3);}catch(e){} },i*70)); }catch(e){} }
   blockBump(){ try{ this.playTone(300,'square',0.08,0.25,240); }catch(e){} }
   bump(){ try{ this.playTone(180, 'triangle', 0.1, 0.25, 90); }catch(e){} }
   fireball(){ try{ this.fireballShoot(); }catch(e){} }
@@ -2983,30 +2994,30 @@ class PlatformerGame {
         return;
       }
 
-      this.updatePlayer();
+      try { this.updatePlayer(now); } catch(e){ console.warn('updatePlayer err:', e); }
 
       // ── CRITICAL: SMOOTH IN-GAME CAMERA TRACKING ──
-      this.camera.update(this.player, this.levelWidth || 3800);
+      try { this.camera.update(this.player, this.levelWidth || 3800); } catch(e){}
 
-      this.updateEntities(now);
-      this.updateEnemies();
+      try { this.updateEntities(now); } catch(e){}
+      try { this.updateEnemies(); } catch(e){}
 
       if(this.mounts){
-        for(const m of this.mounts) m.update(this.player, this);
-      } else if(this.currentMount) this.currentMount.update(this.player, this);
+        for(const m of this.mounts) { try{ m.update(this.player, this); }catch(e){} }
+      } else if(this.currentMount) { try{ this.currentMount.update(this.player, this); }catch(e){} }
 
       if(this.itemEntities){
         for(let i = this.itemEntities.length - 1; i >= 0; i--){
           const it = this.itemEntities[i];
-          it.update(this.player, allPlatforms, this.globalGravity, this);
+          try { it.update(this.player, allPlatforms, this.globalGravity, this); }catch(e){}
           if(it.collected) this.itemEntities.splice(i, 1);
         }
       }
 
-      if(this.currentBoss) this.currentBoss.update(this.player, this);
-      if(this.tommyAI) this.tommyAI.update(this.player, this.enemies, allPlatforms, this.globalGravity, this);
+      if(this.currentBoss) { try{ this.currentBoss.update(this.player, this); }catch(e){} }
+      if(this.tommyAI) { try{ this.tommyAI.update(this.player, this.enemies, allPlatforms, this.globalGravity, this); }catch(e){} }
 
-      for(const sc of this.starCoins) sc.check(this.player, this);
+      for(const sc of this.starCoins) { try{ sc.check(this.player, this); }catch(e){} }
     }
 
     this.prevJump = this.input.jump;
@@ -3475,20 +3486,25 @@ class PlatformerGame {
 
   render(now){
     const ctx=this.ctx;
+    const safeNow = (typeof now === 'number' && !isNaN(now)) ? now : performance.now();
     ctx.clearRect(0,0,VIRT_W,VIRT_H);
 
-    if(this.state==='MENU' || this.state==='WORLD_MAP'){
-      this.renderWorldMapNSMBWii(ctx,now);
-    } else if(this.state==='PLAYING' || this.state==='PAUSED'){
-      this.renderBackground(ctx,now);
-      this.renderLevel(ctx,now);
-      this.renderEntities(ctx,now);
-      this.renderPlayer(ctx,now);
-      this.renderParticles(ctx);
-      this.renderHUD(ctx,now);
-      if(this.state==='PLAYING') this.touchCtrl.draw(ctx,this.screenW,this.screenH,VIRT_W,VIRT_H);
-    } else if(this.state==='LEVEL_COMPLETE'){
-      this.renderLevelComplete(ctx,now);
+    try {
+      if(this.state==='MENU' || this.state==='WORLD_MAP'){
+        this.renderWorldMapNSMBWii(ctx,safeNow);
+      } else if(this.state==='PLAYING' || this.state==='PAUSED'){
+        this.renderBackground(ctx,safeNow);
+        this.renderLevel(ctx,safeNow);
+        this.renderEntities(ctx,safeNow);
+        this.renderPlayer(ctx,safeNow);
+        this.renderParticles(ctx);
+        this.renderHUD(ctx,safeNow);
+        if(this.state==='PLAYING') this.touchCtrl.draw(ctx,this.screenW,this.screenH,VIRT_W,VIRT_H);
+      } else if(this.state==='LEVEL_COMPLETE'){
+        this.renderLevelComplete(ctx,safeNow);
+      }
+    } catch(err){
+      console.warn('render frame error protected:', err);
     }
   }
 
@@ -4138,47 +4154,52 @@ class PlatformerGame {
     }
 
     // ── AUTHENTIC 2.5D COSTUME ACCESSORIES & AURAS ──
-    if(p.powerState === 'pharaoh'){
-      // Golden Pharaoh Nemes Headdress & Cobra
-      const phImg = powerImages.pharaoh;
-      if(phImg && phImg.complete && phImg.naturalWidth > 0){
-        ctx.drawImage(phImg, -14, -ph/2 - 12, 28, 22);
+    try {
+      if(p.powerState === 'pharaoh'){
+        // Golden Pharaoh Nemes Headdress & Cobra
+        const phImg = powerImages.pharaoh;
+        if(phImg && phImg.complete && phImg.naturalWidth > 0){
+          ctx.drawImage(phImg, -14, -ph/2 - 12, 28, 22);
+        }
+        ctx.strokeStyle = 'rgba(255, 193, 7, 0.75)'; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        const pr = Math.max(8, (p.w || 24) * 0.85);
+        try { ctx.ellipse(0, 4, pr, 6, ((now || 0) * 0.008), 0, Math.PI * 2); }
+        catch(e) { ctx.arc(0, 4, pr, 0, Math.PI * 2); }
+        ctx.stroke();
+      } else if(p.powerState === 'princess'){
+        // Sparkling Diamond Tiara & Royal Star Glow
+        const prImg = powerImages.princess;
+        if(prImg && prImg.complete && prImg.naturalWidth > 0){
+          ctx.drawImage(prImg, -11, -ph/2 - 10, 22, 18);
+        }
+        ctx.strokeStyle = 'rgba(255, 64, 129, 0.8)'; ctx.lineWidth = 1.8;
+        const pa = ((now || 0) * 0.006);
+        ctx.beginPath(); ctx.arc(0, 0, Math.max(10, (p.w || 24) * 0.9), pa, pa + Math.PI * 1.5); ctx.stroke();
+      } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
+        // Glacier Ice Crown & Frost Aura
+        const fImg = powerImages.frozen;
+        if(fImg && fImg.complete && fImg.naturalWidth > 0){
+          ctx.drawImage(fImg, -11, -ph/2 - 10, 22, 18);
+        }
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.85)'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(0, 0, Math.max(10, (p.w || 24) * 0.95), 0, Math.PI * 2); ctx.stroke();
+      } else if(p.powerState === 'galaxy_astronaut'){
+        // Cosmic Spacesuit Bubble Helmet with Cyan Visor
+        const aImg = powerImages.astronaut;
+        if(aImg && aImg.complete && aImg.naturalWidth > 0){
+          ctx.drawImage(aImg, -15, -ph/2 - 8, 30, 28);
+        }
+      } else if(p.powerState === 'fireflower'){
+        // Fire Flower Crown & Blazing Aura
+        const fImg = powerImages.fireflower;
+        if(fImg && fImg.complete && fImg.naturalWidth > 0){
+          ctx.drawImage(fImg, -10, -ph/2 - 10, 20, 20);
+        }
+        ctx.strokeStyle = 'rgba(255, 87, 34, 0.85)'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(0, 2, Math.max(10, (p.w || 24) * 0.85), 0, Math.PI * 2); ctx.stroke();
       }
-      ctx.strokeStyle = 'rgba(255, 193, 7, 0.75)'; ctx.lineWidth = 1.6;
-      const sa = (now * 0.008);
-      ctx.beginPath(); ctx.ellipse(0, 4, p.w * 0.85, 6, sa, 0, Math.PI * 2); ctx.stroke();
-    } else if(p.powerState === 'princess'){
-      // Sparkling Diamond Tiara & Royal Star Glow
-      const prImg = powerImages.princess;
-      if(prImg && prImg.complete && prImg.naturalWidth > 0){
-        ctx.drawImage(prImg, -11, -ph/2 - 10, 22, 18);
-      }
-      ctx.strokeStyle = 'rgba(255, 64, 129, 0.8)'; ctx.lineWidth = 1.8;
-      const pa = (now * 0.006);
-      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.9, pa, pa + Math.PI * 1.5); ctx.stroke();
-    } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
-      // Glacier Ice Crown & Frost Aura
-      const fImg = powerImages.frozen;
-      if(fImg && fImg.complete && fImg.naturalWidth > 0){
-        ctx.drawImage(fImg, -11, -ph/2 - 10, 22, 18);
-      }
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.85)'; ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.95, 0, Math.PI * 2); ctx.stroke();
-    } else if(p.powerState === 'galaxy_astronaut'){
-      // Cosmic Spacesuit Bubble Helmet with Cyan Visor
-      const aImg = powerImages.astronaut;
-      if(aImg && aImg.complete && aImg.naturalWidth > 0){
-        ctx.drawImage(aImg, -15, -ph/2 - 8, 30, 28);
-      }
-    } else if(p.powerState === 'fireflower'){
-      // Fire Flower Crown & Blazing Aura
-      const fImg = powerImages.fireflower;
-      if(fImg && fImg.complete && fImg.naturalWidth > 0){
-        ctx.drawImage(fImg, -10, -ph/2 - 10, 20, 20);
-      }
-      ctx.strokeStyle = 'rgba(255, 87, 34, 0.85)'; ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.arc(0, 2, p.w * 0.85, 0, Math.PI * 2); ctx.stroke();
-    }
+    } catch(e){}
 
     // ── EQUIPPED CUSTOM ACCESSORY (CLOSET SHOP) ──
     const hat = this.selectedHat || 'crown';
