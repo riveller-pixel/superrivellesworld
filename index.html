@@ -463,7 +463,17 @@ for(const [mKey, mSrc] of Object.entries(MOUNT_ASSETS)){
 const ENEMY_ASSETS = {
   goomba: 'enemy_goomba.png',
   koopa: 'enemy_koopa.png',
-  cheep_cheep: 'enemy_cheep.png'
+  cheep_cheep: 'enemy_cheep.png',
+  blooper: 'enemy_blooper.png',
+  pokey: 'enemy_pokey.png',
+  mummy: 'enemy_mummy.png',
+  card_soldier: 'enemy_cardsoldier.png',
+  snow_golem: 'enemy_snowgolem.png',
+  octo_alien: 'enemy_octoalien.png',
+  dry_bones: 'enemy_drybones.png',
+  thwomp: 'enemy_thwomp.png',
+  boo: 'enemy_boo.png',
+  boss: 'enemy_boss.png'
 };
 const enemyImages = {};
 for(const [eKey, eSrc] of Object.entries(ENEMY_ASSETS)){
@@ -471,6 +481,26 @@ for(const [eKey, eSrc] of Object.entries(ENEMY_ASSETS)){
   img.src = eSrc;
   img.onerror = () => { img.src = 'assets/' + eSrc; };
   enemyImages[eKey] = img;
+}
+
+// HD Power-Up & Outfit Assets
+const POWER_ASSETS = {
+  superstar: 'item_superstar.png',
+  starcoin: 'item_starcoin.png',
+  mushroom: 'item_mushroom.png',
+  fireflower: 'item_fireflower.png',
+  iceflower: 'item_iceflower.png',
+  pharaoh: 'power_pharaoh.png',
+  princess: 'power_princess.png',
+  frozen: 'power_frozen.png',
+  astronaut: 'power_astronaut.png'
+};
+const powerImages = {};
+for(const [pKey, pSrc] of Object.entries(POWER_ASSETS)){
+  const img = new Image();
+  img.src = pSrc;
+  img.onerror = () => { img.src = 'assets/' + pSrc; };
+  powerImages[pKey] = img;
 }
 
 // HD World Map Diorama Background
@@ -804,69 +834,46 @@ class Enemy {
   draw(ctx,cam,now){
     if(this.dead&&this.deadTimer<=0)return;
     const s=cam.toScreen(this.x,this.y);
-    if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
-    ctx.save();
-    ctx.translate(s.x+this.w/2,s.y+this.h/2);
-    if(this.facingRight) ctx.scale(-1,1);
-    if(this.dead) ctx.globalAlpha=0.7;
+    if(!cam.isVisible(this.x - 10, this.y - 10, this.w + 20, this.h + 20)) return;
 
-    const eImg = enemyImages[this.type];
-    if(eImg && eImg.complete && eImg.naturalWidth > 0 && !this.dead){
-      const ew = this.w + 8, eh = this.h + 8;
-      const walkSquash = (this.state==='patrol') ? Math.sin(this.frame * 0.2) * 0.08 : 0;
-      ctx.scale(1 + walkSquash, 1 - walkSquash);
-      ctx.drawImage(eImg, -ew/2, -eh/2, ew, eh);
-    } else if(this.type==='pokey'){
-      for(let b=-12; b<=12; b+=12){
-        const pGrad = ctx.createRadialGradient(-2, b-2, 1, 0, b, 8);
-        pGrad.addColorStop(0, '#FFE082'); pGrad.addColorStop(0.6, '#FFA000'); pGrad.addColorStop(1, '#FF6F00');
-        ctx.fillStyle = pGrad;
-        ctx.beginPath(); ctx.arc(0, b, 7.5, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(-6, b); ctx.lineTo(-10, b); ctx.moveTo(6, b); ctx.lineTo(10, b); ctx.stroke();
-      }
-      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2, -12, 1.2, 0, Math.PI*2); ctx.arc(2, -12, 1.2, 0, Math.PI*2); ctx.fill();
-    } else if(this.type==='card_soldier'){
-      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.roundRect(-8, -12, 16, 24, [3]); ctx.fill();
-      ctx.strokeStyle = '#D50000'; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = '#D50000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('♥', 0, 0);
-    } else if(this.type==='snow_golem'){
-      const sGrad = ctx.createRadialGradient(-3, 3, 2, 0, 6, 12);
-      sGrad.addColorStop(0, '#FFFFFF'); sGrad.addColorStop(0.7, '#E0F7FA'); sGrad.addColorStop(1, '#B2EBF2');
-      ctx.fillStyle = sGrad;
-      ctx.beginPath(); ctx.arc(0, 6, 11, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(0, -6, 7.5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FF9800'; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(6, -4); ctx.lineTo(0, -2); ctx.fill();
-    } else if(this.type==='octo_alien'){
-      const oGrad = ctx.createRadialGradient(-2, -6, 2, 0, -4, 10);
-      oGrad.addColorStop(0, '#FF80AB'); oGrad.addColorStop(0.6, '#D500F9'); oGrad.addColorStop(1, '#4A148C');
-      ctx.fillStyle = oGrad;
-      ctx.beginPath(); ctx.arc(0, -4, 9, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(0, -4, 3.5, 0, Math.PI*2); ctx.fill();
-    } else if(this.type==='goomba'){
-      const gGrad = ctx.createRadialGradient(-2, -4, 2, 0, 0, 10);
-      gGrad.addColorStop(0, '#A1887F'); gGrad.addColorStop(0.6, '#6D4C41'); gGrad.addColorStop(1, '#3E2723');
-      ctx.fillStyle = gGrad;
-      ctx.beginPath(); ctx.ellipse(0, -2, 9, 8, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFE0B2'; ctx.beginPath(); ctx.ellipse(0, 3, 6, 4, 0, 0, Math.PI*2); ctx.fill();
-    } else if(this.type==='koopa'){
-      const kGrad = ctx.createRadialGradient(-2, 0, 2, 0, 2, 11);
-      kGrad.addColorStop(0, '#81C784'); kGrad.addColorStop(0.6, '#388E3C'); kGrad.addColorStop(1, '#1B5E20');
-      ctx.fillStyle = kGrad; ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FDD835'; ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
-    } else if(this.type==='boo'){
-      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 9, 0, 0, Math.PI*2); ctx.fill();
-      if(!this.booHiding){ ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(0, 3, 3.5, 0, Math.PI); ctx.fill(); }
-    } else if(this.type==='thwomp'){
-      ctx.fillStyle = '#757575'; ctx.beginPath(); ctx.roundRect(-12, -14, 24, 28, [4]); ctx.fill();
-      ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(-4, -2, 2.5, 0, Math.PI*2); ctx.arc(4, -2, 2.5, 0, Math.PI*2); ctx.fill();
-    } else {
-      ctx.fillStyle = '#E53935'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 7.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.save();
+    ctx.translate(s.x + this.w/2, s.y + this.h/2);
+    if(this.facingRight) ctx.scale(-1, 1);
+    if(this.dead) {
+      ctx.globalAlpha = 0.6;
+      ctx.rotate(Math.PI);
     }
+
+    // Shadow under enemy
+    if(!this.dead && this.onGround){
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      ctx.beginPath();
+      ctx.ellipse(0, this.h/2 + 2, this.w * 0.45, 4, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Map enemy types to sprite keys
+    let eKey = this.type;
+    if(eKey === 'podoboo') eKey = 'fireflower';
+
+    const eImg = enemyImages[eKey];
+    if(eImg && eImg.complete && eImg.naturalWidth > 0){
+      const ew = this.w + 10, eh = this.h + 10;
+      const walkBob = (!this.dead && this.state==='patrol') ? Math.sin(this.frame * 0.22) * 0.08 : 0;
+      ctx.scale(1 + walkBob, 1 - walkBob);
+      ctx.drawImage(eImg, -ew/2, -eh/2, ew, eh);
+    } else {
+      // Fallback
+      ctx.fillStyle = '#E53935';
+      ctx.beginPath(); ctx.ellipse(0, 0, this.w/2, this.h/2, 0, 0, Math.PI*2); ctx.fill();
+    }
+
     ctx.restore();
   }
 }
+
 // ════════════════════════════════════════════════════════════
 // 2.5D SHADED RIDEABLE MOUNTS (9 EXCLUSIVE MOUNTS)
 // ════════════════════════════════════════════════════════════
@@ -1501,94 +1508,190 @@ class PlatformerGame {
 
     // THEMATIC ENEMIES, MOUNTS & POWER-UPS PER WORLD
     if(cfg.theme === 'egypt'){
-      this.currentMount = new RideableMount('camel', 750, 226);
+      this.currentMount = new RideableMount('camel', 680, 226);
       this.enemies = [
-        new Enemy('pokey', 340, 220, 200, 600),
-        new Enemy('mummy', 860, 232, 700, 1200),
-        new Enemy('pokey', 1480, 220, 1350, 1850),
-        new Enemy('mummy', 2200, 232, 2050, 2600),
+        new Enemy('pokey', 280, 220, 150, 420),
+        new Enemy('mummy', 520, 232, 460, 780),
+        new Enemy('pokey', 750, 220, 680, 950),
+        new Enemy('mummy', 980, 232, 880, 1200),
+        new Enemy('pokey', 1250, 220, 1100, 1400),
+        new Enemy('mummy', 1480, 232, 1340, 1700),
+        new Enemy('pokey', 1850, 220, 1780, 2100),
+        new Enemy('mummy', 2150, 232, 2000, 2350),
+        new Enemy('pokey', 2450, 220, 2300, 2650),
+        new Enemy('mummy', 2800, 232, 2700, 3100),
+        new Enemy('pokey', 3350, 220, 3200, 3600),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'pharaoh'),
         new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'pharaoh')
+        new QuestionBlock(1480, 125, 'pharaoh'),
+        new QuestionBlock(2200, 125, 'star')
       ];
     } else if(cfg.theme === 'disney'){
-      this.currentMount = new RideableMount('disney_steed', 750, 226);
+      this.currentMount = new RideableMount('disney_steed', 680, 226);
       this.enemies = [
-        new Enemy('card_soldier', 360, 232, 200, 600),
-        new Enemy('card_soldier', 900, 232, 750, 1200),
-        new Enemy('card_soldier', 1500, 232, 1350, 1850),
+        new Enemy('card_soldier', 300, 232, 180, 420),
+        new Enemy('card_soldier', 520, 232, 450, 750),
+        new Enemy('boo', 780, 140, 650, 950),
+        new Enemy('card_soldier', 960, 232, 870, 1200),
+        new Enemy('card_soldier', 1240, 232, 1100, 1400),
+        new Enemy('boo', 1450, 130, 1320, 1650),
+        new Enemy('card_soldier', 1800, 232, 1760, 2100),
+        new Enemy('card_soldier', 2100, 232, 1950, 2300),
+        new Enemy('boo', 2420, 120, 2300, 2600),
+        new Enemy('card_soldier', 2780, 232, 2720, 3050),
+        new Enemy('card_soldier', 3300, 232, 3200, 3600),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'princess'),
         new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'princess')
+        new QuestionBlock(1480, 125, 'princess'),
+        new QuestionBlock(2200, 125, 'star')
       ];
     } else if(cfg.theme === 'frozen'){
-      this.currentMount = new RideableMount('sven', 750, 226);
+      this.currentMount = new RideableMount('sven', 680, 226);
       this.enemies = [
-        new Enemy('snow_golem', 400, 224, 200, 600),
-        new Enemy('snow_golem', 950, 224, 800, 1200),
-        new Enemy('snow_golem', 1550, 224, 1400, 1850),
+        new Enemy('snow_golem', 320, 224, 180, 420),
+        new Enemy('snow_golem', 540, 224, 440, 750),
+        new Enemy('snow_golem', 920, 224, 860, 1200),
+        new Enemy('snow_golem', 1180, 224, 1050, 1350),
+        new Enemy('snow_golem', 1460, 224, 1320, 1680),
+        new Enemy('snow_golem', 1820, 224, 1760, 2100),
+        new Enemy('snow_golem', 2150, 224, 2000, 2350),
+        new Enemy('snow_golem', 2480, 224, 2350, 2680),
+        new Enemy('snow_golem', 2800, 224, 2710, 3080),
+        new Enemy('snow_golem', 3350, 224, 3200, 3600),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'frozen_queen'),
         new QuestionBlock(860, 130, 'iceflower'),
-        new QuestionBlock(1480, 125, 'frozen_queen')
+        new QuestionBlock(1480, 125, 'frozen_queen'),
+        new QuestionBlock(2200, 125, 'star')
       ];
     } else if(cfg.theme === 'galaxy'){
-      this.currentMount = new RideableMount('cosmic_dragon', 750, 226);
+      this.currentMount = new RideableMount('cosmic_dragon', 680, 226);
       this.zeroGBubbles = [
-        {x: 420, y: 130, r: 70}, {x: 1040, y: 120, r: 80}, {x: 1680, y: 115, r: 80}, {x: 2380, y: 110, r: 85}
+        {x: 420, y: 130, r: 70}, {x: 1040, y: 120, r: 80}, {x: 1680, y: 115, r: 80}, {x: 2380, y: 110, r: 85}, {x: 3000, y: 120, r: 80}
       ];
       this.enemies = [
-        new Enemy('octo_alien', 380, 120, 200, 600),
-        new Enemy('octo_alien', 1000, 110, 800, 1200),
-        new Enemy('octo_alien', 1620, 105, 1400, 1850),
+        new Enemy('octo_alien', 340, 120, 200, 500),
+        new Enemy('octo_alien', 620, 150, 480, 780),
+        new Enemy('octo_alien', 950, 110, 800, 1200),
+        new Enemy('octo_alien', 1280, 140, 1100, 1450),
+        new Enemy('octo_alien', 1620, 105, 1450, 1850),
+        new Enemy('octo_alien', 1980, 130, 1800, 2200),
+        new Enemy('octo_alien', 2340, 100, 2150, 2550),
+        new Enemy('octo_alien', 2720, 140, 2550, 2950),
+        new Enemy('octo_alien', 3150, 110, 2950, 3400),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'galaxy_astronaut'),
         new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'galaxy_astronaut')
+        new QuestionBlock(1480, 125, 'galaxy_astronaut'),
+        new QuestionBlock(2200, 125, 'star')
       ];
     } else if(cfg.theme === 'marine'){
-      this.currentMount = new RideableMount('dolphin', 750, 226);
+      this.currentMount = new RideableMount('dolphin', 680, 226);
       this.enemies = [
-        new Enemy('cheep_cheep', 350, 140, 200, 600),
-        new Enemy('blooper', 650, 110, 500, 800),
-        new Enemy('spiny_puffer', 1000, 150, 850, 1200),
+        new Enemy('cheep_cheep', 280, 140, 150, 450),
+        new Enemy('blooper', 480, 110, 360, 680),
+        new Enemy('cheep_cheep', 720, 150, 600, 900),
+        new Enemy('blooper', 960, 100, 800, 1150),
+        new Enemy('cheep_cheep', 1220, 160, 1050, 1400),
+        new Enemy('blooper', 1500, 110, 1350, 1700),
+        new Enemy('cheep_cheep', 1820, 150, 1650, 2050),
+        new Enemy('blooper', 2180, 100, 2000, 2400),
+        new Enemy('cheep_cheep', 2520, 160, 2350, 2750),
+        new Enemy('blooper', 2850, 110, 2700, 3100),
+        new Enemy('cheep_cheep', 3300, 140, 3100, 3600),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'bubble'),
-        new QuestionBlock(860, 130, 'star')
+        new QuestionBlock(860, 130, 'star'),
+        new QuestionBlock(1480, 125, 'bubble'),
+        new QuestionBlock(2200, 125, 'star')
       ];
     } else if(cfg.theme === 'castle'){
-      this.currentMount = null;
+      this.currentMount = new RideableMount('phoenix', 680, 226);
       this.enemies = [
-        new Enemy('dry_bones', 320, 232, 150, 560),
-        new Enemy('thwomp', 850, 80, 800, 900),
-        new Enemy('podoboo', 1150, 270, 1100, 1200),
+        new Enemy('dry_bones', 300, 232, 150, 420),
+        new Enemy('thwomp', 650, 80, 600, 720),
+        new Enemy('dry_bones', 950, 232, 820, 1150),
+        new Enemy('thwomp', 1350, 80, 1280, 1450),
+        new Enemy('dry_bones', 1620, 232, 1500, 1850),
+        new Enemy('thwomp', 2050, 80, 1980, 2150),
+        new Enemy('dry_bones', 2350, 232, 2200, 2550),
+        new Enemy('thwomp', 2780, 80, 2700, 2880),
+        new Enemy('dry_bones', 3100, 232, 2950, 3400),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'fireflower'),
-        new QuestionBlock(860, 130, 'star')
+        new QuestionBlock(860, 130, 'star'),
+        new QuestionBlock(1480, 125, 'fireflower')
       ];
-      this.galaxyBoss = new GalaxyBoss(3900, 196);
-    } else {
-      // Garden / Sky / Cave
-      this.currentMount = new RideableMount('unicorn', 800, 226);
+      this.galaxyBoss = new GalaxyBoss(3620, 196);
+    } else if(cfg.theme === 'sky'){
+      this.currentMount = new RideableMount('pegasus', 680, 226);
       this.enemies = [
-        new Enemy('goomba', 360, 238, 200, 580),
-        new Enemy('monty_mole', 500, 236, 400, 700),
-        new Enemy('koopa', 880, 232, 790, 1250),
+        new Enemy('koopa', 300, 218, 150, 420),
+        new Enemy('paratroopa', 540, 140, 400, 700),
+        new Enemy('koopa', 820, 198, 700, 1000),
+        new Enemy('paratroopa', 1150, 130, 1000, 1350),
+        new Enemy('koopa', 1460, 218, 1350, 1650),
+        new Enemy('paratroopa', 1780, 140, 1600, 2000),
+        new Enemy('koopa', 2120, 218, 2000, 2350),
+        new Enemy('paratroopa', 2460, 130, 2300, 2700),
+        new Enemy('koopa', 2820, 198, 2650, 3050),
+        new Enemy('paratroopa', 3200, 140, 3050, 3500),
+      ];
+      this.questionBlocks = [
+        new QuestionBlock(240, 135, 'wing'),
+        new QuestionBlock(860, 130, 'star'),
+        new QuestionBlock(1480, 125, 'wing')
+      ];
+    } else if(cfg.theme === 'cave'){
+      this.currentMount = new RideableMount('crystal_orb', 680, 226);
+      this.enemies = [
+        new Enemy('buzzy_beetle', 280, 232, 150, 420),
+        new Enemy('boo', 520, 140, 400, 700),
+        new Enemy('buzzy_beetle', 820, 232, 700, 1000),
+        new Enemy('boo', 1120, 130, 980, 1300),
+        new Enemy('buzzy_beetle', 1420, 232, 1300, 1650),
+        new Enemy('boo', 1750, 140, 1600, 1950),
+        new Enemy('buzzy_beetle', 2100, 232, 1950, 2300),
+        new Enemy('boo', 2420, 130, 2250, 2650),
+        new Enemy('buzzy_beetle', 2760, 232, 2600, 3000),
+        new Enemy('buzzy_beetle', 3250, 232, 3100, 3550),
+      ];
+      this.questionBlocks = [
+        new QuestionBlock(240, 135, 'star'),
+        new QuestionBlock(860, 130, 'mushroom'),
+        new QuestionBlock(1480, 125, 'star')
+      ];
+    } else {
+      this.currentMount = new RideableMount('unicorn', 680, 226);
+      this.enemies = [
+        new Enemy('goomba', 260, 238, 150, 380),
+        new Enemy('goomba', 360, 238, 200, 420),
+        new Enemy('koopa', 540, 232, 450, 720),
+        new Enemy('goomba', 750, 238, 650, 900),
+        new Enemy('monty_mole', 950, 236, 850, 1150),
+        new Enemy('goomba', 1180, 238, 1050, 1320),
+        new Enemy('koopa', 1420, 232, 1300, 1600),
+        new Enemy('goomba', 1650, 238, 1500, 1850),
+        new Enemy('monty_mole', 1950, 236, 1800, 2150),
+        new Enemy('goomba', 2250, 238, 2100, 2450),
+        new Enemy('koopa', 2550, 232, 2400, 2750),
+        new Enemy('goomba', 2850, 238, 2700, 3050),
+        new Enemy('koopa', 3300, 232, 3150, 3600),
       ];
       this.questionBlocks = [
         new QuestionBlock(240, 135, 'mushroom'),
-        new QuestionBlock(860, 130, 'wing')
+        new QuestionBlock(860, 130, 'star'),
+        new QuestionBlock(1480, 125, 'fireflower')
       ];
     }
-
     this.destructibleBlocks = [
       new DestructibleBlock(260, 135),
       new DestructibleBlock(880, 130),
@@ -1601,10 +1704,11 @@ class PlatformerGame {
   completeLevel(){
     if(this.currentLevelIdx < 8){
       this.unlockedLevels[this.currentLevelIdx + 1] = true;
+      try { localStorage.setItem('srpw_unlocked', JSON.stringify(this.unlockedLevels)); } catch(e){}
     }
     this.state = 'LEVEL_COMPLETE';
+    audio.winFanfare();
   }
-
   getAllSolidPlatforms(){
     const list=[...this.staticPlatforms];
     for(const sp of this.spawnedPlatforms) list.push({x:sp.x,y:sp.y,w:sp.w,h:sp.h});
@@ -1947,10 +2051,18 @@ class PlatformerGame {
       ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill();
       ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.fillStyle = '#FFFFFF'; ctx.font = '900 9px "Fredoka", sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
-      ctx.fillText('1-' + (idx+1), 0, 1);
+      const isUnlocked = this.unlockedLevels[idx];
+      if(isUnlocked){
+        ctx.fillStyle = '#FFFFFF'; ctx.font = '900 9px "Fredoka", sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
+        ctx.fillText('1-' + (idx+1), 0, 1);
+      } else {
+        ctx.fillStyle = 'rgba(10, 10, 20, 0.65)'; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFE082'; ctx.font = '900 10px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🔒', 0, 0);
+      }
       ctx.restore();
     });
 
@@ -2358,37 +2470,81 @@ class PlatformerGame {
   // 2.5D SHADED PLAYER & OUTFIT VISUALS
   // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
-    const p=this.player, cam=this.camera;
-    const s=cam.toScreen(p.x,p.y);
+    const p = this.player, cam = this.camera;
+    const s = cam.toScreen(p.x, p.y);
     ctx.save();
-    ctx.translate(s.x+p.w/2, s.y+p.h/2);
+
+    // Natural running tilt & bounce
+    const walkBob = (p.onGround && Math.abs(p.vx) > 0.2) ? Math.sin(p.walkCycle) * 2.0 : 0;
+    const runTilt = (p.vx * 0.035); // Lean forward into run direction
+
+    ctx.translate(s.x + p.w/2, s.y + p.h/2 + walkBob);
     if(!p.facingRight) ctx.scale(-1, 1);
+    ctx.rotate(runTilt);
     ctx.scale(p.squashX, p.squashY);
 
-    const img = loadedImages[this.selectedCharId];
-    if(img && img.complete) ctx.drawImage(img, -p.w/2, -p.h/2, p.w, p.h);
-    else { ctx.fillStyle = '#FF5252'; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+    // Drop shadow under hero
+    if(p.onGround){
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+      ctx.beginPath();
+      ctx.ellipse(0, p.h/2 - walkBob + 2, p.w * 0.45, 4.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
-    // 2.5D Outfits Overlay
+    // Invincibility flicker
+    if(p.invincibleTimer > 0 && Math.floor(p.invincibleTimer / 4) % 2 === 0){
+      ctx.globalAlpha = 0.4;
+    }
+
+    // Main Hero Sprite
+    const img = loadedImages[this.selectedCharId];
+    if(img && img.complete && img.naturalWidth > 0){
+      ctx.drawImage(img, -p.w/2 - 2, -p.h/2 - 3, p.w + 4, p.h + 6);
+    } else {
+      ctx.fillStyle = '#FF5252';
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    }
+
+    // ── Enhanced Outfits & Power-Up Overlays with 3D PNGs & Auras ──
     if(p.powerState === 'pharaoh'){
-      // Golden Nemes Headdress
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-p.w/2, -p.h/2); ctx.lineTo(0, -p.h/2 - 8); ctx.lineTo(p.w/2, -p.h/2); ctx.fill();
-      ctx.strokeStyle = '#0288D1'; ctx.lineWidth = 1.5; ctx.stroke();
+      // Golden Pharaoh Aura & Headdress
+      const pImg = powerImages.pharaoh;
+      if(pImg && pImg.complete && pImg.naturalWidth > 0){
+        ctx.drawImage(pImg, -14, -p.h/2 - 12, 28, 20);
+      }
+      // Desert sand swirl particles
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.6)'; ctx.lineWidth = 1.5;
+      const sa = (now * 0.008);
+      ctx.beginPath(); ctx.ellipse(0, 4, p.w * 0.8, 6, sa, 0, Math.PI * 2); ctx.stroke();
     } else if(p.powerState === 'princess'){
-      // Diamond Tiara & Glitter
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-6, -p.h/2 - 2); ctx.lineTo(0, -p.h/2 - 8); ctx.lineTo(6, -p.h/2 - 2); ctx.fill();
-      ctx.strokeStyle = '#E040FB'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, p.w*0.8, 0, Math.PI*2); ctx.stroke();
+      // Diamond Tiara & Royal Star Glow
+      const prImg = powerImages.princess;
+      if(prImg && prImg.complete && prImg.naturalWidth > 0){
+        ctx.drawImage(prImg, -11, -p.h/2 - 10, 22, 16);
+      }
+      ctx.strokeStyle = 'rgba(255, 64, 129, 0.7)'; ctx.lineWidth = 1.8;
+      const pa = (now * 0.006);
+      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.85, pa, pa + Math.PI * 1.5); ctx.stroke();
     } else if(p.powerState === 'frozen_queen'){
-      // Crystal Ice Crown
-      ctx.fillStyle = '#80DEEA'; ctx.beginPath(); ctx.moveTo(-6, -p.h/2 - 2); ctx.lineTo(0, -p.h/2 - 9); ctx.lineTo(6, -p.h/2 - 2); ctx.fill();
+      // Arctic Ice Crown & Frost Aura
+      const fImg = powerImages.frozen;
+      if(fImg && fImg.complete && fImg.naturalWidth > 0){
+        ctx.drawImage(fImg, -11, -p.h/2 - 10, 22, 16);
+      }
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.9, 0, Math.PI * 2); ctx.stroke();
     } else if(p.powerState === 'galaxy_astronaut'){
-      // Cosmic Helmet & Jetpack
-      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -p.h/4, 12, 0, Math.PI*2); ctx.stroke();
+      // Cosmic Helmet & Specular Ring
+      const aImg = powerImages.astronaut;
+      if(aImg && aImg.complete && aImg.naturalWidth > 0){
+        ctx.drawImage(aImg, -14, -p.h/2 - 8, 28, 26);
+      }
     }
 
     ctx.restore();
   }
-
   renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
     ctx.save(); ctx.font='bold 10px "Fredoka",sans-serif';
@@ -2396,6 +2552,10 @@ class PlatformerGame {
     ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.fillStyle='#FFF'; ctx.fillText(char.name, 16, 22);
     ctx.fillStyle='#FFD700'; ctx.fillText('★ ' + this.starDust, 90, 22);
+    // Pause button in HUD
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)'; ctx.beginPath(); ctx.roundRect(175, 8, 36, 26, [8]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️', 193, 22);
     ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 140, 22);
     ctx.restore();
   }
