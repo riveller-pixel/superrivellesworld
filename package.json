@@ -1,0 +1,9 @@
+﻿{
+  "name": "super-rivelles-peris-world",
+  "version": "1.0.0",
+  "description": "Super Rivelles Peris World HTML5 Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

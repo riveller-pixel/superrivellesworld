@@ -6,10 +6,25 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFD700">
 <title>Super Rivelles Peris World - 2.5D Master Edition</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+<link rel="manifest" href="manifest.json">
+<!-- Open Graph / Social Sharing Previews -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Super Rivelles Peris World 🌟">
+<meta property="og:description" content="¡Juego de plataformas 2.5D de la familia Rivelles Peris con 9 mundos y jefes finales!">
+<meta property="og:image" content="assets/world_map_diorama.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<script>
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration note:', err));
+    });
+  }
+</script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none;
       -webkit-touch-callout:none; touch-action:none; -webkit-tap-highlight-color:transparent; }
