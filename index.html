@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Super Rivelles Peris World - Nintendo 2.5D Mega HD Edition</title>
+<title>Super Rivelles Peris World - New Super Mario Bros Wii Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; }
 
-  /* ── Modern Nintendo Switch Style Character Select & Pause Modals ── */
+  /* ── Modern Nintendo Switch & Wii Style Modals ── */
   .screen-overlay { position:fixed; inset:0; background:rgba(6, 12, 34, 0.88); backdrop-filter:blur(10px);
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding:16px;
@@ -29,7 +29,7 @@
   
   .select-modal {
     background:linear-gradient(180deg, rgba(28, 45, 92, 0.95) 0%, rgba(15, 23, 54, 0.98) 100%);
-    border:3px solid rgba(255, 215, 0, 0.8);
+    border:3px solid rgba(255, 215, 0, 0.85);
     border-radius:24px;
     padding:22px 28px; max-width:860px; width:96%; text-align:center;
     box-shadow:0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.3);
@@ -142,8 +142,8 @@
   <div class="screen-overlay active" id="modal-select">
     <div class="select-modal">
       <div class="modal-header-badge">🌟 GALAXIA RIVELLES 🌟</div>
-      <div class="modal-title">¡ELIGE A TU HÉROE!</div>
-      <div class="modal-subtitle">5 Mundos Épicos • Gráficos 3D HD Remasterizados</div>
+      <div class="modal-title">¡SUPER RIVELLES PERIS WORLD!</div>
+      <div class="modal-subtitle">5 Mundos Épicos • Gráficos 3D HD • Inspirado en New Super Mario Bros. Wii</div>
       
       <div class="char-grid">
         <div class="char-card selected" data-id="candela" id="card-candela">
@@ -326,6 +326,8 @@ class SoundFX {
     [784, 587, 523, 392, 330].forEach((f,i)=>setTimeout(()=>this.playTone(f,'sawtooth',0.14,0.28,f*0.8), i*60));
   }
   fireballShoot(){ this.playTone(480,'square',0.12,0.25,220); }
+  iceShoot(){ this.playTone(620,'sine',0.12,0.22,980); }
+  bubbleShoot(){ this.playTone(380,'triangle',0.15,0.22,720); }
   kickShell(){ this.playTone(550,'sawtooth',0.16,0.35,120); }
   swimStroke(){ this.playTone(300,'sine',0.15,0.2,450); }
   groundPoundStart(){ this.playTone(280,'sawtooth',0.12,0.3,100); }
@@ -484,8 +486,8 @@ const VIRT_W = 512;
 const VIRT_H = 288;
 const GRAVITY = 0.52;
 const MAX_FALL = 9.2;
-const ACCEL = 0.46; // Snappy instant response
-const DECEL = 0.38; // Crisp braking
+const ACCEL = 0.46;
+const DECEL = 0.38;
 const JUMP_CUT_MULT = 0.45;
 const TARGET_FPS = 60;
 const FRAME_TIME = 1000 / TARGET_FPS;
@@ -513,13 +515,13 @@ const tommyImg = new Image();
 tommyImg.src = 'tommy.png';
 tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 
-// 5 Expansive Worlds
+// 5 Expansive Worlds with NSMBWii Map Coordinates
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: Colinas Bellota & Jardín", width: 3600, theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld" },
-  { id: 2, name: "1-2: Océano de Coral Marino",   width: 3800, theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine" },
-  { id: 3, name: "1-3: Reino del Cielo & Nubes",  width: 4000, theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky" },
-  { id: 4, name: "1-4: Caverna de Cristal Zero-G",width: 3800, theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave" },
-  { id: 5, name: "1-5: Castillo & Jefe Cósmico",  width: 4400, theme: "castle", sky: ["#0b0410","#1e0b32","#3a155c"], track: "boss" }
+  { id: 1, name: "1-1: Colinas Bellota & Jardín", width: 3600, theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 65, mapY: 190, color: "#2E7D32" },
+  { id: 2, name: "1-2: Océano de Coral Marino",   width: 3800, theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 160, mapY: 215, color: "#0288D1" },
+  { id: 3, name: "1-3: Reino del Cielo & Nubes",  width: 4000, theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 250, mapY: 130, color: "#FBC02D" },
+  { id: 4, name: "1-4: Caverna de Cristal Zero-G",width: 3800, theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 345, mapY: 175, color: "#8E24AA" },
+  { id: 5, name: "1-5: Castillo & Jefe Cósmico",  width: 4400, theme: "castle", sky: ["#0b0410","#1e0b32","#3a155c"], track: "boss",      mapX: 435, mapY: 120, color: "#D32F2F" }
 ];
 
 class Camera {
@@ -616,27 +618,59 @@ class TouchController {
 }
 
 // ════════════════════════════════════════════════════════════
-// ENEMY — 2.5D NINTENDO ROSTER
+// ENEMY ROSTER — UNIQUE BIOME CREATURES
+// (Goomba, Monty, Koopa, CheepCheep, Blooper, SpinyPuffer, Lakitu, BulletBill, BuzzyBeetle, Boo, DryBones, Thwomp, Podoboo)
 // ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
     this.type=type; this.x=x; this.y=y;
-    this.w = (type==='koopa'||type==='paratroopa') ? 22 : (type==='goomba'?20 : (type==='monty_mole'?22 : (type==='cheep_cheep'?20 : 18)));
-    this.h = (type==='koopa'||type==='paratroopa') ? 24 : (type==='goomba'?18 : (type==='monty_mole'?20 : (type==='cheep_cheep'?18 : 22)));
-    this.vx = (type==='koopa'||type==='goomba'||type==='paratroopa'||type==='cheep_cheep') ? -1.2 : 0;
+    this.w = (type==='koopa'||type==='paratroopa'||type==='dry_bones') ? 22 : 
+             (type==='thwomp'? 28 : (type==='blooper'? 20 : (type==='boo'? 22 : 20)));
+    this.h = (type==='koopa'||type==='paratroopa'||type==='dry_bones') ? 24 : 
+             (type==='thwomp'? 32 : (type==='blooper'? 24 : (type==='boo'? 22 : 18)));
+    this.vx = (type==='koopa'||type==='goomba'||type==='paratroopa'||type==='cheep_cheep'||type==='buzzy_beetle'||type==='dry_bones') ? -1.2 : 0;
     this.vy = 0;
     this.onGround=false; this.state='patrol';
     this.dead=false; this.deadTimer=0; this.deadVy=-5;
-    this.alertTimer=0; this.frame=0; this.facingRight=false;
+    this.frame=0; this.facingRight=false;
     this.baseX=x; this.baseY=y;
     this.patrolMin=patrolMin||x-140; this.patrolMax=patrolMax||x+140;
-    this.fleeTimer=0; this.stunTimer=0;
+    this.stunTimer=0;
     this.shellSpeed=0;
+    this.dryBonesTimer=0; // Recovery timer
+    this.thwompState='idle'; // idle, falling, rising
+    this.booHiding=false;
+    this.frozenTimer=0; // Ice freeze
+    this.trappedBubble=false; // Bubble flower
   }
   update(player,allPlatforms,globalGravity,game){
     this.frame++;
     if(this.dead){ this.deadTimer--; this.y+=this.deadVy; this.deadVy+=0.4*globalGravity; return; }
     if(this.stunTimer>0){ this.stunTimer--; return; }
+
+    // Frozen state in ice cube
+    if(this.frozenTimer>0){
+      this.frozenTimer--;
+      if(this.frozenTimer===0){ game.addParticles(this.x+this.w/2, this.y+this.h/2, 10, ['#80DEEA','#FFF'], 2.5); }
+      return;
+    }
+
+    // Trapped in bubble floating up
+    if(this.trappedBubble){
+      this.y -= 1.2;
+      if(this.y < -40) this.dead = true;
+      return;
+    }
+
+    // Dry Bones Reformation
+    if(this.dryBonesTimer > 0){
+      this.dryBonesTimer--;
+      if(this.dryBonesTimer === 0){
+        this.state = 'patrol';
+        game.addFloatingText('¡REVIVE!', this.x+this.w/2, this.y-10, '#E0E0E0');
+      }
+      return;
+    }
 
     const dx=player.x-this.x, dy=player.y-this.y;
     const distToPlayer=Math.sqrt(dx*dx+dy*dy);
@@ -658,18 +692,26 @@ class Enemy {
       return;
     }
 
-    if(this.type === 'goomba') this._updateGoomba(player,allPlatforms,globalGravity);
-    else if(this.type === 'koopa') this._updateKoopa(player,allPlatforms,globalGravity,distToPlayer,game);
+    if(this.type === 'goomba'||this.type === 'buzzy_beetle') this._updateStandardPatrol(allPlatforms);
+    else if(this.type === 'koopa') this._updateKoopa(allPlatforms);
     else if(this.type === 'monty_mole') this._updateMontyMole(player,allPlatforms,distToPlayer,game);
-    else if(this.type === 'cheep_cheep') this._updateCheepCheep(player,game);
-    else if(this.type === 'paratroopa') this._updateParatroopa(player,allPlatforms,globalGravity);
-    else this._updatePiranha(player,distToPlayer);
+    else if(this.type === 'cheep_cheep') this._updateCheepCheep(game);
+    else if(this.type === 'blooper') this._updateBlooper(player);
+    else if(this.type === 'spiny_puffer') this._updateSpinyPuffer();
+    else if(this.type === 'paratroopa') this._updateParatroopa();
+    else if(this.type === 'lakitu') this._updateLakitu(player, game);
+    else if(this.type === 'bullet_bill') this._updateBulletBill();
+    else if(this.type === 'boo') this._updateBoo(player);
+    else if(this.type === 'dry_bones') this._updateDryBones(allPlatforms);
+    else if(this.type === 'thwomp') this._updateThwomp(player);
+    else if(this.type === 'podoboo') this._updatePodoboo();
+    else this._updatePiranha();
 
     if(this.y>VIRT_H+100||this.y<-100) this.dead=true;
   }
 
-  _updateGoomba(player,allPlats,grav){
-    this.vy = Math.min(this.vy+GRAVITY*1.0, MAX_FALL);
+  _updateStandardPatrol(allPlats){
+    this.vy = Math.min(this.vy+GRAVITY, MAX_FALL);
     this.vx = this.facingRight ? 1.0 : -1.0;
     this.x += this.vx;
     for(const p of allPlats){
@@ -688,35 +730,19 @@ class Enemy {
     if(this.x+this.w>this.patrolMax){this.x=this.patrolMax-this.w;this.facingRight=false;}
   }
 
-  _updateKoopa(player,allPlats,grav,distToPlayer,game){
-    this.vy = Math.min(this.vy+GRAVITY*1.0, MAX_FALL);
-    this.vx = this.facingRight ? 1.2 : -1.2;
-    this.x += this.vx;
-    for(const p of allPlats){
-      if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y){
-        if(this.vx>0)this.x=p.x-this.w; else this.x=p.x+p.w;
-        this.facingRight = !this.facingRight;
-      }
-    }
-    this.y += this.vy; this.onGround=false;
-    for(const p of allPlats){
-      if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y){
-        if(this.vy>=0){ this.y=p.y-this.h; this.vy=0; this.onGround=true; }
-      }
-    }
-    if(this.x<this.patrolMin){this.x=this.patrolMin;this.facingRight=true;}
-    if(this.x+this.w>this.patrolMax){this.x=this.patrolMax-this.w;this.facingRight=false;}
-  }
+  _updateKoopa(allPlats){ this._updateStandardPatrol(allPlats); }
+
+  _updateDryBones(allPlats){ this._updateStandardPatrol(allPlats); }
 
   _updateMontyMole(player,allPlats,dist,game){
     if(this.state === 'patrol'){
-      if(dist < 120){
-        this.state = 'jump'; this.vy = -7.5;
+      if(dist < 130){
+        this.state = 'jump'; this.vy = -7.8;
         game.addParticles(this.x+this.w/2, this.y+this.h, 10, ['#8D6E63','#A1887F','#D7CCC8'], 3.0);
       }
     } else if(this.state === 'jump'){
       this.vy += GRAVITY;
-      this.x += (player.x > this.x ? 2.0 : -2.0);
+      this.x += (player.x > this.x ? 2.2 : -2.2);
       this.y += this.vy;
       for(const p of allPlats){
         if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y&&this.vy>=0){
@@ -724,16 +750,16 @@ class Enemy {
         }
       }
     } else if(this.state === 'chase'){
-      this.vx = player.x > this.x ? 2.2 : -2.2;
+      this.vx = player.x > this.x ? 2.3 : -2.3;
       this.x += this.vx; this.facingRight = this.vx > 0;
     }
   }
 
-  _updateCheepCheep(player,game){
+  _updateCheepCheep(game){
     if(LEVEL_CONFIGS[game.currentLevelIdx].theme === 'marine'){
       this.x += Math.sin(this.frame * 0.05) * 1.8 + (this.facingRight ? 1.0 : -1.0);
       this.y += Math.cos(this.frame * 0.04) * 0.8;
-      if(this.frame % 60 === 0) this.facingRight = !this.facingRight;
+      if(this.frame % 70 === 0) this.facingRight = !this.facingRight;
     } else {
       this.vy += 0.25;
       this.y += this.vy;
@@ -741,18 +767,108 @@ class Enemy {
     }
   }
 
-  _updateParatroopa(player,allPlats,grav){
+  _updateBlooper(player){
+    if(this.frame % 60 === 0){
+      this.vy = -3.5;
+      this.vx = (player.x > this.x ? 2.2 : -2.2);
+      this.facingRight = this.vx > 0;
+    }
+    this.vy += 0.08;
+    this.x += this.vx; this.y += this.vy;
+    this.vx *= 0.96;
+  }
+
+  _updateSpinyPuffer(){
+    this.x += Math.sin(this.frame * 0.03) * 1.5;
+    this.y += Math.cos(this.frame * 0.03) * 1.5;
+  }
+
+  _updateParatroopa(){
     this.y = this.baseY + Math.sin(this.frame * 0.08) * 35;
     this.x += this.facingRight ? 1.2 : -1.2;
     if(this.x < this.patrolMin) this.facingRight = true;
     if(this.x > this.patrolMax) this.facingRight = false;
   }
 
-  _updatePiranha(player,dist){
-    this.y = this.baseY + Math.sin(this.frame * 0.05) * 16;
+  _updateLakitu(player, game){
+    this.x = player.x + Math.sin(this.frame * 0.04) * 80;
+    this.y = 50 + Math.sin(this.frame * 0.06) * 15;
+    if(this.frame % 180 === 0){
+      game.enemies.push(new Enemy('spiny', this.x, this.y + 16, this.x - 100, this.x + 100));
+      game.addFloatingText('⚠️', this.x, this.y - 10, '#FFD700');
+    }
+  }
+
+  _updateBulletBill(){
+    this.x += this.facingRight ? 4.5 : -4.5;
+  }
+
+  _updateBoo(player){
+    // Boo Shy Mechanic: freezes if player faces him!
+    const isPlayerLooking = (player.facingRight && player.x < this.x) || (!player.facingRight && player.x > this.x);
+    if(isPlayerLooking){
+      this.booHiding = true;
+    } else {
+      this.booHiding = false;
+      const angle = Math.atan2(player.y - this.y, player.x - this.x);
+      this.x += Math.cos(angle) * 1.2;
+      this.y += Math.sin(angle) * 1.2;
+      this.facingRight = player.x > this.x;
+    }
+  }
+
+  _updateThwomp(player){
+    if(this.thwompState === 'idle'){
+      if(Math.abs(player.x - this.x) < 40 && player.y > this.y && player.y < this.y + 180){
+        this.thwompState = 'falling';
+        this.vy = 8.5;
+      }
+    } else if(this.thwompState === 'falling'){
+      this.y += this.vy;
+      if(this.y >= this.baseY + 140){
+        this.y = this.baseY + 140;
+        this.thwompState = 'rising';
+        this.vy = -1.2;
+        audio.groundPoundImpact();
+      }
+    } else if(this.thwompState === 'rising'){
+      this.y += this.vy;
+      if(this.y <= this.baseY){
+        this.y = this.baseY;
+        this.thwompState = 'idle';
+      }
+    }
+  }
+
+  _updatePodoboo(){
+    this.vy += 0.28;
+    this.y += this.vy;
+    if(this.y > this.baseY){
+      this.y = this.baseY;
+      this.vy = -9.2;
+    }
+  }
+
+  _updatePiranha(){ this.y = this.baseY + Math.sin(this.frame * 0.05) * 16; }
+
+  freezeInIce(){
+    this.frozenTimer = 240;
+    audio.iceShoot();
+  }
+
+  trapInBubble(){
+    this.trappedBubble = true;
+    audio.bubbleShoot();
   }
 
   die(game){
+    if(this.type === 'dry_bones' && this.dryBonesTimer === 0){
+      this.dryBonesTimer = 180;
+      this.state = 'crumbled';
+      audio.enemyDie(); game.camera.shake(3);
+      game.addParticles(this.x+this.w/2, this.y+this.h/2, 12, ['#E0E0E0','#BDBDBD'], 3.0);
+      return;
+    }
     this.dead=true; this.deadTimer=30; this.deadVy=-6*game.globalGravity;
     game.addParticles(this.x+this.w/2,this.y+this.h/2,16,['#4CAF50','#FFD700','#FFF','#81C784'],4.0);
     game.addFloatingText('+100',this.x+this.w/2,this.y-10,'#FFD700');
@@ -770,7 +886,7 @@ class Enemy {
     if(this.facingRight) ctx.scale(-1,1);
     if(this.dead) ctx.globalAlpha=0.7;
 
-    if(this.onGround && !this.dead){
+    if(this.onGround && !this.dead && this.type !== 'boo' && this.type !== 'blooper'){
       ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.5, 3, 0, 0, Math.PI*2); ctx.fill();
     }
@@ -781,10 +897,33 @@ class Enemy {
       ctx.beginPath(); ctx.arc(0, -this.h/2-4+sa, 6, 0, Math.PI*2); ctx.stroke();
     }
 
+    // Ice Cube Overlay
+    if(this.frozenTimer>0){
+      ctx.fillStyle = 'rgba(128, 222, 234, 0.65)';
+      ctx.beginPath(); ctx.roundRect(-this.w/2-4, -this.h/2-4, this.w+8, this.h+8, [6]); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    // Bubble Overlay
+    if(this.trappedBubble){
+      ctx.fillStyle = 'rgba(0, 229, 255, 0.45)';
+      ctx.beginPath(); ctx.arc(0, 0, this.w*0.8, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
     if(this.type==='goomba') this._drawGoomba(ctx);
     else if(this.type==='koopa'||this.type==='paratroopa') this._drawKoopa(ctx,now);
     else if(this.type==='monty_mole') this._drawMontyMole(ctx);
     else if(this.type==='cheep_cheep') this._drawCheepCheep(ctx);
+    else if(this.type==='blooper') this._drawBlooper(ctx);
+    else if(this.type==='spiny_puffer') this._drawSpinyPuffer(ctx);
+    else if(this.type==='lakitu') this._drawLakitu(ctx);
+    else if(this.type==='bullet_bill') this._drawBulletBill(ctx);
+    else if(this.type==='buzzy_beetle') this._drawBuzzyBeetle(ctx);
+    else if(this.type==='boo') this._drawBoo(ctx);
+    else if(this.type==='dry_bones') this._drawDryBones(ctx);
+    else if(this.type==='thwomp') this._drawThwomp(ctx);
+    else if(this.type==='podoboo') this._drawPodoboo(ctx);
     else this._drawPiranha(ctx);
 
     ctx.restore();
@@ -806,10 +945,6 @@ class Enemy {
     ctx.beginPath(); ctx.arc(-2.5, -3, 1.2, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(2.5, -3, 1.2, 0, Math.PI*2); ctx.fill();
 
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.moveTo(-3, 3); ctx.lineTo(-2, 1); ctx.lineTo(-1, 3); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(1, 3); ctx.lineTo(2, 1); ctx.lineTo(3, 3); ctx.fill();
-
     const waddle = Math.sin(this.frame * 0.3) * 3;
     ctx.fillStyle = '#212121';
     ctx.beginPath(); ctx.ellipse(-5+waddle, 8, 4, 2.5, 0, 0, Math.PI*2); ctx.fill();
@@ -818,7 +953,6 @@ class Enemy {
 
   _drawKoopa(ctx,now){
     const walk = Math.sin(this.frame * 0.25) * 3;
-    
     ctx.fillStyle='#E65100';
     ctx.beginPath(); ctx.ellipse(-6+walk, 9, 4.5, 3, -0.1, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(4-walk, 9, 4.5, 3, 0.1, 0, Math.PI*2); ctx.fill();
@@ -833,9 +967,6 @@ class Enemy {
 
     ctx.fillStyle = '#FDD835';
     ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FB8C00';
-    ctx.beginPath(); ctx.ellipse(10, -5, 3.5, 2.5, 0.2, 0, Math.PI*2); ctx.fill();
-
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.ellipse(7, -8, 2.5, 3.5, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#212121';
@@ -849,6 +980,127 @@ class Enemy {
     }
   }
 
+  _drawBlooper(ctx){
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.ellipse(0, -4, 8, 10, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(-6, -4, 12, 3);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-3, -3, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -3, 2, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000000';
+    ctx.beginPath(); ctx.arc(-3, -3, 1, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -3, 1, 0, Math.PI*2); ctx.fill();
+    // Tentacles
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5;
+    for(let i=-6; i<=6; i+=4){
+      ctx.beginPath(); ctx.moveTo(i, 4); ctx.lineTo(i + Math.sin(this.frame*0.2 + i)*3, 12); ctx.stroke();
+    }
+  }
+
+  _drawSpinyPuffer(ctx){
+    ctx.fillStyle = '#E91E63';
+    ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#FFD54F';
+    for(let a=0; a<Math.PI*2; a+=Math.PI/4){
+      ctx.beginPath(); ctx.moveTo(Math.cos(a)*9, Math.sin(a)*9);
+      ctx.lineTo(Math.cos(a)*15, Math.sin(a)*15); ctx.stroke();
+    }
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(4, -2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(5, -2, 1.2, 0, Math.PI*2); ctx.fill();
+  }
+
+  _drawLakitu(ctx){
+    // Cloud
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-6, 4, 7, 0, Math.PI*2); ctx.arc(6, 4, 7, 0, Math.PI*2); ctx.arc(0, 2, 9, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#FDD835';
+    ctx.beginPath(); ctx.ellipse(0, -6, 6, 6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000000';
+    ctx.beginPath(); ctx.arc(2, -6, 1.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  _drawBulletBill(ctx){
+    ctx.fillStyle = '#212121';
+    ctx.beginPath(); ctx.roundRect(-10, -6, 20, 12, [6, 2, 2, 6]); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-2, -2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -2, 1.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  _drawBuzzyBeetle(ctx){
+    ctx.fillStyle = '#0288D1';
+    ctx.beginPath(); ctx.ellipse(0, 0, 9, 7, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#FFD54F';
+    ctx.beginPath(); ctx.ellipse(5, 2, 4, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(6, 1, 1, 0, Math.PI*2); ctx.fill();
+  }
+
+  _drawBoo(ctx){
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.ellipse(0, 0, 10, 9, 0, 0, Math.PI*2); ctx.fill();
+    if(this.booHiding){
+      // Hands covering eyes
+      ctx.fillStyle = '#E0E0E0';
+      ctx.beginPath(); ctx.arc(2, -2, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-4, -2, 3, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle = '#000000';
+      ctx.beginPath(); ctx.arc(3, -2, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-3, -2, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#D50000';
+      ctx.beginPath(); ctx.arc(0, 3, 3.5, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = '#FFF';
+      ctx.beginPath(); ctx.moveTo(-2, 3); ctx.lineTo(-1, 5); ctx.lineTo(0, 3); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, 3); ctx.lineTo(1, 5); ctx.lineTo(2, 3); ctx.fill();
+    }
+  }
+
+  _drawDryBones(ctx){
+    if(this.state === 'crumbled'){
+      ctx.fillStyle = '#E0E0E0';
+      ctx.beginPath(); ctx.ellipse(0, 8, 10, 4, 0, 0, Math.PI*2); ctx.fill();
+      return;
+    }
+    ctx.fillStyle = '#424242';
+    ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#E0E0E0'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(0, 1, 9, 8, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = '#EEEEEE';
+    ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(8, -7, 1.8, 0, Math.PI*2); ctx.fill();
+  }
+
+  _drawThwomp(ctx){
+    ctx.fillStyle = '#757575';
+    ctx.beginPath(); ctx.roundRect(-12, -14, 24, 28, [4]); ctx.fill();
+    ctx.strokeStyle = '#424242'; ctx.lineWidth = 2; ctx.stroke();
+    // Spikes around
+    ctx.fillStyle = '#BDBDBD';
+    [-10, 0, 10].forEach(sx => {
+      ctx.beginPath(); ctx.moveTo(sx-3, -14); ctx.lineTo(sx, -18); ctx.lineTo(sx+3, -14); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(sx-3, 14); ctx.lineTo(sx, 18); ctx.lineTo(sx+3, 14); ctx.fill();
+    });
+    // Angry Face
+    ctx.fillStyle = '#D50000';
+    ctx.beginPath(); ctx.arc(-4, -2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4, -2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.fillRect(-5, 4, 10, 3);
+  }
+
+  _drawPodoboo(ctx){
+    const fGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 8);
+    fGrad.addColorStop(0, '#FFF9C4'); fGrad.addColorStop(0.5, '#FF9800'); fGrad.addColorStop(1, '#D50000');
+    ctx.fillStyle = fGrad;
+    ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(-2, -1, 1.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(2, -1, 1.2, 0, Math.PI*2); ctx.fill();
+  }
+
   _drawMontyMole(ctx){
     ctx.fillStyle = '#6D4C41';
     ctx.beginPath(); ctx.ellipse(0, 0, 9, 8, 0, 0, Math.PI*2); ctx.fill();
@@ -859,9 +1111,6 @@ class Enemy {
     ctx.fillStyle = '#000000';
     ctx.beginPath(); ctx.arc(-4, -2, 1.2, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(4, -2, 1.2, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#D7CCC8';
-    ctx.beginPath(); ctx.ellipse(-6, 6, 3, 2, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(6, 6, 3, 2, 0, 0, Math.PI*2); ctx.fill();
   }
 
   _drawCheepCheep(ctx){
@@ -873,9 +1122,6 @@ class Enemy {
     ctx.beginPath(); ctx.ellipse(3, -2, 3.5, 3.5, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#000000';
     ctx.beginPath(); ctx.arc(4, -2, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFD54F';
-    ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-12, -4); ctx.lineTo(-12, 4); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(-3, -11); ctx.lineTo(3, -11); ctx.closePath(); ctx.fill();
   }
 
   _drawPiranha(ctx){
@@ -887,8 +1133,6 @@ class Enemy {
     ctx.save(); ctx.rotate(chomp);
     ctx.fillStyle = '#D50000';
     ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, Math.PI); ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.ellipse(0, 0.5, 8, 2, 0, 0, Math.PI); ctx.fill();
     ctx.restore();
 
     ctx.save(); ctx.rotate(-chomp);
@@ -896,8 +1140,6 @@ class Enemy {
     ctx.beginPath(); ctx.arc(0, 0, 7.5, Math.PI, 0); ctx.fill();
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath(); ctx.arc(-3, -4, 1.8, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4, -3, 1.4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(0, -0.5, 8, 2, 0, Math.PI, 0); ctx.fill();
     ctx.restore();
     ctx.restore();
   }
@@ -910,7 +1152,6 @@ class UnicornMount {
   constructor(x, y){
     this.x = x; this.y = y;
     this.w = 34; this.h = 30;
-    this.vx = 0; this.vy = 0;
     this.mounted = false;
     this.facingRight = true;
     this.frame = 0;
@@ -960,8 +1201,6 @@ class UnicornMount {
 
     ctx.fillStyle = '#212121';
     ctx.beginPath(); ctx.ellipse(10, -8, 2, 3, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.arc(9.5, -9, 1, 0, Math.PI*2); ctx.fill();
 
     const hornGrad = ctx.createLinearGradient(12, -14, 18, -26);
     hornGrad.addColorStop(0, '#FFD700'); hornGrad.addColorStop(1, '#FFF9C4');
@@ -972,7 +1211,6 @@ class UnicornMount {
     colors.forEach((col, idx)=>{
       ctx.fillStyle = col;
       ctx.beginPath(); ctx.arc(-11 - idx*1.5, 0 + idx*1.5, 3, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(4 - idx*2, -12 + idx*2, 2.5, 0, Math.PI*2); ctx.fill();
     });
 
     ctx.restore();
@@ -1138,10 +1376,6 @@ class GalaxyBoss {
     ctx.beginPath(); ctx.ellipse(-24, -10, 3.5, 4.5, -0.3, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#D50000';
     ctx.beginPath(); ctx.arc(-25, -10, 2, 0, Math.PI*2); ctx.fill();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.moveTo(-28, -2); ctx.lineTo(-26, 4); ctx.lineTo(-24, -2); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-22, -2); ctx.lineTo(-20, 4); ctx.lineTo(-18, -2); ctx.fill();
 
     ctx.restore();
   }
@@ -1371,6 +1605,14 @@ class QuestionBlock {
       game.player.powerUp('fire', game);
       game.addFloatingText('¡FLOR DE FUEGO! 🔥', px, py-16, '#FF9800');
       game.addParticles(px,py,16,['#FF9800','#FF1744','#FFD700'],3.5);
+    } else if(this.item==='iceflower'){
+      game.player.powerUp('ice', game);
+      game.addFloatingText('¡FLOR DE HIELO! ❄️', px, py-16, '#00E5FF');
+      game.addParticles(px,py,16,['#00E5FF','#E1F5FE','#FFFFFF'],3.5);
+    } else if(this.item==='bubble'){
+      game.player.powerUp('bubble', game);
+      game.addFloatingText('¡FLOR BURBUJA! 🫧', px, py-16, '#80DEEA');
+      game.addParticles(px,py,16,['#80DEEA','#00B0FF','#FFFFFF'],3.5);
     } else if(this.item==='star'){
       game.player.powerUp('star', game);
       game.addFloatingText('¡ESTRELLA MÁGICA! ⭐', px, py-16, '#FFD700');
@@ -1401,19 +1643,6 @@ class QuestionBlock {
       ctx.beginPath(); ctx.roundRect(s.x,s.y,this.w,this.h,[3.5]); ctx.fill();
       ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.2; ctx.stroke();
 
-      ctx.fillStyle = '#E65100';
-      [[s.x+2.5, s.y+2.5], [s.x+this.w-2.5, s.y+2.5], [s.x+2.5, s.y+this.h-2.5], [s.x+this.w-2.5, s.y+this.h-2.5]].forEach(([rx,ry])=>{
-        ctx.beginPath(); ctx.arc(rx, ry, 1, 0, Math.PI*2); ctx.fill();
-      });
-
-      const shimmer = (now * 0.003) % 4;
-      if(shimmer < 1.2){
-        ctx.save(); ctx.beginPath(); ctx.roundRect(s.x,s.y,this.w,this.h,[3.5]); ctx.clip();
-        ctx.fillStyle = 'rgba(255,255,255,0.45)';
-        ctx.fillRect(s.x - this.w + shimmer*this.w*2, s.y, 6, this.h);
-        ctx.restore();
-      }
-
       ctx.fillStyle = '#3E2723';
       ctx.font = 'bold 11px "Fredoka", sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1440,15 +1669,6 @@ class DestructibleBlock {
     brickGrad.addColorStop(0, '#FF7043'); brickGrad.addColorStop(0.5, '#E64A19'); brickGrad.addColorStop(1, '#BF360C');
     ctx.fillStyle = brickGrad;
     ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [2.5]); ctx.fill();
-    
-    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.0;
-    ctx.beginPath(); ctx.moveTo(s.x+1, s.y+1); ctx.lineTo(s.x+this.w-1, s.y+1); ctx.stroke();
-
-    ctx.strokeStyle = '#3E2723'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(s.x, s.y+this.h/2); ctx.lineTo(s.x+this.w, s.y+this.h/2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(s.x+this.w/2, s.y); ctx.lineTo(s.x+this.w/2, s.y+this.h/2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(s.x+this.w/4, s.y+this.h/2); ctx.lineTo(s.x+this.w/4, s.y+this.h); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(s.x+this.w*0.75, s.y+this.h/2); ctx.lineTo(s.x+this.w*0.75, s.y+this.h); ctx.stroke();
     ctx.restore();
   }
 }
@@ -1496,8 +1716,6 @@ class FlagPole {
     const fc=Math.sin(now*0.012)*5;
     ctx.fillStyle='#D50000';
     ctx.beginPath(); ctx.moveTo(s.x+9, fy); ctx.lineTo(s.x+9+34+fc, fy+12); ctx.lineTo(s.x+9, fy+24); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#FF1744';
-    ctx.beginPath(); ctx.moveTo(s.x+9, fy); ctx.lineTo(s.x+9+34+fc, fy+12); ctx.lineTo(s.x+9, fy+12); ctx.closePath(); ctx.fill();
 
     ctx.fillStyle='#FFD700'; ctx.font='bold 10px "Fredoka", sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('★', s.x+9+16+fc/2, fy+12);
@@ -1518,6 +1736,12 @@ class PlatformerGame {
     this.currentLevelIdx=0;
     this.unlockedLevels=[true, true, true, true, true];
     this.state='MENU';
+
+    // Map Player Position for smooth walking on NSMBWii paths
+    this.mapPlayerX = LEVEL_CONFIGS[0].mapX;
+    this.mapPlayerY = LEVEL_CONFIGS[0].mapY;
+    this.mapTargetIdx = 0;
+    this.mapWalking = false;
 
     this.globalGravity=1; this.flashTimer=0;
     this.starDust=0; this.score=0;
@@ -1584,11 +1808,20 @@ class PlatformerGame {
     window.addEventListener('keydown',e=>{
       audio.init();
       if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
-      if(e.code==='ArrowLeft'||e.code==='KeyA')this.input.left=true;
-      if(e.code==='ArrowRight'||e.code==='KeyD')this.input.right=true;
+      if(e.code==='ArrowLeft'||e.code==='KeyA'){
+        this.input.left=true;
+        if(this.state==='WORLD_MAP') this.navigateWorldMap(-1);
+      }
+      if(e.code==='ArrowRight'||e.code==='KeyD'){
+        this.input.right=true;
+        if(this.state==='WORLD_MAP') this.navigateWorldMap(1);
+      }
       if(e.code==='ArrowUp'||e.code==='KeyW')this.input.up=true;
       if(e.code==='ArrowDown'||e.code==='KeyS')this.input.down=true;
-      if(e.code==='Space'||e.code==='KeyZ')this.input.jump=true;
+      if(e.code==='Space'||e.code==='KeyZ'||e.code==='Enter'){
+        this.input.jump=true;
+        if(this.state==='WORLD_MAP') this.startSelectedLevel();
+      }
       if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=true;
       if(e.code==='KeyT')this.input.paw=true;
       if(e.code==='KeyEscape'||e.code==='KeyP'){
@@ -1693,14 +1926,16 @@ class PlatformerGame {
 
       if(this.state!=='WORLD_MAP') return;
 
-      const nodes=[{x:70,y:140},{x:155,y:140},{x:245,y:140},{x:335,y:140},{x:425,y:140}];
-      nodes.forEach((n,idx)=>{
-        const dist=Math.hypot(cx-n.x,cy-n.y);
-        const inNodeBox=(Math.abs(cx-n.x)<42 && cy>=100 && cy<=195);
-        if(this.unlockedLevels[idx] && (dist<42 || inNodeBox)){
+      LEVEL_CONFIGS.forEach((cfg, idx)=>{
+        const dist=Math.hypot(cx-cfg.mapX, cy-cfg.mapY);
+        if(this.unlockedLevels[idx] && dist < 32){
           audio.init(); audio.click();
-          this.currentLevelIdx=idx;
-          this.startSelectedLevel();
+          if(this.currentLevelIdx === idx){
+            this.startSelectedLevel();
+          } else {
+            this.currentLevelIdx = idx;
+            this.mapTargetIdx = idx;
+          }
         }
       });
     };
@@ -1711,6 +1946,15 @@ class PlatformerGame {
         handleCanvasTap(e);
       }
     },{passive:true});
+  }
+
+  navigateWorldMap(dir){
+    const nextIdx = this.currentLevelIdx + dir;
+    if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length && this.unlockedLevels[nextIdx]){
+      audio.click();
+      this.currentLevelIdx = nextIdx;
+      this.mapTargetIdx = nextIdx;
+    }
   }
 
   togglePause(){
@@ -1777,7 +2021,7 @@ class PlatformerGame {
     this.destructibleBlocks=[]; this.starDustItems=[]; this.starCoins=[];
     this.hazardBlocks=[]; this.gSwitches=[]; this.unicorns=[]; this.zeroGBubbles=[];
 
-    // Level 1-1: Colinas Bellota
+    // Level 1-1: Colinas Bellota (Goombas, Monty Moles, Koopas, Super Mushroom, Unicorn)
     if(cfg.id === 1){
       this.staticPlatforms = [
         {x:0, y:256, w:700, h:32},
@@ -1834,7 +2078,7 @@ class PlatformerGame {
       this.flagPole = new FlagPole(3520, lw);
       this.galaxyBoss = null;
     }
-    // Level 1-2: Océano de Coral Marino (Water/Swim)
+    // Level 1-2: Océano Coral (Cheep Cheep, Blooper squid, Spiny Puffer, Bubble Flower)
     else if(cfg.id === 2){
       this.staticPlatforms = [
         {x:0, y:256, w:600, h:32},
@@ -1854,11 +2098,11 @@ class PlatformerGame {
 
       this.enemies = [
         new Enemy('cheep_cheep', 350, 140, 200, 600),
-        new Enemy('cheep_cheep', 650, 110, 500, 800),
-        new Enemy('cheep_cheep', 1000, 150, 850, 1200),
+        new Enemy('blooper', 650, 110, 500, 800),
+        new Enemy('spiny_puffer', 1000, 150, 850, 1200),
         new Enemy('cheep_cheep', 1300, 90, 1150, 1500),
-        new Enemy('cheep_cheep', 1700, 140, 1550, 1900),
-        new Enemy('cheep_cheep', 2100, 100, 1950, 2300),
+        new Enemy('blooper', 1700, 140, 1550, 1900),
+        new Enemy('spiny_puffer', 2100, 100, 1950, 2300),
         new Enemy('cheep_cheep', 2500, 130, 2350, 2750),
       ];
 
@@ -1869,10 +2113,10 @@ class PlatformerGame {
       ];
 
       this.questionBlocks = [
-        new QuestionBlock(220, 135, 'fireflower'),
+        new QuestionBlock(220, 135, 'bubble'),
         new QuestionBlock(840, 125, 'star'),
         new QuestionBlock(1540, 130, 'mushroom'),
-        new QuestionBlock(2320, 115, 'wing')
+        new QuestionBlock(2320, 115, 'bubble')
       ];
 
       this.destructibleBlocks = [
@@ -1886,7 +2130,7 @@ class PlatformerGame {
       this.flagPole = new FlagPole(3720, lw);
       this.galaxyBoss = null;
     }
-    // Level 1-3: Reino del Cielo & Nubes
+    // Level 1-3: Reino del Cielo (Paratroopas, Lakitus, Bullet Bills, Cloud Trampolines, Propeller Wings)
     else if(cfg.id === 3){
       this.staticPlatforms = [
         {x:0, y:256, w:500, h:32},
@@ -1904,11 +2148,11 @@ class PlatformerGame {
 
       this.enemies = [
         new Enemy('paratroopa', 400, 150, 300, 600),
-        new Enemy('paratroopa', 750, 110, 650, 950),
-        new Enemy('koopa', 1450, 196, 1350, 1700),
+        new Enemy('lakitu', 750, 60, 650, 950),
+        new Enemy('bullet_bill', 1450, 180, 1350, 1700),
         new Enemy('paratroopa', 2000, 90, 1900, 2250),
-        new Enemy('paratroopa', 2480, 120, 2350, 2700),
-        new Enemy('goomba', 2750, 206, 2650, 3050),
+        new Enemy('lakitu', 2480, 60, 2350, 2700),
+        new Enemy('bullet_bill', 2850, 190, 2650, 3050),
       ];
 
       this.starCoins = [
@@ -1920,7 +2164,7 @@ class PlatformerGame {
       this.questionBlocks = [
         new QuestionBlock(300, 180, 'wing'),
         new QuestionBlock(1400, 170, 'star'),
-        new QuestionBlock(2700, 180, 'fireflower')
+        new QuestionBlock(2700, 180, 'wing')
       ];
 
       this.destructibleBlocks = [
@@ -1933,7 +2177,7 @@ class PlatformerGame {
       this.flagPole = new FlagPole(3900, lw);
       this.galaxyBoss = null;
     }
-    // Level 1-4: Caverna de Cristal Zero-G
+    // Level 1-4: Caverna Zero-G (Buzzy Beetles, Boos shy ghosts, Ice Flower, Gravity Shift)
     else if(cfg.id === 4){
       this.staticPlatforms = [
         {x:0, y:256, w:550, h:32},
@@ -1968,11 +2212,12 @@ class PlatformerGame {
       ];
 
       this.enemies = [
-        new Enemy('koopa', 300, 232, 100, 500),
-        new Enemy('piranha', 760, 160, 700, 900),
-        new Enemy('koopa', 1350, 232, 1260, 1750),
-        new Enemy('piranha', 1520, 95, 1480, 1650),
-        new Enemy('koopa', 2000, 232, 1910, 2400),
+        new Enemy('buzzy_beetle', 300, 232, 100, 500),
+        new Enemy('boo', 760, 160, 700, 900),
+        new Enemy('buzzy_beetle', 1350, 232, 1260, 1750),
+        new Enemy('boo', 1520, 95, 1480, 1650),
+        new Enemy('buzzy_beetle', 2000, 232, 1910, 2400),
+        new Enemy('boo', 2600, 120, 2450, 2800)
       ];
 
       this.starCoins = [
@@ -1982,9 +2227,9 @@ class PlatformerGame {
       ];
 
       this.questionBlocks = [
-        new QuestionBlock(250, 135, 'mushroom'),
+        new QuestionBlock(250, 135, 'iceflower'),
         new QuestionBlock(800, 130, 'star'),
-        new QuestionBlock(1400, 125, 'fireflower'),
+        new QuestionBlock(1400, 125, 'iceflower'),
         new QuestionBlock(2060, 120, 'wing')
       ];
 
@@ -1999,7 +2244,7 @@ class PlatformerGame {
       this.flagPole = new FlagPole(3700, lw);
       this.galaxyBoss = null;
     }
-    // Level 1-5: Castillo & Jefe Cósmico
+    // Level 1-5: Castillo Volcánico (Dry Bones, Thwomps, Podoboos, Fire Flower, Boss)
     else if(cfg.id === 5){
       this.staticPlatforms = [
         {x:0, y:256, w:600, h:32},
@@ -2029,11 +2274,12 @@ class PlatformerGame {
       ];
 
       this.enemies = [
-        new Enemy('koopa', 320, 232, 150, 560),
-        new Enemy('paratroopa', 850, 110, 750, 1150),
-        new Enemy('koopa', 1450, 232, 1320, 1850),
-        new Enemy('piranha', 1600, 95, 1550, 1700),
-        new Enemy('koopa', 2150, 232, 2020, 2550),
+        new Enemy('dry_bones', 320, 232, 150, 560),
+        new Enemy('thwomp', 850, 80, 800, 900),
+        new Enemy('podoboo', 1150, 270, 1100, 1200),
+        new Enemy('dry_bones', 1450, 232, 1320, 1850),
+        new Enemy('thwomp', 2150, 80, 2100, 2200),
+        new Enemy('podoboo', 2500, 270, 2450, 2550)
       ];
 
       this.starCoins = [
@@ -2043,9 +2289,9 @@ class PlatformerGame {
       ];
 
       this.questionBlocks = [
-        new QuestionBlock(250, 135, 'mushroom'),
-        new QuestionBlock(850, 130, 'fireflower'),
-        new QuestionBlock(1450, 125, 'star'),
+        new QuestionBlock(250, 135, 'fireflower'),
+        new QuestionBlock(850, 130, 'star'),
+        new QuestionBlock(1450, 125, 'fireflower'),
         new QuestionBlock(2150, 120, 'wing')
       ];
 
@@ -2099,6 +2345,23 @@ class PlatformerGame {
   }
 
   update(now){
+    if(this.state==='WORLD_MAP'){
+      // Smoothly walk player sprite to selected map node
+      const target = LEVEL_CONFIGS[this.mapTargetIdx];
+      const dx = target.mapX - this.mapPlayerX;
+      const dy = target.mapY - this.mapPlayerY;
+      const dist = Math.hypot(dx, dy);
+      if(dist > 1.5){
+        this.mapPlayerX += (dx / dist) * 2.8;
+        this.mapPlayerY += (dy / dist) * 2.8;
+        this.mapWalking = true;
+      } else {
+        this.mapPlayerX = target.mapX;
+        this.mapPlayerY = target.mapY;
+        this.mapWalking = false;
+      }
+    }
+
     if(this.state==='PLAYING'){
       this.frameCount++;
       
@@ -2319,20 +2582,44 @@ class PlatformerGame {
       p.vy = Math.max(-MAX_FALL, Math.min(MAX_FALL, p.vy + effectiveGrav));
     }
 
-    // 🔥 FIRE FLOWER FIREBALL SHOOTING
+    // ⚡ ACTION POWER ATTACKS:
     const actJustPressed = this.input.action && !this.prevAction;
+    
+    // 🔥 FIREBALL
     if(p.powerState === 'fire' && actJustPressed && this.fireballs.length < 3){
       const dir = p.facingRight ? 1 : -1;
       this.fireballs.push({
+        type: 'fire',
         x: p.x + (p.facingRight ? p.w + 4 : -8),
         y: p.y + p.h/2,
-        vx: dir * 7.0,
-        vy: 2.5,
-        bounces: 3,
-        life: 180
+        vx: dir * 7.0, vy: 2.5, bounces: 3, life: 180
       });
       audio.fireballShoot();
       this.addParticles(p.x+p.w/2, p.y+p.h/2, 8, ['#FF9800','#FF1744','#FFD700'], 2.5);
+    }
+    // ❄️ ICE BALL
+    else if(p.powerState === 'ice' && actJustPressed && this.fireballs.length < 3){
+      const dir = p.facingRight ? 1 : -1;
+      this.fireballs.push({
+        type: 'ice',
+        x: p.x + (p.facingRight ? p.w + 4 : -8),
+        y: p.y + p.h/2,
+        vx: dir * 7.2, vy: 2.0, bounces: 3, life: 180
+      });
+      audio.iceShoot();
+      this.addParticles(p.x+p.w/2, p.y+p.h/2, 8, ['#00E5FF','#E1F5FE','#FFFFFF'], 2.5);
+    }
+    // 🫧 BUBBLE SHOT
+    else if(p.powerState === 'bubble' && actJustPressed && this.fireballs.length < 3){
+      const dir = p.facingRight ? 1 : -1;
+      this.fireballs.push({
+        type: 'bubble',
+        x: p.x + (p.facingRight ? p.w + 4 : -8),
+        y: p.y + p.h/2,
+        vx: dir * 5.5, vy: -0.5, bounces: 1, life: 160
+      });
+      audio.bubbleShoot();
+      this.addParticles(p.x+p.w/2, p.y+p.h/2, 8, ['#80DEEA','#00B0FF','#FFF'], 2.5);
     }
 
     // Candela Magic Platform Spawning
@@ -2460,7 +2747,7 @@ class PlatformerGame {
     for(let i=this.fireballs.length-1; i>=0; i--){
       const fb = this.fireballs[i];
       fb.x += fb.vx;
-      fb.vy += 0.35;
+      fb.vy += (fb.type==='bubble' ? -0.05 : 0.35);
       fb.y += fb.vy;
       fb.life--;
 
@@ -2471,8 +2758,14 @@ class PlatformerGame {
         }
       }
       for(const en of this.enemies){
-        if(!en.dead && Math.hypot(en.x-fb.x, en.y-fb.y) < 20){
-          en.die(this); fb.life = 0; audio.bossHit();
+        if(!en.dead && Math.hypot(en.x-fb.x, en.y-fb.y) < 22){
+          if(fb.type === 'ice'){
+            en.freezeInIce(); fb.life = 0;
+          } else if(fb.type === 'bubble'){
+            en.trapInBubble(); fb.life = 0;
+          } else {
+            en.die(this); fb.life = 0; audio.bossHit();
+          }
         }
       }
       if(fb.life <= 0 || fb.bounces <= 0) this.fireballs.splice(i, 1);
@@ -2516,7 +2809,7 @@ class PlatformerGame {
             this.hitStopFrames = 3;
           }
         } else {
-          if(p.powerState === 'super' || p.powerState === 'fire' || p.powerState === 'wing'){
+          if(p.powerState !== 'normal'){
             p.powerState = 'normal';
             p.w = CHARACTERS[this.selectedCharId].w;
             p.h = CHARACTERS[this.selectedCharId].h;
@@ -2564,10 +2857,8 @@ class PlatformerGame {
     const ctx=this.ctx;
     ctx.clearRect(0,0,VIRT_W,VIRT_H);
 
-    if(this.state==='MENU'){
-      this.renderWorldMap(ctx,now);
-    } else if(this.state==='WORLD_MAP'){
-      this.renderWorldMap(ctx,now);
+    if(this.state==='MENU' || this.state==='WORLD_MAP'){
+      this.renderWorldMapNSMBWii(ctx,now);
     } else if(this.state==='PLAYING' || this.state==='PAUSED'){
       this.renderBackground(ctx,now);
       this.renderLevel(ctx,now);
@@ -2587,81 +2878,271 @@ class PlatformerGame {
     }
   }
 
-  // ── 5-Node World Map ─────────────────────────────────────
-  renderWorldMap(ctx,now){
-    const bg=ctx.createLinearGradient(0,0,0,VIRT_H);
-    bg.addColorStop(0,'#0f1b38'); bg.addColorStop(0.6,'#1a2a54'); bg.addColorStop(1,'#0d1428');
-    ctx.fillStyle=bg; ctx.fillRect(0,0,VIRT_W,VIRT_H);
+  // ════════════════════════════════════════════════════════════
+  // 3D DIORAMA WORLD MAP (NEW SUPER MARIO BROS. WII STYLE)
+  // (Terraced Hills, Cylinder Mountains, Sparkling River & Bridge, Toad House, Castles, Dotted Paths & Hero Walk)
+  // ════════════════════════════════════════════════════════════
+  renderWorldMapNSMBWii(ctx, now){
+    ctx.imageSmoothingEnabled = true;
 
-    ctx.fillStyle='rgba(255,255,255,0.6)';
-    for(let i=0;i<40;i++){
-      const sx=(i*73)%VIRT_W, sy=(i*47)%VIRT_H;
-      const sp=(Math.sin(now*0.003+i)*0.4+0.6)*1.5;
-      ctx.fillRect(sx,sy,sp,sp);
+    // 1. Sky & Sun Glow
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
+    skyGrad.addColorStop(0, '#42A5F5'); skyGrad.addColorStop(0.5, '#90CAF9'); skyGrad.addColorStop(1, '#E3F2FD');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, VIRT_W, VIRT_H);
+
+    // Drifting background clouds
+    for(let i=0; i<5; i++){
+      const cx = ((i*130 + now*0.015) % (VIRT_W + 120)) - 60;
+      this._draw3DCloud(ctx, cx, 20 + (i%3)*15, 45);
     }
 
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle='#FFD700'; ctx.font='bold 16px "Fredoka",sans-serif';
-    ctx.fillText('MAPA DE MUNDOS: GALAXIA RIVELLES',VIRT_W/2,28);
+    // 2. 3D Mario Cylinder Mountains in Background
+    const drawCylinderHill = (hx, hy, hw, hh, col1, col2, spots) => {
+      ctx.save();
+      const hGrad = ctx.createLinearGradient(hx-hw/2, hy-hh, hx+hw/2, hy);
+      hGrad.addColorStop(0, col1); hGrad.addColorStop(1, col2);
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.ellipse(hx, hy-hh, hw/2, hh*0.2, 0, Math.PI, 0); // Top Dome
+      ctx.lineTo(hx+hw/2, hy); ctx.lineTo(hx-hw/2, hy); ctx.closePath();
+      ctx.fill();
 
-    ctx.fillStyle='#80DEEA'; ctx.font='700 10px "Fredoka",sans-serif';
-    ctx.fillText('5 Mundos Épicos • Gráficos 3D HD Remasterizados',VIRT_W/2,45);
+      // Side shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.beginPath(); ctx.rect(hx+hw*0.2, hy-hh, hw*0.3, hh); ctx.fill();
 
-    const nodes=[{x:70,y:140},{x:155,y:140},{x:245,y:140},{x:335,y:140},{x:425,y:140}];
-    
+      // Shaded spots
+      if(spots){
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.ellipse(hx-hw*0.15, hy-hh*0.6, 6, 8, 0.1, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(hx+hw*0.1, hy-hh*0.3, 8, 10, -0.1, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    };
+
+    drawCylinderHill(90, 160, 50, 90, '#4CAF50', '#2E7D32', true);
+    drawCylinderHill(150, 150, 65, 110, '#FFEB3B', '#FBC02D', true);
+    drawCylinderHill(280, 135, 75, 120, '#42A5F5', '#1976D2', true);
+    drawCylinderHill(390, 140, 60, 100, '#AB47BC', '#6A1B9A', true);
+
+    // 3. 3D Terraced Green Diorama Hills (Layers with earthen cliffs)
+    const drawTerrace = (yBase, h, topCol, botCol, cliffCol) => {
+      ctx.save();
+      // Earth Cliff
+      ctx.fillStyle = cliffCol;
+      ctx.beginPath();
+      ctx.moveTo(0, yBase); ctx.bezierCurveTo(VIRT_W*0.3, yBase-15, VIRT_W*0.7, yBase+15, VIRT_W, yBase);
+      ctx.lineTo(VIRT_W, yBase+h); ctx.lineTo(0, yBase+h); ctx.closePath(); ctx.fill();
+
+      // Lush Grass Top Layer
+      const gGrad = ctx.createLinearGradient(0, yBase-12, 0, yBase+8);
+      gGrad.addColorStop(0, topCol); gGrad.addColorStop(1, botCol);
+      ctx.fillStyle = gGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, yBase-8); ctx.bezierCurveTo(VIRT_W*0.3, yBase-23, VIRT_W*0.7, yBase+7, VIRT_W, yBase-8);
+      ctx.lineTo(VIRT_W, yBase+6); ctx.bezierCurveTo(VIRT_W*0.7, yBase+21, VIRT_W*0.3, yBase-9, 0, yBase+6);
+      ctx.closePath(); ctx.fill();
+
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.restore();
+    };
+
+    drawTerrace(130, 80, '#81C784', '#388E3C', '#8D6E63');
+    drawTerrace(180, 110, '#A5D6A7', '#43A047', '#795548');
+
+    // 4. Sparkling Blue River with Animated Waves
     ctx.save();
-    ctx.strokeStyle='#FFD700'; ctx.lineWidth=4; ctx.setLineDash([8,6]);
-    ctx.beginPath(); ctx.moveTo(nodes[0].x,nodes[0].y);
-    for(let i=1; i<nodes.length; i++) ctx.lineTo(nodes[i].x,nodes[i].y);
+    const rGrad = ctx.createLinearGradient(130, 200, 210, VIRT_H);
+    rGrad.addColorStop(0, '#00E5FF'); rGrad.addColorStop(0.5, '#0288D1'); rGrad.addColorStop(1, '#01579B');
+    ctx.fillStyle = rGrad;
+    ctx.beginPath();
+    ctx.moveTo(135, 180); ctx.bezierCurveTo(150, 220, 140, 250, 120, VIRT_H);
+    ctx.lineTo(210, VIRT_H); ctx.bezierCurveTo(230, 250, 220, 220, 205, 180); ctx.closePath();
+    ctx.fill();
+
+    // River wave ripples
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5;
+    for(let w=0; w<4; w++){
+      const wy = 195 + w*22 + Math.sin(now*0.005 + w)*3;
+      ctx.beginPath(); ctx.moveTo(145 + w*10, wy); ctx.lineTo(175 + w*10, wy); ctx.stroke();
+    }
+
+    // Wooden Bridge crossing the River
+    ctx.fillStyle = '#6D4C41';
+    ctx.fillRect(145, 205, 55, 16);
+    ctx.strokeStyle = '#D7CCC8'; ctx.lineWidth = 1.2;
+    for(let pl=145; pl<=200; pl+=7){
+      ctx.beginPath(); ctx.moveTo(pl, 205); ctx.lineTo(pl, 221); ctx.stroke();
+    }
+    ctx.restore();
+
+    // 5. Diorama Props: Toad Mushroom House, Warp Cannon, Fortress
+    // 🍄 Toad Mushroom House
+    ctx.save();
+    ctx.translate(285, 100);
+    ctx.fillStyle = '#FFF8E1'; ctx.beginPath(); ctx.roundRect(-10, 0, 20, 16, [4]); ctx.fill(); // Stem
+    ctx.fillStyle = '#795548'; ctx.fillRect(-4, 6, 8, 10); // Door
+    // Red Dome with White Spots
+    ctx.fillStyle = '#E53935'; ctx.beginPath(); ctx.arc(0, 0, 16, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(0, -6, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-10, -2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(10, -2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 💣 Gold Warp Cannon
+    ctx.save();
+    ctx.translate(170, 255);
+    ctx.fillStyle = '#37474F'; ctx.beginPath(); ctx.roundRect(-10, -4, 20, 8, [3]); ctx.fill();
+    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.ellipse(0, -10, 8, 12, 0.4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.arc(4, -14, 4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 🏰 Stone Fortress Tower at World 1-5
+    ctx.save();
+    ctx.translate(435, 95);
+    ctx.fillStyle = '#546E7A'; ctx.fillRect(-18, -25, 36, 25);
+    ctx.fillStyle = '#37474F'; ctx.fillRect(-6, -10, 12, 10); // Gate
+    // Battlements
+    for(let b=-18; b<=12; b+=9){ ctx.fillRect(b, -30, 6, 6); }
+    // Red Flag
+    ctx.strokeStyle = '#B0BEC5'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(12, -30); ctx.lineTo(12, -44); ctx.stroke();
+    ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.moveTo(12, -44); ctx.lineTo(24, -38); ctx.lineTo(12, -32); ctx.fill();
+    ctx.restore();
+
+    // 6. Dotted Stone Pathway connecting the 5 Level Nodes
+    ctx.save();
+    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 4.5; ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    ctx.moveTo(LEVEL_CONFIGS[0].mapX, LEVEL_CONFIGS[0].mapY);
+    for(let i=1; i<LEVEL_CONFIGS.length; i++){
+      ctx.lineTo(LEVEL_CONFIGS[i].mapX, LEVEL_CONFIGS[i].mapY);
+    }
     ctx.stroke();
     ctx.restore();
 
-    nodes.forEach((n,idx)=>{
-      const unlocked=this.unlockedLevels[idx];
-      const selected=this.currentLevelIdx===idx;
-      const cfg=LEVEL_CONFIGS[idx];
+    // 7. Interactive Level Stage Nodes
+    LEVEL_CONFIGS.forEach((cfg, idx) => {
+      const unlocked = this.unlockedLevels[idx];
+      const selected = (this.currentLevelIdx === idx);
+      const nx = cfg.mapX, ny = cfg.mapY;
 
-      ctx.save(); ctx.translate(n.x,n.y);
+      ctx.save();
+      ctx.translate(nx, ny);
+
+      // Selected pulsating golden ring
       if(selected){
-        ctx.strokeStyle='#00E5FF'; ctx.lineWidth=3.5;
-        ctx.beginPath(); ctx.arc(0,0,24+Math.sin(now*0.008)*3,0,Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
+        const sa = Math.sin(now * 0.008) * 3;
+        ctx.beginPath(); ctx.arc(0, 0, 18 + sa, 0, Math.PI*2); ctx.stroke();
       }
 
-      const nGrad=ctx.createRadialGradient(0,0,4,0,0,18);
+      // Stage Node Circle Pad (Red for Castles/Fortresses, Blue/Green for stages)
+      const padGrad = ctx.createRadialGradient(0, -2, 2, 0, 0, 14);
       if(unlocked){
-        if(selected){ nGrad.addColorStop(0,'#FFE082'); nGrad.addColorStop(1,'#FF8F00'); }
-        else        { nGrad.addColorStop(0,'#81C784'); nGrad.addColorStop(1,'#2E7D32'); }
+        padGrad.addColorStop(0, '#FFF9C4');
+        padGrad.addColorStop(0.4, cfg.color);
+        padGrad.addColorStop(1, '#1B5E20');
       } else {
-        nGrad.addColorStop(0,'#757575'); nGrad.addColorStop(1,'#212121');
+        padGrad.addColorStop(0, '#9E9E9E'); padGrad.addColorStop(1, '#424242');
       }
-      ctx.fillStyle=nGrad;
-      ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=2.2; ctx.stroke();
+      ctx.fillStyle = padGrad;
+      ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.stroke();
 
-      ctx.fillStyle=unlocked?'#FFFFFF':'#BDBDBD'; ctx.font='bold 10px "Fredoka",sans-serif';
-      ctx.fillText(unlocked?`1-${idx+1}`:'🔒',0,1);
+      // Node Label (1-1, 1-2, 1-3...)
+      ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 9.5px "Fredoka", sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(unlocked ? `1-${idx+1}` : '🔒', 0, 1);
 
-      ctx.fillStyle='#FFD700'; ctx.font='bold 8px "Fredoka",sans-serif';
-      ctx.fillText(cfg.name.split(':')[1]||'',0,28);
+      // Level Name Label
+      if(selected){
+        ctx.fillStyle = 'rgba(10, 18, 42, 0.85)';
+        ctx.beginPath(); ctx.roundRect(-55, 18, 110, 18, [9]); ctx.fill();
+        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 8px "Fredoka", sans-serif';
+        ctx.fillText(cfg.name.split(':')[1]||cfg.name, 0, 27);
+      }
+
       ctx.restore();
     });
 
-    const curNode=nodes[this.currentLevelIdx];
-    const img=loadedImages[this.selectedCharId];
-    ctx.save(); ctx.translate(curNode.x,curNode.y-34+Math.sin(now*0.006)*4);
-    if(img&&img.complete&&img.naturalWidth>0){
-      ctx.drawImage(img,-16,-22,32,44);
+    // 8. Animated Walking Hero on the Map!
+    const heroImg = loadedImages[this.selectedCharId];
+    ctx.save();
+    const bob = this.mapWalking ? Math.abs(Math.sin(now * 0.02)) * -4 : Math.sin(now * 0.005) * 1.5;
+    ctx.translate(this.mapPlayerX, this.mapPlayerY - 18 + bob);
+
+    // Map Player Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath(); ctx.ellipse(0, 18 - bob, 10, 3.5, 0, 0, Math.PI*2); ctx.fill();
+
+    if(heroImg && heroImg.complete && heroImg.naturalWidth > 0){
+      ctx.drawImage(heroImg, -14, -18, 28, 36);
     }
     ctx.restore();
 
-    const pulse=Math.sin(now*0.006)*0.2+0.8;
-    ctx.globalAlpha=pulse; ctx.fillStyle='#FFD700'; ctx.font='bold 12px "Fredoka",sans-serif';
-    ctx.fillText('¡TOCA UN NIVEL PARA JUGAR!',VIRT_W/2,250);
-    ctx.globalAlpha=1;
+    // 9. NSMBWii Authentic Golden Top-Left Plaque HUD
+    this._drawNSMBWiiTopHUD(ctx, now);
+
+    // Bottom Action Prompt
+    ctx.save();
+    const pulse = Math.sin(now * 0.006) * 0.2 + 0.8;
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.85)';
+    ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 120, VIRT_H - 28, 240, 22, [11]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 10px "Fredoka", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('¡PULSA ESPACIO / TOCA PARA JUGAR! 🌟', VIRT_W/2, VIRT_H - 17);
+    ctx.restore();
+  }
+
+  _drawNSMBWiiTopHUD(ctx, now){
+    ctx.save();
+    // Golden Plaque
+    const pGrad = ctx.createLinearGradient(8, 8, 160, 38);
+    pGrad.addColorStop(0, '#FFE082'); pGrad.addColorStop(0.5, '#FFB300'); pGrad.addColorStop(1, '#FF8F00');
+    ctx.fillStyle = pGrad;
+    ctx.beginPath(); ctx.roundRect(8, 8, 165, 30, [15]); ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Hero Icon Mini Badge
+    ctx.fillStyle = '#1A237E';
+    ctx.beginPath(); ctx.arc(24, 23, 11, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    const img = loadedImages[this.selectedCharId];
+    if(img && img.complete){
+      ctx.drawImage(img, 15, 12, 18, 22);
+    }
+
+    // World Name Text
+    ctx.fillStyle = '#3E2723'; ctx.font = 'bold 11px "Fredoka", sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(`WORLD 1-${this.currentLevelIdx + 1}`, 42, 17);
+
+    // Star Coins Mini Slots
+    ctx.font = '10px sans-serif';
+    ctx.fillText('⭐⭐⭐', 42, 29);
+
+    // Audio & Menu Quick Buttons (Top-Right)
+    const drawPill = (x,y,w,h) => {
+      ctx.fillStyle='rgba(10, 18, 42, 0.72)'; 
+      ctx.beginPath(); ctx.roundRect(x,y,w,h,[h/2]); ctx.fill();
+      ctx.strokeStyle='rgba(255,215,0,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+    };
+    drawPill(VIRT_W-120, 8, 112, 28);
+    ctx.font='bold 9px "Fredoka",sans-serif';
+    ctx.fillStyle='#80DEEA'; ctx.fillText('👥 HÉROES', VIRT_W-112, 22);
+    ctx.fillStyle=this.soundMuted?'#9E9E9E':'#FFD700'; ctx.fillText(this.soundMuted?'🔇':'🎵', VIRT_W-32, 22);
+
+    ctx.restore();
   }
 
   // ════════════════════════════════════════════════════════════
-  // 2.5D PARALLAX BACKGROUNDS
+  // 2.5D PARALLAX BACKGROUNDS PER THEME
   // ════════════════════════════════════════════════════════════
   renderBackground(ctx,now){
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
@@ -2731,13 +3212,6 @@ class PlatformerGame {
 
       const treeX = ((650 - cx*0.18) % 1600) - 200;
       this._drawGiantAcornTree(ctx, treeX, VIRT_H);
-
-      for(let i=0; i<10; i++){
-        const mx = ((i*220 - cx*0.24) % 2200) - 250;
-        this._drawFacetedMountain(ctx, mx, VIRT_H, 110 + (i%3)*30, 130 + (i%2)*40);
-      }
-
-      this._drawRollingLushHills(ctx, cx, now);
     }
     // 🔮 CAVE PARALLAX
     else if(cfg.theme === 'cave'){
@@ -2745,12 +3219,6 @@ class PlatformerGame {
         const mx = ((i*190 - cx*0.2) % 2000) - 200;
         this._drawCrystalSpire(ctx, mx, VIRT_H, 80 + (i%3)*40, 120 + (i%2)*50);
       }
-      ctx.fillStyle = '#1b0933';
-      ctx.beginPath(); ctx.moveTo(0, VIRT_H);
-      for(let x=0; x<=VIRT_W; x+=16){
-        ctx.lineTo(x, VIRT_H - 50 + Math.sin((x + cx*0.5)*0.015)*25);
-      }
-      ctx.lineTo(VIRT_W, VIRT_H); ctx.fill();
     }
     // 🌋 CASTLE PARALLAX
     else if(cfg.theme === 'castle'){
@@ -2788,11 +3256,6 @@ class PlatformerGame {
     ctx.lineTo(22, -150); ctx.quadraticCurveTo(30, -70, 50, 0);
     ctx.closePath(); ctx.fill();
 
-    ctx.strokeStyle = 'rgba(120, 95, 60, 0.35)'; ctx.lineWidth = 4;
-    [-30, -60, -90, -120].forEach(ty=>{
-      ctx.beginPath(); ctx.ellipse(0, ty, 28, 7, 0, 0, Math.PI); ctx.stroke();
-    });
-
     const leafColors = ['#1B5E20', '#2E7D32', '#43A047', '#66BB6A'];
     [[-45,-160, 42], [45,-160, 42], [0,-185, 52], [-25,-200, 38], [25,-200, 38]].forEach(([lx,ly,lr])=>{
       const cGrad = ctx.createRadialGradient(lx-10, ly-10, 4, lx, ly, lr);
@@ -2801,43 +3264,6 @@ class PlatformerGame {
       ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI*2); ctx.fill();
     });
     ctx.restore();
-  }
-
-  _drawFacetedMountain(ctx, x, baseY, w, h){
-    ctx.save(); ctx.translate(x, baseY);
-    const leftGrad = ctx.createLinearGradient(-w/2, -h, 0, 0);
-    leftGrad.addColorStop(0, '#B2EBF2'); leftGrad.addColorStop(0.5, '#4DD0E1'); leftGrad.addColorStop(1, '#00838F');
-    ctx.fillStyle = leftGrad;
-    ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(-w/2, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-
-    const rightGrad = ctx.createLinearGradient(0, -h, w/2, 0);
-    rightGrad.addColorStop(0, '#4DD0E1'); rightGrad.addColorStop(0.6, '#0097A7'); rightGrad.addColorStop(1, '#006064');
-    ctx.fillStyle = rightGrad;
-    ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(w/2, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(-w*0.2, -h*0.75); ctx.lineTo(0, -h*0.7); ctx.lineTo(w*0.2, -h*0.75); ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
-
-  _drawRollingLushHills(ctx, cx, now){
-    const h1Grad = ctx.createLinearGradient(0, VIRT_H-100, 0, VIRT_H);
-    h1Grad.addColorStop(0, '#43A047'); h1Grad.addColorStop(1, '#1B5E20');
-    ctx.fillStyle = h1Grad;
-    ctx.beginPath(); ctx.moveTo(0, VIRT_H);
-    for(let x=0; x<=VIRT_W; x+=14){
-      ctx.lineTo(x, VIRT_H - 55 + Math.sin((x + cx*0.4)*0.009)*28);
-    }
-    ctx.lineTo(VIRT_W, VIRT_H); ctx.fill();
-
-    const h2Grad = ctx.createLinearGradient(0, VIRT_H-70, 0, VIRT_H);
-    h2Grad.addColorStop(0, '#66BB6A'); h2Grad.addColorStop(0.3, '#388E3C'); h2Grad.addColorStop(1, '#0D5302');
-    ctx.fillStyle = h2Grad;
-    ctx.beginPath(); ctx.moveTo(0, VIRT_H);
-    for(let x=0; x<=VIRT_W; x+=14){
-      ctx.lineTo(x, VIRT_H - 35 + Math.cos((x + cx*0.5)*0.012)*22);
-    }
-    ctx.lineTo(VIRT_W, VIRT_H); ctx.fill();
   }
 
   _drawCrystalSpire(ctx, x, baseY, w, h){
@@ -2879,12 +3305,6 @@ class PlatformerGame {
       ctx.beginPath(); ctx.arc(s.x, s.y, curR, 0, Math.PI*2); ctx.fill();
 
       ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.5; ctx.stroke();
-      ctx.strokeStyle = '#E040FB'; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.arc(s.x, s.y, curR - 4, 0, Math.PI*2); ctx.stroke();
-
-      ctx.fillStyle = '#00E5FF'; ctx.font = 'bold 9px "Fredoka", sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('ZERO-G', s.x, s.y);
       ctx.restore();
     }
 
@@ -2913,10 +3333,20 @@ class PlatformerGame {
     for(const fb of this.fireballs){
       const fs = cam.toScreen(fb.x, fb.y);
       ctx.save();
-      const fGrad = ctx.createRadialGradient(fs.x, fs.y, 1, fs.x, fs.y, 6);
-      fGrad.addColorStop(0, '#FFFFFF'); fGrad.addColorStop(0.4, '#FFD700'); fGrad.addColorStop(1, '#FF1744');
-      ctx.fillStyle = fGrad;
-      ctx.beginPath(); ctx.arc(fs.x, fs.y, 6, 0, Math.PI*2); ctx.fill();
+      if(fb.type === 'ice'){
+        ctx.fillStyle = '#80DEEA';
+        ctx.beginPath(); ctx.arc(fs.x, fs.y, 6, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+      } else if(fb.type === 'bubble'){
+        ctx.fillStyle = 'rgba(0, 229, 255, 0.6)';
+        ctx.beginPath(); ctx.arc(fs.x, fs.y, 7, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+      } else {
+        const fGrad = ctx.createRadialGradient(fs.x, fs.y, 1, fs.x, fs.y, 6);
+        fGrad.addColorStop(0, '#FFFFFF'); fGrad.addColorStop(0.4, '#FFD700'); fGrad.addColorStop(1, '#FF1744');
+        ctx.fillStyle = fGrad;
+        ctx.beginPath(); ctx.arc(fs.x, fs.y, 6, 0, Math.PI*2); ctx.fill();
+      }
       ctx.restore();
     }
 
@@ -2932,32 +3362,10 @@ class PlatformerGame {
     ctx.fillStyle = rockGrad;
     ctx.beginPath(); ctx.roundRect(x, y+4, w, h-4, [0, 0, 6, 6]); ctx.fill();
 
-    ctx.strokeStyle = 'rgba(160, 136, 85, 0.4)'; ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(x+4, y+14); ctx.bezierCurveTo(x+w*0.3, y+12, x+w*0.7, y+16, x+w-4, y+14);
-    if(h > 24){
-      ctx.moveTo(x+4, y+24); ctx.bezierCurveTo(x+w*0.4, y+26, x+w*0.8, y+22, x+w-4, y+25);
-    }
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(x+w-3, y+4, 3, h-4);
-
     const grassGrad = ctx.createLinearGradient(x, y-2, x, y+8);
     grassGrad.addColorStop(0, '#76E828'); grassGrad.addColorStop(0.5, '#4CAF50'); grassGrad.addColorStop(1, '#1B5E20');
     ctx.fillStyle = grassGrad;
-
-    ctx.beginPath();
-    ctx.moveTo(x-2, y+6); ctx.lineTo(x-2, y); ctx.lineTo(x+w+2, y); ctx.lineTo(x+w+2, y+6);
-    const bladeW = 10;
-    const numBlades = Math.floor(w / bladeW);
-    for(let b=numBlades; b>=0; b--){
-      const bx = x + b*bladeW;
-      const by = y + 6 + (b%2===0 ? 3 : 1);
-      ctx.lineTo(bx + bladeW*0.5, by);
-      ctx.lineTo(bx, y+5);
-    }
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(x, y, w, 8, [4, 4, 0, 0]); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+w, y); ctx.stroke();
     ctx.restore();
@@ -3004,8 +3412,7 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // HD CHARACTER SPRITE RENDERING WITH PROCEDURAL ANIMATIONS:
-  // (Walking bob, Running lean, Skid dust, Jump stretch, Landing squash)
+  // HD CHARACTER SPRITE RENDERING WITH PROCEDURAL ANIMATIONS
   // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
     const p=this.player, cam=this.camera;
@@ -3047,35 +3454,28 @@ class PlatformerGame {
       ctx.beginPath(); ctx.ellipse(0, p.h/2 - bobY, shWidth, 3.5, 0, 0, Math.PI*2); ctx.fill();
     }
 
-    // Facing direction flip & gravity
     if(!p.facingRight) ctx.scale(-1, 1);
     if(this.globalGravity === -1) ctx.scale(1, -1);
 
-    // Apply squash, stretch, and movement tilt
     ctx.scale(p.squashX, p.squashY);
     ctx.rotate(tiltAngle + legWobble);
 
     if(p.invincibleTimer > 0 && Math.floor(p.frame/4)%2 === 0) ctx.globalAlpha = 0.4;
 
-    // Star Power Sparkling Rainbow Aura
+    // Power-Up Auras
     if(p.powerState === 'star'){
       const sCols = ['#FF1744','#FFD700','#00E5FF','#76FF03','#E040FB'];
       ctx.strokeStyle = sCols[Math.floor(now/60)%sCols.length]; ctx.lineWidth = 3.5;
       ctx.beginPath(); ctx.arc(0, bobY, p.w*0.8 + Math.sin(now*0.02)*4, 0, Math.PI*2); ctx.stroke();
-    }
-
-    // Fire Flower Golden Fire Aura
-    if(p.powerState === 'fire'){
+    } else if(p.powerState === 'fire'){
       ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.arc(0, bobY, p.w*0.75 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
-    }
-
-    // Zero-G Cosmic Aura Shield
-    if(p.inZeroG){
-      const auraGrad = ctx.createRadialGradient(0, bobY, 8, 0, bobY, p.w*1.15);
-      auraGrad.addColorStop(0, 'rgba(0,229,255,0.45)'); auraGrad.addColorStop(1, 'rgba(224,64,251,0)');
-      ctx.fillStyle = auraGrad;
-      ctx.beginPath(); ctx.arc(0, bobY, p.w*1.15, 0, Math.PI*2); ctx.fill();
+    } else if(p.powerState === 'ice'){
+      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, bobY, p.w*0.75 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
+    } else if(p.powerState === 'bubble'){
+      ctx.strokeStyle = '#80DEEA'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, bobY, p.w*0.75 + Math.sin(now*0.015)*2, 0, Math.PI*2); ctx.stroke();
     }
 
     const img = loadedImages[this.selectedCharId];
