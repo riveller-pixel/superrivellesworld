@@ -1506,6 +1506,10 @@ class PlatformerGame {
     window.addEventListener('keydown',e=>{
       audio.init();
       if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+      if(this.state === 'LEVEL_COMPLETE'){
+        this.goToWorldMap();
+        return;
+      }
       if(e.code==='ArrowLeft'||e.code==='KeyA'){ this.input.left=true; if(this.state==='WORLD_MAP') this.navigateWorldMap(-1); }
       if(e.code==='ArrowRight'||e.code==='KeyD'){ this.input.right=true; if(this.state==='WORLD_MAP') this.navigateWorldMap(1); }
       if(e.code==='ArrowUp'||e.code==='KeyW')this.input.up=true;
@@ -1542,7 +1546,7 @@ class PlatformerGame {
     document.getElementById('btn-start').addEventListener('click', ()=>{
       audio.init(); audio.jump();
       document.getElementById('modal-select').classList.remove('active');
-      this.state='WORLD_MAP';
+      this.goToWorldMap();
     });
 
     document.getElementById('btn-resume').addEventListener('click', ()=>{ this.resumeGame(); });
@@ -1552,7 +1556,7 @@ class PlatformerGame {
     });
     document.getElementById('btn-world-map').addEventListener('click', ()=>{
       document.getElementById('modal-pause').classList.remove('active');
-      this.state='WORLD_MAP';
+      this.goToWorldMap();
     });
 
     document.querySelectorAll('.pause-char-item').forEach(item=>{
@@ -1941,6 +1945,20 @@ class PlatformerGame {
     this.state = 'LEVEL_COMPLETE';
     audio.winFanfare();
   }
+
+  goToWorldMap(){
+    this.state = 'WORLD_MAP';
+    audio.currentTrack = 'map';
+    audio.startBGM();
+    const nextIdx = Math.min(this.currentLevelIdx + 1, 8);
+    if(this.unlockedLevels[nextIdx]){
+      this.mapTargetIdx = nextIdx;
+      this.currentLevelIdx = nextIdx;
+    } else {
+      this.mapTargetIdx = this.currentLevelIdx;
+    }
+  }
+
   getAllSolidPlatforms(){
     const list = [...this.staticPlatforms];
     if(this.spawnedPlatforms){
