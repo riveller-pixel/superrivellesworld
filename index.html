@@ -432,19 +432,8 @@ const CHARACTERS = {
 };
 
 const loadedImages = {};
-const costumeImages = {};
-const CHAR_IDS = ['candela', 'cayetana', 'valentina', 'mama', 'papa'];
-const COSTUME_KEYS = ['pharaoh', 'princess', 'frozen', 'astronaut', 'fire', 'mounted'];
+// Character & asset cache
 
-for (const cid of CHAR_IDS) {
-  for (const ckey of COSTUME_KEYS) {
-    const key = `${cid}_${ckey}`;
-    const img = new Image();
-    img.src = `${key}.png`;
-    img.onerror = () => { img.src = `assets/${key}.png`; };
-    costumeImages[key] = img;
-  }
-}
 
 for(const [key,char] of Object.entries(CHARACTERS)){
   const img = new Image(); img.src = char.imgSrc; img.onerror = () => { img.src = char.fallback; };
