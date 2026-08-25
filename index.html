@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Super Rivelles Peris World - 9 Worlds Master Edition</title>
+<title>Super Rivelles Peris World - 2.5D Master Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
@@ -134,9 +134,9 @@
   <!-- Character Selection Modal -->
   <div class="screen-overlay active" id="modal-select">
     <div class="select-modal">
-      <div class="modal-header-badge">🌟 9 REINOS ÉPICOS DE LA GALAXIA 🌟</div>
+      <div class="modal-header-badge">🌟 9 REINOS ÉPICOS EN 2.5D 🌟</div>
       <div class="modal-title">¡SUPER RIVELLES PERIS WORLD!</div>
-      <div class="modal-subtitle">Egipto • Castillo Disney • Frozen • Mario Galaxy • Monturas & Disfraces</div>
+      <div class="modal-subtitle">Egipto • Castillo Disney • Frozen • Mario Galaxy • 9 Monturas & 9 Temas Musicales</div>
       
       <div class="char-grid">
         <div class="char-card selected" data-id="candela" id="card-candela">
@@ -169,7 +169,7 @@
         <img src="tommy.png" alt="Tommy" class="tommy-banner-img" onerror="this.src='assets/tommy.png'">
         <div class="tommy-banner-text">
           <div class="tommy-banner-title">🐶 TOMMY - COMPAÑERO MÁGICO IA</div>
-          Monta en cada mundo: Camellos 🐪, Corceles Reales 🦄👑, Reno Sven 🦌 y Dragones Galácticos 🚀🌟.
+          Monta en cada mundo: Camello 🐪, Delfín 🐬, Corcel Real 🦄👑, Reno Sven 🦌 y Dragón Galáctico 🚀🌟.
         </div>
       </div>
       <button class="snes-btn-gold" id="btn-start">¡EXPLORAR EL MAPA DE MUNDOS! 🗺️</button>
@@ -214,7 +214,7 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 }
 
 // ════════════════════════════════════════════════════════════
-// 4-CHANNEL POLYPHONIC AUDIO ENGINE (WITH EGYPT, DISNEY, FROZEN & GALAXY SOUNDTRACKS)
+// 4-CHANNEL POLYPHONIC AUDIO ENGINE WITH 9 DISTINCT THEMATIC WORLD TRACKS
 // ════════════════════════════════════════════════════════════
 class SoundFX {
   constructor(){
@@ -305,10 +305,7 @@ class SoundFX {
   }
 
   jump(){ this.playTone(160,'square',0.14,0.22,480); }
-  tripleJump(){
-    this.playTone(330,'triangle',0.12,0.25,660);
-    setTimeout(()=>this.playTone(660,'sine',0.16,0.25,1100),60);
-  }
+  tripleJump(){ this.playTone(330,'triangle',0.12,0.25,660); setTimeout(()=>this.playTone(660,'sine',0.16,0.25,1100),60); }
   flutter(){ this.playTone(450,'triangle',0.12,0.25,750); setTimeout(()=>this.playTone(600,'sine',0.14,0.22,900),50); }
   dash(){ this.playTone(280,'sawtooth',0.15,0.3,140); }
   glide(){ this.playTone(400,'sine',0.08,0.15,600); }
@@ -442,17 +439,17 @@ const tommyImg = new Image();
 tommyImg.src = 'tommy.png';
 tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 
-// 9 EXPANSIVE WORLDS WITH NSMBWII MAP COORDINATES
+// 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: Colinas Bellota & Jardín",  width: 3600, theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 42,  mapY: 195, color: "#2E7D32" },
-  { id: 2, name: "1-2: Océano de Coral Marino",    width: 3800, theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 95,  mapY: 220, color: "#0288D1" },
-  { id: 3, name: "1-3: Pirámides de Egipto",       width: 3800, theme: "egypt",  sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 152, mapY: 185, color: "#F57C00" },
-  { id: 4, name: "1-4: Castillo Princesas Disney", width: 4000, theme: "disney", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 212, mapY: 140, color: "#AB47BC" },
-  { id: 5, name: "1-5: Reino Glacial de Frozen",   width: 3800, theme: "frozen", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 270, mapY: 115, color: "#26C6DA" },
-  { id: 6, name: "1-6: Reino del Cielo & Nubes",   width: 4000, theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 326, mapY: 145, color: "#FBC02D" },
-  { id: 7, name: "1-7: Caverna de Cristal Zero-G", width: 3800, theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 378, mapY: 190, color: "#8E24AA" },
-  { id: 8, name: "1-8: Galaxia Mario Galaxy",      width: 4200, theme: "galaxy", sky: ["#03001e","#7303c0","#ec38bc"], track: "galaxy",    mapX: 432, mapY: 135, color: "#D500F9" },
-  { id: 9, name: "1-9: Castillo Volcánico & Jefe", width: 4400, theme: "castle", sky: ["#0b0410","#1e0b32","#3a155c"], track: "boss",      mapX: 482, mapY: 95,  color: "#D32F2F" }
+  { id: 1, name: "1-1: Colinas Bellota",    theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 38,  mapY: 195, color: "#2E7D32" },
+  { id: 2, name: "1-2: Océano de Coral",    theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 88,  mapY: 220, color: "#0288D1" },
+  { id: 3, name: "1-3: Pirámides de Egipto",theme: "egypt",  sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 145, mapY: 185, color: "#F57C00" },
+  { id: 4, name: "1-4: Castillo Disney",    theme: "disney", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
+  { id: 5, name: "1-5: Glaciares Frozen",   theme: "frozen", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
+  { id: 6, name: "1-6: Reino del Cielo",    theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
+  { id: 7, name: "1-7: Cavernas Zero-G",    theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
+  { id: 8, name: "1-8: Mario Galaxy",       theme: "galaxy", sky: ["#03001e","#7303c0","#ec38bc"], track: "galaxy",    mapX: 432, mapY: 135, color: "#D500F9" },
+  { id: 9, name: "1-9: Castillo Volcánico", theme: "castle", sky: ["#0b0410","#1e0b32","#3a155c"], track: "boss",      mapX: 480, mapY: 95,  color: "#D32F2F" }
 ];
 
 class Camera {
@@ -504,7 +501,7 @@ class TouchController {
   handleTouchStart(e){
     if(this.game.state!=='PLAYING')return;
     e.preventDefault(); audio.init(); this.active=true;
-    for(const t of e.changedTouches){ const btn=this.hitTest(t.clientX,t.clientY); if(btn){ this.activeTouches.set(t.identifier,btn); this.pressedButtons.add(btn); const b=this.buttons[btn]; if(b)this.game.input[b.input]=true; if(navigator.vibrate)navigator.vibrate(12); } }
+    for(const t of e.changedTouches){ const btn=this.hitTest(t.clientX,t.clientY); if(btn){ this.activeTouches.set(t.identifier,btn); this.pressedButtons.add(btn); const b=this.buttons[btn]; if(b)this.game.input[b.input]=true; } }
   }
   handleTouchMove(e){
     if(this.game.state!=='PLAYING')return;
@@ -549,7 +546,7 @@ class TouchController {
 }
 
 // ════════════════════════════════════════════════════════════
-// ENEMY ROSTER (EGYPT, DISNEY, FROZEN, GALAXY & CLASSICS)
+// 2.5D SHADED ENEMY ROSTER
 // ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
@@ -571,7 +568,6 @@ class Enemy {
     this.thwompState='idle';
     this.booHiding=false;
     this.frozenTimer=0;
-    this.trappedBubble=false;
   }
   update(player,allPlatforms,globalGravity,game){
     this.frame++;
@@ -581,12 +577,6 @@ class Enemy {
     if(this.frozenTimer>0){
       this.frozenTimer--;
       if(this.frozenTimer===0){ game.addParticles(this.x+this.w/2, this.y+this.h/2, 10, ['#80DEEA','#FFF'], 2.5); }
-      return;
-    }
-
-    if(this.trappedBubble){
-      this.y -= 1.2;
-      if(this.y < -40) this.dead = true;
       return;
     }
 
@@ -619,9 +609,9 @@ class Enemy {
       return;
     }
 
-    if(this.type === 'goomba'||this.type === 'buzzy_beetle'||this.type === 'card_soldier'||this.type === 'mummy') this._updateStandardPatrol(allPlatforms);
-    else if(this.type === 'koopa'||this.type === 'dry_bones') this._updateStandardPatrol(allPlatforms);
-    else if(this.type === 'monty_mole') this._updateMontyMole(player,allPlatforms,distToPlayer,game);
+    if(this.type === 'goomba'||this.type === 'buzzy_beetle'||this.type === 'card_soldier'||this.type === 'mummy'||this.type === 'koopa'||this.type === 'dry_bones') {
+      this._updateStandardPatrol(allPlatforms);
+    } else if(this.type === 'monty_mole') this._updateMontyMole(player,allPlatforms,distToPlayer,game);
     else if(this.type === 'cheep_cheep') this._updateCheepCheep(game);
     else if(this.type === 'blooper'||this.type === 'octo_alien') this._updateBlooper(player);
     else if(this.type === 'spiny_puffer') this._updateSpinyPuffer();
@@ -658,40 +648,29 @@ class Enemy {
     if(this.x+this.w>this.patrolMax){this.x=this.patrolMax-this.w;this.facingRight=false;}
   }
 
-  _updatePokey(allPlats){
-    this._updateStandardPatrol(allPlats);
-  }
+  _updatePokey(allPlats){ this._updateStandardPatrol(allPlats); }
 
   _updateSnowGolem(player, game){
     this.vx = 0;
     if(this.frame % 150 === 0 && Math.abs(player.x - this.x) < 260){
       const dir = player.x > this.x ? 1 : -1;
-      game.fireballs.push({
-        type: 'snowball', x: this.x + (dir>0?this.w:0), y: this.y + 10,
-        vx: dir * 4.5, vy: -2.5, bounces: 2, life: 120
-      });
+      game.fireballs.push({ type: 'snowball', x: this.x + (dir>0?this.w:0), y: this.y + 10, vx: dir * 4.5, vy: -2.5, bounces: 2, life: 120 });
       audio.iceShoot();
     }
   }
 
   _updateMontyMole(player,allPlats,dist,game){
     if(this.state === 'patrol'){
-      if(dist < 130){
-        this.state = 'jump'; this.vy = -7.8;
-        game.addParticles(this.x+this.w/2, this.y+this.h, 10, ['#8D6E63','#A1887F'], 3.0);
-      }
+      if(dist < 130){ this.state = 'jump'; this.vy = -7.8; }
     } else if(this.state === 'jump'){
-      this.vy += GRAVITY;
-      this.x += (player.x > this.x ? 2.2 : -2.2);
-      this.y += this.vy;
+      this.vy += GRAVITY; this.x += (player.x > this.x ? 2.2 : -2.2); this.y += this.vy;
       for(const p of allPlats){
         if(this.x<p.x+p.w&&this.x+this.w>p.x&&this.y<p.y+p.h&&this.y+this.h>p.y&&this.vy>=0){
           this.y = p.y - this.h; this.vy = 0; this.state = 'chase';
         }
       }
     } else if(this.state === 'chase'){
-      this.vx = player.x > this.x ? 2.3 : -2.3;
-      this.x += this.vx; this.facingRight = this.vx > 0;
+      this.vx = player.x > this.x ? 2.3 : -2.3; this.x += this.vx; this.facingRight = this.vx > 0;
     }
   }
 
@@ -701,26 +680,20 @@ class Enemy {
       this.y += Math.cos(this.frame * 0.04) * 0.8;
       if(this.frame % 70 === 0) this.facingRight = !this.facingRight;
     } else {
-      this.vy += 0.25;
-      this.y += this.vy;
+      this.vy += 0.25; this.y += this.vy;
       if(this.y > VIRT_H + 20){ this.y = VIRT_H + 10; this.vy = -9.0; }
     }
   }
 
   _updateBlooper(player){
     if(this.frame % 60 === 0){
-      this.vy = -3.5;
-      this.vx = (player.x > this.x ? 2.2 : -2.2);
-      this.facingRight = this.vx > 0;
+      this.vy = -3.5; this.vx = (player.x > this.x ? 2.2 : -2.2); this.facingRight = this.vx > 0;
     }
-    this.vy += 0.08;
-    this.x += this.vx; this.y += this.vy;
-    this.vx *= 0.96;
+    this.vy += 0.08; this.x += this.vx; this.y += this.vy; this.vx *= 0.96;
   }
 
   _updateSpinyPuffer(){
-    this.x += Math.sin(this.frame * 0.03) * 1.5;
-    this.y += Math.cos(this.frame * 0.03) * 1.5;
+    this.x += Math.sin(this.frame * 0.03) * 1.5; this.y += Math.cos(this.frame * 0.03) * 1.5;
   }
 
   _updateParatroopa(){
@@ -735,7 +708,6 @@ class Enemy {
     this.y = 50 + Math.sin(this.frame * 0.06) * 15;
     if(this.frame % 180 === 0){
       game.enemies.push(new Enemy('spiny', this.x, this.y + 16, this.x - 100, this.x + 100));
-      game.addFloatingText('⚠️', this.x, this.y - 10, '#FFD700');
     }
   }
 
@@ -748,8 +720,7 @@ class Enemy {
     } else {
       this.booHiding = false;
       const angle = Math.atan2(player.y - this.y, player.x - this.x);
-      this.x += Math.cos(angle) * 1.2;
-      this.y += Math.sin(angle) * 1.2;
+      this.x += Math.cos(angle) * 1.2; this.y += Math.sin(angle) * 1.2;
       this.facingRight = player.x > this.x;
     }
   }
@@ -757,46 +728,30 @@ class Enemy {
   _updateThwomp(player){
     if(this.thwompState === 'idle'){
       if(Math.abs(player.x - this.x) < 40 && player.y > this.y && player.y < this.y + 180){
-        this.thwompState = 'falling';
-        this.vy = 8.5;
+        this.thwompState = 'falling'; this.vy = 8.5;
       }
     } else if(this.thwompState === 'falling'){
       this.y += this.vy;
       if(this.y >= this.baseY + 140){
-        this.y = this.baseY + 140;
-        this.thwompState = 'rising';
-        this.vy = -1.2;
+        this.y = this.baseY + 140; this.thwompState = 'rising'; this.vy = -1.2;
         audio.groundPoundImpact();
       }
     } else if(this.thwompState === 'rising'){
-      this.y += this.vy;
-      if(this.y <= this.baseY){
-        this.y = this.baseY;
-        this.thwompState = 'idle';
-      }
+      this.y += this.vy; if(this.y <= this.baseY){ this.y = this.baseY; this.thwompState = 'idle'; }
     }
   }
 
   _updatePodoboo(){
-    this.vy += 0.28;
-    this.y += this.vy;
-    if(this.y > this.baseY){
-      this.y = this.baseY;
-      this.vy = -9.2;
-    }
+    this.vy += 0.28; this.y += this.vy;
+    if(this.y > this.baseY){ this.y = this.baseY; this.vy = -9.2; }
   }
 
   _updatePiranha(){ this.y = this.baseY + Math.sin(this.frame * 0.05) * 16; }
 
-  freezeInIce(){ this.frozenTimer = 240; audio.iceShoot(); }
-  trapInBubble(){ this.trappedBubble = true; audio.bubbleShoot(); }
-
   die(game){
     if(this.type === 'dry_bones' && this.dryBonesTimer === 0){
-      this.dryBonesTimer = 180;
-      this.state = 'crumbled';
+      this.dryBonesTimer = 180; this.state = 'crumbled';
       audio.enemyDie(); game.camera.shake(3);
-      game.addParticles(this.x+this.w/2, this.y+this.h/2, 12, ['#E0E0E0','#BDBDBD'], 3.0);
       return;
     }
     this.dead=true; this.deadTimer=30; this.deadVy=-6*game.globalGravity;
@@ -816,196 +771,65 @@ class Enemy {
     if(this.facingRight) ctx.scale(-1,1);
     if(this.dead) ctx.globalAlpha=0.7;
 
-    if(this.onGround && !this.dead && this.type !== 'boo' && this.type !== 'blooper'){
-      ctx.fillStyle = 'rgba(0,0,0,0.22)';
-      ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.5, 3, 0, 0, Math.PI*2); ctx.fill();
-    }
-
-    if(this.stunTimer>0){
-      ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.5;
-      const sa=Math.sin(now*0.02)*4;
-      ctx.beginPath(); ctx.arc(0, -this.h/2-4+sa, 6, 0, Math.PI*2); ctx.stroke();
-    }
-
-    if(this.frozenTimer>0){
-      ctx.fillStyle = 'rgba(128, 222, 234, 0.65)';
-      ctx.beginPath(); ctx.roundRect(-this.w/2-4, -this.h/2-4, this.w+8, this.h+8, [6]); ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
-    }
-
-    if(this.trappedBubble){
-      ctx.fillStyle = 'rgba(0, 229, 255, 0.45)';
-      ctx.beginPath(); ctx.arc(0, 0, this.w*0.8, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
-    }
-
-    if(this.type==='goomba') this._drawGoomba(ctx);
-    else if(this.type==='koopa'||this.type==='paratroopa') this._drawKoopa(ctx,now);
-    else if(this.type==='monty_mole') this._drawMontyMole(ctx);
-    else if(this.type==='cheep_cheep') this._drawCheepCheep(ctx);
-    else if(this.type==='blooper') this._drawBlooper(ctx);
-    else if(this.type==='spiny_puffer') this._drawSpinyPuffer(ctx);
-    else if(this.type==='lakitu') this._drawLakitu(ctx);
-    else if(this.type==='bullet_bill') this._drawBulletBill(ctx);
-    else if(this.type==='buzzy_beetle') this._drawBuzzyBeetle(ctx);
-    else if(this.type==='boo') this._drawBoo(ctx);
-    else if(this.type==='dry_bones') this._drawDryBones(ctx);
-    else if(this.type==='thwomp') this._drawThwomp(ctx);
-    else if(this.type==='podoboo') this._drawPodoboo(ctx);
-    else if(this.type==='pokey') this._drawPokey(ctx);
-    else if(this.type==='card_soldier') this._drawCardSoldier(ctx);
-    else if(this.type==='snow_golem') this._drawSnowGolem(ctx);
-    else if(this.type==='octo_alien') this._drawOctoAlien(ctx);
-    else if(this.type==='mummy') this._drawMummy(ctx);
-    else this._drawPiranha(ctx);
-
-    ctx.restore();
-  }
-
-  _drawPokey(ctx){
-    ctx.fillStyle = '#FFB300';
-    for(let b=-12; b<=12; b+=12){
-      ctx.beginPath(); ctx.arc(0, b, 7.5, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#795548'; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(-6, b); ctx.lineTo(-10, b); ctx.moveTo(6, b); ctx.lineTo(10, b); ctx.stroke();
-    }
-    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2, -12, 1.2, 0, Math.PI*2); ctx.arc(2, -12, 1.2, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawCardSoldier(ctx){
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.roundRect(-8, -12, 16, 24, [3]); ctx.fill();
-    ctx.strokeStyle = '#D50000'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#D50000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('♥', 0, 0);
-    // Spearman spear
-    ctx.strokeStyle = '#795548'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(9, -16); ctx.lineTo(9, 14); ctx.stroke();
-  }
-
-  _drawSnowGolem(ctx){
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.arc(0, 6, 11, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(0, -6, 7.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FF9800'; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(6, -4); ctx.lineTo(0, -2); ctx.fill();
-    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.arc(-2, -8, 1.2, 0, Math.PI*2); ctx.arc(2, -8, 1.2, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawOctoAlien(ctx){
-    ctx.fillStyle = '#D500F9';
-    ctx.beginPath(); ctx.arc(0, -4, 9, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(0, -4, 3.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -4, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#D500F9'; ctx.lineWidth = 2.2;
-    for(let t=-6; t<=6; t+=4){
-      ctx.beginPath(); ctx.moveTo(t, 4); ctx.lineTo(t+Math.sin(this.frame*0.2+t)*4, 12); ctx.stroke();
-    }
-  }
-
-  _drawMummy(ctx){
-    ctx.fillStyle = '#D7CCC8';
-    ctx.beginPath(); ctx.roundRect(-7, -10, 14, 20, [4]); ctx.fill();
-    ctx.strokeStyle = '#8D6E63'; ctx.lineWidth = 1;
-    for(let y=-8; y<=8; y+=4){ ctx.beginPath(); ctx.moveTo(-7, y); ctx.lineTo(7, y); ctx.stroke(); }
-    ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.arc(-2, -4, 1.5, 0, Math.PI*2); ctx.arc(2, -4, 1.5, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawGoomba(ctx){
-    const gGrad = ctx.createRadialGradient(-2, -4, 2, 0, 0, 10);
-    gGrad.addColorStop(0, '#A1887F'); gGrad.addColorStop(0.6, '#6D4C41'); gGrad.addColorStop(1, '#3E2723');
-    ctx.fillStyle = gGrad;
-    ctx.beginPath(); ctx.ellipse(0, -2, 9, 8, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFE0B2'; ctx.beginPath(); ctx.ellipse(0, 3, 6, 4, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(-3, -3, 2, 3, -0.1, 0, Math.PI*2); ctx.ellipse(3, -3, 2, 3, 0.1, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -3, 1.2, 0, Math.PI*2); ctx.arc(2.5, -3, 1.2, 0, Math.PI*2); ctx.fill();
-    const waddle = Math.sin(this.frame * 0.3) * 3;
-    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.ellipse(-5+waddle, 8, 4, 2.5, 0, 0, Math.PI*2); ctx.ellipse(5-waddle, 8, 4, 2.5, 0, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawKoopa(ctx,now){
-    const walk = Math.sin(this.frame * 0.25) * 3;
-    ctx.fillStyle='#E65100'; ctx.beginPath(); ctx.ellipse(-6+walk, 9, 4.5, 3, -0.1, 0, Math.PI*2); ctx.ellipse(4-walk, 9, 4.5, 3, 0.1, 0, Math.PI*2); ctx.fill();
-    const shellGrad = ctx.createRadialGradient(-2, 0, 2, 0, 2, 11);
-    shellGrad.addColorStop(0, '#81C784'); shellGrad.addColorStop(0.6, '#388E3C'); shellGrad.addColorStop(1, '#1B5E20');
-    ctx.fillStyle = shellGrad; ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FDD835'; ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(7, -8, 2.5, 3.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.arc(8, -8, 1.4, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawBlooper(ctx){
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(0, -4, 8, 10, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -3, 1.5, 0, Math.PI*2); ctx.arc(3, -3, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5;
-    for(let i=-6; i<=6; i+=4){ ctx.beginPath(); ctx.moveTo(i, 4); ctx.lineTo(i + Math.sin(this.frame*0.2 + i)*3, 12); ctx.stroke(); }
-  }
-
-  _drawSpinyPuffer(ctx){
-    ctx.fillStyle = '#E91E63'; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFD54F';
-    for(let a=0; a<Math.PI*2; a+=Math.PI/4){ ctx.beginPath(); ctx.moveTo(Math.cos(a)*9, Math.sin(a)*9); ctx.lineTo(Math.cos(a)*15, Math.sin(a)*15); ctx.stroke(); }
-  }
-
-  _drawLakitu(ctx){
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(-6, 4, 7, 0, Math.PI*2); ctx.arc(6, 4, 7, 0, Math.PI*2); ctx.arc(0, 2, 9, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FDD835'; ctx.beginPath(); ctx.ellipse(0, -6, 6, 6, 0, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawBulletBill(ctx){
-    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.roundRect(-10, -6, 20, 12, [6, 2, 2, 6]); ctx.fill();
-    ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(-2, -2, 3, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawBuzzyBeetle(ctx){
-    ctx.fillStyle = '#0288D1'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 7, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#FFD54F'; ctx.beginPath(); ctx.ellipse(5, 2, 4, 3, 0, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawBoo(ctx){
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 9, 0, 0, Math.PI*2); ctx.fill();
-    if(this.booHiding){
-      ctx.fillStyle = '#E0E0E0'; ctx.beginPath(); ctx.arc(2, -2, 3, 0, Math.PI*2); ctx.arc(-4, -2, 3, 0, Math.PI*2); ctx.fill();
+    // 2.5D Shaded Sphere / Cylindrical Elements with Lighting Highlights
+    if(this.type==='pokey'){
+      for(let b=-12; b<=12; b+=12){
+        const pGrad = ctx.createRadialGradient(-2, b-2, 1, 0, b, 8);
+        pGrad.addColorStop(0, '#FFE082'); pGrad.addColorStop(0.6, '#FFA000'); pGrad.addColorStop(1, '#FF6F00');
+        ctx.fillStyle = pGrad;
+        ctx.beginPath(); ctx.arc(0, b, 7.5, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(-6, b); ctx.lineTo(-10, b); ctx.moveTo(6, b); ctx.lineTo(10, b); ctx.stroke();
+      }
+      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2, -12, 1.2, 0, Math.PI*2); ctx.arc(2, -12, 1.2, 0, Math.PI*2); ctx.fill();
+    } else if(this.type==='card_soldier'){
+      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.roundRect(-8, -12, 16, 24, [3]); ctx.fill();
+      ctx.strokeStyle = '#D50000'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#D50000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('♥', 0, 0);
+    } else if(this.type==='snow_golem'){
+      const sGrad = ctx.createRadialGradient(-3, 3, 2, 0, 6, 12);
+      sGrad.addColorStop(0, '#FFFFFF'); sGrad.addColorStop(0.7, '#E0F7FA'); sGrad.addColorStop(1, '#B2EBF2');
+      ctx.fillStyle = sGrad;
+      ctx.beginPath(); ctx.arc(0, 6, 11, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, -6, 7.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FF9800'; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(6, -4); ctx.lineTo(0, -2); ctx.fill();
+    } else if(this.type==='octo_alien'){
+      const oGrad = ctx.createRadialGradient(-2, -6, 2, 0, -4, 10);
+      oGrad.addColorStop(0, '#FF80AB'); oGrad.addColorStop(0.6, '#D500F9'); oGrad.addColorStop(1, '#4A148C');
+      ctx.fillStyle = oGrad;
+      ctx.beginPath(); ctx.arc(0, -4, 9, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(0, -4, 3.5, 0, Math.PI*2); ctx.fill();
+    } else if(this.type==='goomba'){
+      const gGrad = ctx.createRadialGradient(-2, -4, 2, 0, 0, 10);
+      gGrad.addColorStop(0, '#A1887F'); gGrad.addColorStop(0.6, '#6D4C41'); gGrad.addColorStop(1, '#3E2723');
+      ctx.fillStyle = gGrad;
+      ctx.beginPath(); ctx.ellipse(0, -2, 9, 8, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFE0B2'; ctx.beginPath(); ctx.ellipse(0, 3, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+    } else if(this.type==='koopa'){
+      const kGrad = ctx.createRadialGradient(-2, 0, 2, 0, 2, 11);
+      kGrad.addColorStop(0, '#81C784'); kGrad.addColorStop(0.6, '#388E3C'); kGrad.addColorStop(1, '#1B5E20');
+      ctx.fillStyle = kGrad; ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FDD835'; ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
+    } else if(this.type==='boo'){
+      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 9, 0, 0, Math.PI*2); ctx.fill();
+      if(!this.booHiding){ ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(0, 3, 3.5, 0, Math.PI); ctx.fill(); }
+    } else if(this.type==='thwomp'){
+      ctx.fillStyle = '#757575'; ctx.beginPath(); ctx.roundRect(-12, -14, 24, 28, [4]); ctx.fill();
+      ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(-4, -2, 2.5, 0, Math.PI*2); ctx.arc(4, -2, 2.5, 0, Math.PI*2); ctx.fill();
     } else {
-      ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(0, 3, 3.5, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = '#E53935'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 7.5, 0, 0, Math.PI*2); ctx.fill();
     }
-  }
-
-  _drawDryBones(ctx){
-    if(this.state === 'crumbled'){ ctx.fillStyle = '#E0E0E0'; ctx.beginPath(); ctx.ellipse(0, 8, 10, 4, 0, 0, Math.PI*2); ctx.fill(); return; }
-    ctx.fillStyle = '#424242'; ctx.beginPath(); ctx.ellipse(0, 1, 10, 9, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#EEEEEE'; ctx.beginPath(); ctx.ellipse(6, -6, 6, 5.5, 0.1, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawThwomp(ctx){
-    ctx.fillStyle = '#757575'; ctx.beginPath(); ctx.roundRect(-12, -14, 24, 28, [4]); ctx.fill();
-    ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(-4, -2, 2.5, 0, Math.PI*2); ctx.arc(4, -2, 2.5, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawPodoboo(ctx){
-    ctx.fillStyle = '#FF5722'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawMontyMole(ctx){
-    ctx.fillStyle = '#6D4C41'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 8, 0, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawCheepCheep(ctx){
-    ctx.fillStyle = '#E53935'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 7.5, 0, 0, Math.PI*2); ctx.fill();
-  }
-
-  _drawPiranha(ctx){
-    ctx.strokeStyle = '#4CAF50'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 8); ctx.lineTo(0, -4); ctx.stroke();
-    ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(0, -6, 7.5, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
   }
 }
 
 // ════════════════════════════════════════════════════════════
-// RIDEABLE MOUNTS ROSTER
-// (Unicorn, Camel Faraónico 🐪, Corcel Alado Disney 🦄👑, Sven Reno 🦌, Dragón Cósmico 🚀🌟)
+// 2.5D SHADED RIDEABLE MOUNTS (9 EXCLUSIVE MOUNTS)
 // ════════════════════════════════════════════════════════════
 class RideableMount {
   constructor(type, x, y){
-    this.type = type; // unicorn, camel, disney_steed, sven, cosmic_dragon
+    this.type = type; // unicorn, dolphin, camel, disney_steed, sven, pegasus, crystal_orb, cosmic_dragon, phoenix
     this.x = x; this.y = y;
     this.w = 34; this.h = 30;
     this.mounted = false;
@@ -1015,8 +839,7 @@ class RideableMount {
   update(player, game){
     this.frame++;
     if(this.mounted){
-      this.x = player.x - 6;
-      this.y = player.y + 4;
+      this.x = player.x - 6; this.y = player.y + 4;
       this.facingRight = player.facingRight;
     }
   }
@@ -1028,54 +851,42 @@ class RideableMount {
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
     if(!this.facingRight) ctx.scale(-1, 1);
 
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.beginPath(); ctx.ellipse(0, this.h/2, this.w*0.45, 4, 0, 0, Math.PI*2); ctx.fill();
-
-    const legMove = this.mounted ? Math.sin(now * 0.02) * 5 : 0;
-
-    // 🐪 CAMELLO FARAÓNICO (Egipto)
+    // 2.5D Mount Body Shading
     if(this.type === 'camel'){
-      ctx.fillStyle = '#FFA000';
+      const cGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+      cGrad.addColorStop(0, '#FFE082'); cGrad.addColorStop(0.7, '#FFA000'); cGrad.addColorStop(1, '#FF8F00');
+      ctx.fillStyle = cGrad;
       ctx.beginPath(); ctx.ellipse(0, 4, 14, 10, 0, 0, Math.PI*2); ctx.fill();
-      // Double Humps
       ctx.beginPath(); ctx.arc(-5, -6, 5.5, 0, Math.PI*2); ctx.arc(5, -6, 5.5, 0, Math.PI*2); ctx.fill();
-      // Camel Head & Egyptian Blanket
-      ctx.fillStyle = '#D50000'; ctx.fillRect(-6, 0, 12, 6);
-      ctx.fillStyle = '#FFB300'; ctx.beginPath(); ctx.ellipse(12, -8, 6, 5, 0.2, 0, Math.PI*2); ctx.fill();
-    }
-    // 🦄👑 CORCEL ALADO DISNEY (Castillo)
-    else if(this.type === 'disney_steed'){
-      ctx.fillStyle = '#F3E5F5';
-      ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
-      // Golden Crown & Magical Glitter Wings
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(12, -22); ctx.lineTo(15, -14); ctx.fill();
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
-      ctx.beginPath(); ctx.ellipse(-6, -4+legMove*0.5, 12, 6, -0.4, 0, Math.PI*2); ctx.fill();
-    }
-    // 🦌 SVEN EL RENO (Frozen)
-    else if(this.type === 'sven'){
-      ctx.fillStyle = '#8D6E63';
-      ctx.beginPath(); ctx.ellipse(0, 4, 14, 11, 0, 0, Math.PI*2); ctx.fill();
-      // Large Reindeer Antlers
-      ctx.fillStyle = '#4E342E';
-      ctx.beginPath(); ctx.moveTo(8, -8); ctx.lineTo(16, -22); ctx.lineTo(12, -18); ctx.lineTo(18, -20); ctx.stroke();
-      ctx.fillStyle = '#D7CCC8'; ctx.beginPath(); ctx.ellipse(0, 10, 6, 4, 0, 0, Math.PI*2); ctx.fill(); // Mane
-    }
-    // 🚀🌟 DRAGÓN ESTELAR CÓSMICO (Galaxy)
-    else if(this.type === 'cosmic_dragon'){
-      const dGrad = ctx.createLinearGradient(-10, 0, 10, 0);
-      dGrad.addColorStop(0, '#7C4DFF'); dGrad.addColorStop(1, '#00E5FF');
+    } else if(this.type === 'dolphin'){
+      const dGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+      dGrad.addColorStop(0, '#80DEEA'); dGrad.addColorStop(0.7, '#00ACC1'); dGrad.addColorStop(1, '#006064');
       ctx.fillStyle = dGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 15, 9, 0, 0, Math.PI*2); ctx.fill();
-      // Star aura wings
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(-18, -16); ctx.lineTo(-4, -8); ctx.fill();
-    }
-    // 🦄 STANDARD UNICORN
-    else {
-      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.ellipse(0, 4, 15, 8, 0.1, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(-4, -12); ctx.lineTo(6, -2); ctx.fill();
+    } else if(this.type === 'disney_steed'){
+      const sGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+      sGrad.addColorStop(0, '#FFFFFF'); sGrad.addColorStop(0.7, '#F3E5F5'); sGrad.addColorStop(1, '#E1BEE7');
+      ctx.fillStyle = sGrad;
       ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.roundRect(-5, -3, 10, 6, [3]); ctx.fill();
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(12, -22); ctx.lineTo(15, -14); ctx.fill();
+    } else if(this.type === 'sven'){
+      const svGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+      svGrad.addColorStop(0, '#BCAAA4'); svGrad.addColorStop(0.7, '#8D6E63'); svGrad.addColorStop(1, '#4E342E');
+      ctx.fillStyle = svGrad;
+      ctx.beginPath(); ctx.ellipse(0, 4, 14, 11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.moveTo(8, -8); ctx.lineTo(16, -22); ctx.lineTo(12, -18); ctx.lineTo(18, -20); ctx.stroke();
+    } else if(this.type === 'cosmic_dragon'){
+      const drGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 15);
+      drGrad.addColorStop(0, '#E040FB'); drGrad.addColorStop(0.7, '#7C4DFF'); drGrad.addColorStop(1, '#00E5FF');
+      ctx.fillStyle = drGrad;
+      ctx.beginPath(); ctx.ellipse(0, 4, 15, 9, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(-18, -16); ctx.lineTo(-4, -8); ctx.fill();
+    } else {
+      const uGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+      uGrad.addColorStop(0, '#FFFFFF'); uGrad.addColorStop(0.7, '#F8BBD0'); uGrad.addColorStop(1, '#F48FB1');
+      ctx.fillStyle = uGrad;
+      ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(10, -12); ctx.lineTo(17, -24); ctx.lineTo(14, -12); ctx.fill();
     }
 
@@ -1102,30 +913,19 @@ class GalaxyBoss {
     if(this.invincTimer > 0) this.invincTimer--;
 
     if(!this.active && player.x > this.x - 300){
-      this.active = true;
-      audio.currentTrack = 'boss';
-      audio.startBGM();
-      audio.bossHit();
-      game.camera.shake(12);
-      game.addFloatingText('¡GRAN JEFE CÓSMICO!', this.x, this.y - 30, '#FF1744');
+      this.active = true; audio.currentTrack = 'boss'; audio.startBGM(); audio.bossHit();
+      game.camera.shake(12); game.addFloatingText('¡GRAN JEFE CÓSMICO!', this.x, this.y - 30, '#FF1744');
     }
     if(!this.active) return;
 
     this.timer++;
     if(this.timer > 150){
-      this.timer = 0;
-      this.facingRight = player.x > this.x;
+      this.timer = 0; this.facingRight = player.x > this.x;
       for(let i=0; i<3; i++){
         setTimeout(()=>{
           if(this.state!=='defeated'){
             const dir = this.facingRight ? 1 : -1;
-            this.fireballs.push({
-              x: this.x + (this.facingRight ? this.w : 0),
-              y: this.y + 24,
-              vx: dir * (3.5 + i*0.8),
-              vy: (i - 1) * 1.5,
-              life: 140
-            });
+            this.fireballs.push({ x: this.x + (this.facingRight ? this.w : 0), y: this.y + 24, vx: dir * (3.5 + i*0.8), vy: (i - 1) * 1.5, life: 140 });
             audio.shellShoot();
           }
         }, i * 200);
@@ -1140,44 +940,29 @@ class GalaxyBoss {
       const fb = this.fireballs[i];
       fb.x += fb.vx; fb.y += fb.vy; fb.life--;
       if(player.invincibleTimer <= 0 && Math.hypot(player.x - fb.x, player.y - fb.y) < 22){
-        player.invincibleTimer = 90;
-        player.vx = Math.sign(fb.vx) * 5; player.vy = -5;
-        game.starDust = Math.max(0, game.starDust - 4);
-        audio.hazardScatter(); game.camera.shake(6);
+        player.invincibleTimer = 90; player.vx = Math.sign(fb.vx) * 5; player.vy = -5;
+        game.starDust = Math.max(0, game.starDust - 4); audio.hazardScatter(); game.camera.shake(6);
       }
       if(fb.life <= 0) this.fireballs.splice(i, 1);
     }
 
     if(this.invincTimer <= 0 && player.x < this.x + this.w && player.x + player.w > this.x && player.y < this.y + this.h && player.y + player.h > this.y){
-      const stompHit = (game.globalGravity === 1 && player.vy > 0 && player.y + player.h < this.y + 26) ||
-                       (game.globalGravity === -1 && player.vy < 0 && player.y > this.y + this.h - 26);
+      const stompHit = (player.vy > 0 && player.y + player.h < this.y + 26);
       if(stompHit || player.isGroundPounding){
-        this.takeDamage(game);
-        player.vy = game.globalGravity === 1 ? -9.5 : 9.5;
-        player.squashX = 1.3; player.squashY = 0.7;
-        game.hitStopFrames = 5;
+        this.takeDamage(game); player.vy = -9.5; player.squashX = 1.3; player.squashY = 0.7; game.hitStopFrames = 5;
       } else if(player.invincibleTimer <= 0){
-        player.invincibleTimer = 90;
-        player.vx = (player.x < this.x ? -6 : 6);
-        player.vy = -5;
-        game.starDust = Math.max(0, game.starDust - 5);
-        audio.hazardScatter(); game.camera.shake(7);
+        player.invincibleTimer = 90; player.vx = (player.x < this.x ? -6 : 6); player.vy = -5;
+        game.starDust = Math.max(0, game.starDust - 5); audio.hazardScatter(); game.camera.shake(7);
       }
     }
   }
 
   takeDamage(game){
-    this.hp--;
-    this.invincTimer = 75;
-    audio.bossHit();
-    game.camera.shake(14);
+    this.hp--; this.invincTimer = 75; audio.bossHit(); game.camera.shake(14);
     game.addParticles(this.x + this.w/2, this.y + this.h/2, 35, ['#FF1744','#FFD700','#FFF'], 5.5);
     game.addFloatingText(`¡GOLPE AL JEFE! HP: ${this.hp}/${this.maxHp}`, this.x, this.y - 20, '#FF1744');
     if(this.hp <= 0){
-      this.state = 'defeated';
-      audio.bossDefeat();
-      game.camera.shake(20);
-      game.score += 2500;
+      this.state = 'defeated'; audio.bossDefeat(); game.camera.shake(20); game.score += 2500;
       game.addParticles(this.x + this.w/2, this.y + this.h/2, 60, ['#FFD700','#FF1744','#00E5FF','#FFF'], 7);
       game.addFloatingText('¡JEFE DERROTADO! +2500', this.x, this.y - 30, '#FFD700');
       setTimeout(() => { game.completeLevel(); }, 2400);
@@ -1191,9 +976,7 @@ class GalaxyBoss {
 
     for(const fb of this.fireballs){
       const fs = cam.toScreen(fb.x, fb.y);
-      ctx.save();
-      ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(fs.x, fs.y, 8, 0, Math.PI*2); ctx.fill();
-      ctx.restore();
+      ctx.save(); ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(fs.x, fs.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
     }
 
     ctx.save();
@@ -1201,7 +984,10 @@ class GalaxyBoss {
     if(this.facingRight) ctx.scale(-1, 1);
     if(this.invincTimer > 0 && Math.floor(now/50)%2 === 0) ctx.globalAlpha = 0.4;
 
-    ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.ellipse(0, 0, 24, 26, 0, 0, Math.PI*2); ctx.fill();
+    const bGrad = ctx.createRadialGradient(-4, -4, 4, 0, 0, 26);
+    bGrad.addColorStop(0, '#424242'); bGrad.addColorStop(0.7, '#212121'); bGrad.addColorStop(1, '#000000');
+    ctx.fillStyle = bGrad;
+    ctx.beginPath(); ctx.ellipse(0, 0, 24, 26, 0, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#FF9800'; ctx.lineWidth = 3; ctx.stroke();
     ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(-18, -8, 4, 0, Math.PI*2); ctx.fill();
     ctx.restore();
@@ -1213,75 +999,46 @@ class GalaxyBoss {
 // ════════════════════════════════════════════════════════════
 class TommyAI {
   constructor(startX, startY){
-    this.x = startX; this.y = startY;
-    this.vx = 0; this.vy = 0;
-    this.w = 20; this.h = 20;
-    this.facingRight = true;
-    this.frame = 0;
-    this.idleTimer = 0;
-    this.sonicWaves = [];
-    this.spinAngle = 0;
-    this.isSpinning = false;
-    this.bobPhase = 0;
+    this.x = startX; this.y = startY; this.vx = 0; this.vy = 0; this.w = 20; this.h = 20;
+    this.facingRight = true; this.frame = 0; this.sonicWaves = []; this.spinAngle = 0; this.isSpinning = false;
   }
   update(player, enemies, allPlatforms, globalGravity, game){
     this.frame++;
     const followDist = player.facingRight ? -24 : player.w + 6;
-    const targetX = player.x + followDist;
-    const targetY = player.y + (player.h - this.h);
-
+    const targetX = player.x + followDist, targetY = player.y + (player.h - this.h);
     this.vx += ((targetX - this.x) * 0.16); this.vx *= 0.68;
     this.vy += ((targetY - this.y) * 0.16); this.vy *= 0.68;
     this.x += this.vx; this.y += this.vy;
-
     if(Math.abs(this.vx) > 0.3) this.facingRight = this.vx > 0;
     else this.facingRight = player.facingRight;
-
     if(this.isSpinning){
-      this.spinAngle += 0.25;
-      if(this.spinAngle >= Math.PI * 2){ this.spinAngle = 0; this.isSpinning = false; }
+      this.spinAngle += 0.25; if(this.spinAngle >= Math.PI * 2){ this.spinAngle = 0; this.isSpinning = false; }
     }
-
     for(let i = this.sonicWaves.length - 1; i >= 0; i--){
-      const sw = this.sonicWaves[i];
-      sw.r += 5.5;
-      if(sw.r >= sw.maxR) this.sonicWaves.splice(i, 1);
+      const sw = this.sonicWaves[i]; sw.r += 5.5; if(sw.r >= sw.maxR) this.sonicWaves.splice(i, 1);
     }
   }
-
   doSpinJoy(){ this.isSpinning = true; this.spinAngle = 0; }
-
   triggerSonicBark(game, enemies){
-    this.doSpinJoy();
-    audio.bark();
-    game.camera.shake(7);
+    this.doSpinJoy(); audio.bark(); game.camera.shake(7);
     this.sonicWaves.push({ x: this.x + this.w/2, y: this.y + this.h/2, r: 6, maxR: 200 });
     enemies.forEach(en => {
-      if(!en.dead && game.camera.isVisible(en.x, en.y, en.w, en.h)){
-        en.stunTimer = 180;
-        game.addFloatingText('¡CONGELADO! 💫', en.x, en.y - 12, '#00E5FF');
-      }
+      if(!en.dead && game.camera.isVisible(en.x, en.y, en.w, en.h)){ en.stunTimer = 180; game.addFloatingText('¡CONGELADO! 💫', en.x, en.y - 12, '#00E5FF'); }
     });
   }
-
   draw(ctx, cam, now){
     const s = cam.toScreen(this.x, this.y);
     if(!cam.isVisible(this.x, this.y, this.w, this.h)) return;
-
     for(const sw of this.sonicWaves){
       const ws = cam.toScreen(sw.x, sw.y);
-      ctx.save();
-      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
+      ctx.save(); ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
       ctx.globalAlpha = Math.max(0, 1 - sw.r / sw.maxR);
-      ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke();
-      ctx.restore();
+      ctx.beginPath(); ctx.arc(ws.x, ws.y, sw.r, 0, Math.PI*2); ctx.stroke(); ctx.restore();
     }
-
     ctx.save();
     ctx.translate(s.x + this.w/2, s.y + this.h/2);
     if(!this.facingRight) ctx.scale(-1, 1);
     if(this.isSpinning) ctx.rotate(this.spinAngle);
-
     if(tommyImg && tommyImg.complete && tommyImg.naturalWidth > 0){
       ctx.drawImage(tommyImg, -this.w*0.75, -this.h*0.75, this.w*1.5, this.h*1.5);
     } else {
@@ -1296,8 +1053,7 @@ class StarCoin {
   check(player, game){
     if(this.collected) return;
     if(Math.hypot(player.x + player.w/2 - this.x, player.y + player.h/2 - this.y) < this.r + 14){
-      this.collected = true;
-      game.starCoinsCollected++; game.score += 500;
+      this.collected = true; game.starCoinsCollected++; game.score += 500;
       game.pawMeter = Math.min(100, game.pawMeter + 10);
       if(game.tommyAI) game.tommyAI.doSpinJoy();
       audio.starCoinCollect(); game.camera.shake(6);
@@ -1310,7 +1066,10 @@ class StarCoin {
     if(!cam.isVisible(this.x - this.r, this.y - this.r, this.r*2, this.r*2)) return;
     ctx.save();
     ctx.translate(s.x, s.y);
-    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI*2); ctx.fill();
+    const cGrad = ctx.createRadialGradient(-3, -3, 2, 0, 0, this.r);
+    cGrad.addColorStop(0, '#FFF9C4'); cGrad.addColorStop(0.5, '#FFD700'); cGrad.addColorStop(1, '#FF8F00');
+    ctx.fillStyle = cGrad;
+    ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = '#FFF'; ctx.font = 'bold 12px "Fredoka", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('★', 0, 1);
@@ -1336,7 +1095,10 @@ class QuestionBlock {
   draw(ctx,cam,now){
     const s=cam.toScreen(this.x,this.y); if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
     ctx.save();
-    ctx.fillStyle = this.hit ? '#5D4037' : '#FFA000';
+    const bGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y+this.h);
+    if(this.hit){ bGrad.addColorStop(0, '#8D6E63'); bGrad.addColorStop(1, '#4E342E'); }
+    else { bGrad.addColorStop(0, '#FFF176'); bGrad.addColorStop(0.5, '#FFB300'); bGrad.addColorStop(1, '#FF8F00'); }
+    ctx.fillStyle = bGrad;
     ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [3]); ctx.fill();
     ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.2; ctx.stroke();
     if(!this.hit){ ctx.fillStyle = '#FFF'; ctx.font='bold 11px "Fredoka",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?', s.x+this.w/2, s.y+this.h/2); }
@@ -1383,7 +1145,7 @@ class FlagPole {
 }
 
 // ════════════════════════════════════════════════════════════
-// MAIN GAME CLASS (9 WORLDS NSMBWII DIORAMA ENGINE)
+// MASTER 2.5D GAME CLASS
 // ════════════════════════════════════════════════════════════
 class PlatformerGame {
   constructor(){
@@ -1413,7 +1175,7 @@ class PlatformerGame {
       jumpHeld:false,isRiding:false,isGroundPounding:false,jumpCount:0,isGliding:false,
       invincibleTimer:0,frame:0,squashX:1,squashY:1,superSpeedTimer:0,
       inZeroG: false, inWater: false,
-      powerState: 'normal', // normal, super, fire, ice, bubble, pharaoh, princess, frozen_queen, galaxy_astronaut, star, wing
+      powerState: 'normal',
       powerTimer: 0,
       coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0,
       walkCycle: 0, skidTimer: 0,
@@ -1598,7 +1360,7 @@ class PlatformerGame {
   }
 
   buildLevel(cfg){
-    const lw=cfg.width;
+    const lw=3800;
     this.staticPlatforms=[]; this.enemies=[]; this.questionBlocks=[];
     this.destructibleBlocks=[]; this.starCoins=[]; this.zeroGBubbles=[];
     this.fireballs=[]; this.particles=[]; this.floatingTexts=[];
@@ -1685,7 +1447,7 @@ class PlatformerGame {
         new QuestionBlock(1480, 125, 'galaxy_astronaut')
       ];
     } else if(cfg.theme === 'marine'){
-      this.currentMount = null;
+      this.currentMount = new RideableMount('dolphin', 750, 226);
       this.enemies = [
         new Enemy('cheep_cheep', 350, 140, 200, 600),
         new Enemy('blooper', 650, 110, 500, 800),
@@ -1776,7 +1538,7 @@ class PlatformerGame {
       if(this.hitStopFrames > 0){ this.hitStopFrames--; return; }
 
       this.updatePlayer(now);
-      this.camera.update(this.player, LEVEL_CONFIGS[this.currentLevelIdx].width);
+      this.camera.update(this.player, 3800);
       this.updateEntities(now);
       this.updateEnemies();
       if(this.currentMount) this.currentMount.update(this.player, this);
@@ -1804,7 +1566,6 @@ class PlatformerGame {
     const isMarineLevel = LEVEL_CONFIGS[this.currentLevelIdx].theme === 'marine';
     p.inWater = isMarineLevel;
 
-    // Check Zero-G
     let inAnyBubble = false;
     for(const zb of this.zeroGBubbles){
       if(Math.hypot((p.x + p.w/2) - zb.x, (p.y + p.h/2) - zb.y) < zb.r){ inAnyBubble = true; break; }
@@ -2024,48 +1785,54 @@ class PlatformerGame {
   }
 
   // ════════════════════════════════════════════════════════════
-  // 9 WORLDS DIORAMA WORLD MAP (NSMBWII STYLE)
+  // 9 WORLDS NSMBWII 3D DIORAMA WORLD MAP
   // ════════════════════════════════════════════════════════════
   renderWorldMapNSMBWii(ctx, now){
     ctx.imageSmoothingEnabled = true;
 
-    // Sky gradient
+    // Vibrant Sky
     const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
     skyGrad.addColorStop(0, '#42A5F5'); skyGrad.addColorStop(0.5, '#90CAF9'); skyGrad.addColorStop(1, '#E3F2FD');
     ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
 
-    // Terraced Green Diorama
+    // Terraced Diorama Base
     ctx.fillStyle = '#8D6E63';
-    ctx.fillRect(0, 130, VIRT_W, VIRT_H - 130);
+    ctx.fillRect(0, 135, VIRT_W, VIRT_H - 135);
     const gGrad = ctx.createLinearGradient(0, 120, 0, 145);
     gGrad.addColorStop(0, '#81C784'); gGrad.addColorStop(1, '#388E3C');
     ctx.fillStyle = gGrad;
-    ctx.fillRect(0, 120, VIRT_W, 20);
+    ctx.fillRect(0, 120, VIRT_W, 22);
 
-    // Sparkling River
+    // 🌊 Blue Sparkling River with Bridge
     ctx.fillStyle = '#0288D1';
-    ctx.beginPath(); ctx.moveTo(80, 140); ctx.lineTo(130, VIRT_H); ctx.lineTo(170, VIRT_H); ctx.lineTo(120, 140); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(70, 142); ctx.lineTo(120, VIRT_H); ctx.lineTo(165, VIRT_H); ctx.lineTo(110, 142); ctx.fill();
+    ctx.fillStyle = '#6D4C41'; ctx.fillRect(80, 180, 48, 12); // Bridge
 
-    // 🏜️ Egyptian Pyramids in Background
-    ctx.fillStyle = '#FFB300';
-    ctx.beginPath(); ctx.moveTo(152, 90); ctx.lineTo(120, 140); ctx.lineTo(184, 140); ctx.fill();
-    ctx.strokeStyle = '#FFA000'; ctx.lineWidth = 1; ctx.stroke();
+    // 🏜️ 3D Egyptian Pyramid
+    ctx.fillStyle = '#FFA000';
+    ctx.beginPath(); ctx.moveTo(145, 80); ctx.lineTo(110, 142); ctx.lineTo(180, 142); ctx.fill();
+    ctx.strokeStyle = '#FF8F00'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // 🏰 Disney Castle Agujas
-    ctx.fillStyle = '#7B1FA2';
-    ctx.fillRect(202, 95, 20, 30);
-    ctx.beginPath(); ctx.moveTo(198, 95); ctx.lineTo(212, 70); ctx.lineTo(226, 95); ctx.fill();
+    // 🏰 3D Disney Castle Towers
+    ctx.fillStyle = '#6A1B9A';
+    ctx.fillRect(195, 85, 20, 45);
+    ctx.beginPath(); ctx.moveTo(190, 85); ctx.lineTo(205, 55); ctx.lineTo(220, 85); ctx.fill();
 
-    // ❄️ Frozen Ice Peak
+    // ❄️ 3D Frozen Ice Glaciers
     ctx.fillStyle = '#80DEEA';
-    ctx.beginPath(); ctx.moveTo(270, 75); ctx.lineTo(250, 125); ctx.lineTo(290, 125); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(265, 70); ctx.lineTo(240, 135); ctx.lineTo(290, 135); ctx.fill();
 
-    // 🚀 Galaxy Planet
+    // 🚀 3D Mario Galaxy Orbit Planet
     ctx.fillStyle = '#D500F9';
-    ctx.beginPath(); ctx.arc(432, 95, 16, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(432, 90, 18, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.5; ctx.stroke();
 
-    // Dotted Path connecting 9 Level Nodes
+    // 🌋 Volcanic Castle Fortress
+    ctx.fillStyle = '#37474F';
+    ctx.fillRect(465, 65, 30, 60);
+    ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.moveTo(465, 65); ctx.lineTo(480, 45); ctx.lineTo(495, 65); ctx.fill();
+
+    // Dotted Pathway
     ctx.save();
     ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 3.5; ctx.setLineDash([6, 5]);
     ctx.beginPath();
@@ -2073,14 +1840,15 @@ class PlatformerGame {
     for(let i=1; i<LEVEL_CONFIGS.length; i++){ ctx.lineTo(LEVEL_CONFIGS[i].mapX, LEVEL_CONFIGS[i].mapY); }
     ctx.stroke(); ctx.restore();
 
-    // Level Nodes
+    // 9 Level Nodes
     LEVEL_CONFIGS.forEach((cfg, idx) => {
       const selected = (this.currentLevelIdx === idx);
       ctx.save();
       ctx.translate(cfg.mapX, cfg.mapY);
       if(selected){
-        ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
+        const sa = Math.sin(now * 0.008) * 3;
+        ctx.beginPath(); ctx.arc(0, 0, 16 + sa, 0, Math.PI*2); ctx.stroke();
       }
       ctx.fillStyle = cfg.color;
       ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI*2); ctx.fill();
@@ -2091,22 +1859,25 @@ class PlatformerGame {
       ctx.restore();
     });
 
-    // Walking Hero on Map
+    // Walking Hero
     const heroImg = loadedImages[this.selectedCharId];
     ctx.save();
     ctx.translate(this.mapPlayerX, this.mapPlayerY - 14);
     if(heroImg && heroImg.complete) ctx.drawImage(heroImg, -11, -14, 22, 28);
     ctx.restore();
 
-    // NSMBWii Golden Plaque HUD
+    // Top Plaque
     ctx.save();
-    ctx.fillStyle = '#FFB300'; ctx.beginPath(); ctx.roundRect(8, 8, 175, 28, [14]); ctx.fill();
+    ctx.fillStyle = '#FFB300'; ctx.beginPath(); ctx.roundRect(8, 8, 200, 30, [15]); ctx.fill();
     ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#3E2723'; ctx.font = 'bold 10px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(`WORLD 1-${this.currentLevelIdx + 1}: ${LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''}`, 16, 22);
+    ctx.fillStyle = '#3E2723'; ctx.font = 'bold 10.5px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(`WORLD 1-${this.currentLevelIdx + 1}: ${LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''}`, 16, 23);
     ctx.restore();
   }
 
+  // ════════════════════════════════════════════════════════════
+  // 2.5D PARALLAX BACKGROUNDS
+  // ════════════════════════════════════════════════════════════
   renderBackground(ctx,now){
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
     const cx=this.camera.x;
@@ -2114,7 +1885,7 @@ class PlatformerGame {
     sky.addColorStop(0,cfg.sky[0]); sky.addColorStop(1,cfg.sky[2]);
     ctx.fillStyle=sky; ctx.fillRect(0,0,VIRT_W,VIRT_H);
 
-    // 🏜️ EGYPT PYRAMIDS PARALLAX
+    // 🏜️ EGYPT PYRAMIDS
     if(cfg.theme === 'egypt'){
       for(let i=0; i<4; i++){
         const px = ((i*350 - cx*0.12) % 1800) - 200;
@@ -2123,7 +1894,7 @@ class PlatformerGame {
         ctx.strokeStyle = '#FF8F00'; ctx.lineWidth = 2; ctx.stroke();
       }
     }
-    // 🏰 DISNEY CASTLE PARALLAX
+    // 🏰 DISNEY CASTLE
     else if(cfg.theme === 'disney'){
       for(let i=0; i<5; i++){
         const tx = ((i*280 - cx*0.15) % 1800) - 200;
@@ -2131,7 +1902,7 @@ class PlatformerGame {
         ctx.fillStyle = '#7B1FA2'; ctx.beginPath(); ctx.moveTo(tx-24, 90); ctx.lineTo(tx, 40); ctx.lineTo(tx+24, 90); ctx.fill();
       }
     }
-    // ❄️ FROZEN ICE GLACIER PARALLAX
+    // ❄️ FROZEN GLACIERS
     else if(cfg.theme === 'frozen'){
       for(let i=0; i<6; i++){
         const ix = ((i*240 - cx*0.15) % 1800) - 150;
@@ -2139,7 +1910,7 @@ class PlatformerGame {
         ctx.beginPath(); ctx.moveTo(ix, 100); ctx.lineTo(ix-60, VIRT_H); ctx.lineTo(ix+60, VIRT_H); ctx.fill();
       }
     }
-    // 🚀 MARIO GALAXY PARALLAX
+    // 🚀 MARIO GALAXY
     else if(cfg.theme === 'galaxy'){
       for(let i=0; i<6; i++){
         const gx = ((i*260 - cx*0.1) % 1800) - 100;
@@ -2161,7 +1932,10 @@ class PlatformerGame {
     for(const pl of this.staticPlatforms){
       if(!cam.isVisible(pl.x,pl.y,pl.w,pl.h))continue;
       const s=cam.toScreen(pl.x,pl.y);
-      ctx.fillStyle = pl.isCloud ? '#E1F5FE' : '#8D6E63';
+      const pGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y+pl.h);
+      if(pl.isCloud){ pGrad.addColorStop(0, '#FFFFFF'); pGrad.addColorStop(1, '#B3E5FC'); }
+      else { pGrad.addColorStop(0, '#A1887F'); pGrad.addColorStop(1, '#5D4037'); }
+      ctx.fillStyle = pGrad;
       ctx.beginPath(); ctx.roundRect(s.x, s.y, pl.w, pl.h, [pl.isCloud?pl.h/2:4]); ctx.fill();
     }
     for(const sp of this.spawnedPlatforms){
@@ -2192,6 +1966,9 @@ class PlatformerGame {
     }
   }
 
+  // ════════════════════════════════════════════════════════════
+  // 2.5D SHADED PLAYER & OUTFIT VISUALS
+  // ════════════════════════════════════════════════════════════
   renderPlayer(ctx,now){
     const p=this.player, cam=this.camera;
     const s=cam.toScreen(p.x,p.y);
@@ -2203,6 +1980,24 @@ class PlatformerGame {
     const img = loadedImages[this.selectedCharId];
     if(img && img.complete) ctx.drawImage(img, -p.w/2, -p.h/2, p.w, p.h);
     else { ctx.fillStyle = '#FF5252'; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+
+    // 2.5D Outfits Overlay
+    if(p.powerState === 'pharaoh'){
+      // Golden Nemes Headdress
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-p.w/2, -p.h/2); ctx.lineTo(0, -p.h/2 - 8); ctx.lineTo(p.w/2, -p.h/2); ctx.fill();
+      ctx.strokeStyle = '#0288D1'; ctx.lineWidth = 1.5; ctx.stroke();
+    } else if(p.powerState === 'princess'){
+      // Diamond Tiara & Glitter
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-6, -p.h/2 - 2); ctx.lineTo(0, -p.h/2 - 8); ctx.lineTo(6, -p.h/2 - 2); ctx.fill();
+      ctx.strokeStyle = '#E040FB'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, p.w*0.8, 0, Math.PI*2); ctx.stroke();
+    } else if(p.powerState === 'frozen_queen'){
+      // Crystal Ice Crown
+      ctx.fillStyle = '#80DEEA'; ctx.beginPath(); ctx.moveTo(-6, -p.h/2 - 2); ctx.lineTo(0, -p.h/2 - 9); ctx.lineTo(6, -p.h/2 - 2); ctx.fill();
+    } else if(p.powerState === 'galaxy_astronaut'){
+      // Cosmic Helmet & Jetpack
+      ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -p.h/4, 12, 0, Math.PI*2); ctx.stroke();
+    }
+
     ctx.restore();
   }
 
