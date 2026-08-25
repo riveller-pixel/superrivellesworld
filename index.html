@@ -28,12 +28,12 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none;
       -webkit-touch-callout:none; touch-action:none; -webkit-tap-highlight-color:transparent; }
-  html,body { width:100%; height:100%; overflow:hidden; background:#080c1a;
-    font-family:'Fredoka','Nunito',sans-serif; color:#fff; position:fixed; top:0; left:0; }
-  #game-wrapper { position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
+  html,body { width:100vw; height:100vh; height:100dvh; overflow:hidden; background:#080c1a;
+    font-family:'Fredoka','Nunito',sans-serif; color:#fff; position:fixed; top:0; left:0; right:0; bottom:0; }
+  #game-wrapper { position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; display:flex; justify-content:center; align-items:center;
     background:radial-gradient(circle at 50% 30%, #1e3c72 0%, #101a30 70%, #060913 100%);
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-  canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; }
+  canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; touch-action:none; }
 
   /* ── Modals ── */
   .screen-overlay { position:fixed; inset:0; background:rgba(6, 12, 34, 0.88); backdrop-filter:blur(10px);
@@ -284,6 +284,7 @@
       <div class="pause-btn-group">
         <button class="pause-btn primary" id="btn-resume">▶️ CONTINUAR PARTIDA</button>
         <button class="pause-btn" id="btn-restart-level">🔄 REINICIAR NIVEL</button>
+        <button class="pause-btn" id="btn-toggle-fullscreen">⛶ PANTALLA COMPLETA</button>
         <button class="pause-btn" id="btn-world-map">🗺️ VOLVER AL MAPA DE MUNDOS</button>
       </div>
     </div>
@@ -446,6 +447,12 @@ class SoundFX {
   enemyDie(){ this.playTone(220,'square',0.12,0.3,80); }
   levelComplete(){ [523,659,784,880,1046,1318,1568].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.2,0.3),i*80)); }
   blockBump(){ this.playTone(300,'square',0.08,0.25,240); }
+  bump(){ this.playTone(180, 'triangle', 0.1, 0.25, 90); }
+  fireball(){ this.fireballShoot(); }
+  magicPower(){ [587, 784, 987, 1174].forEach((f, i) => setTimeout(() => this.playTone(f, 'sine', 0.12, 0.22, f * 1.2), i * 40)); }
+  thwomp(){ this.playTone(80, 'sawtooth', 0.35, 0.45, 25); }
+  invincible(){ [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.1, 0.2, f * 1.1), i * 50)); }
+  winFanfare(){ this.fanfareVictory(); }
   click(){ this.playTone(600,'sine',0.04,0.15,900); }
 
   startBGM(){
@@ -2212,6 +2219,7 @@ class PlatformerGame {
 
     document.getElementById('btn-start').addEventListener('click', ()=>{
       audio.init(); audio.jump();
+      this.toggleFullscreen();
       document.getElementById('modal-select').classList.remove('active');
       this.goToWorldMap();
     });
@@ -2247,6 +2255,10 @@ class PlatformerGame {
       document.getElementById('modal-pause').classList.remove('active');
       this.startSelectedLevel();
     });
+    document.getElementById('btn-toggle-fullscreen').addEventListener('click', ()=>{
+      audio.click();
+      this.toggleFullscreen();
+    });
     document.getElementById('btn-world-map').addEventListener('click', ()=>{
       document.getElementById('modal-pause').classList.remove('active');
       this.goToWorldMap();
@@ -2273,12 +2285,16 @@ class PlatformerGame {
       }
 
       if(this.state === 'PLAYING' && cy <= 38){
-        if(cx >= VIRT_W - 46 && cx <= VIRT_W - 6){
+        if(cx >= VIRT_W - 40 && cx <= VIRT_W - 6){
           this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
           if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
           return;
         }
-        if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){ this.goToWorldMap(); return; }
+        if(cx >= VIRT_W - 80 && cx <= VIRT_W - 44){
+          this.toggleFullscreen();
+          return;
+        }
+        if(cx >= VIRT_W - 122 && cx <= VIRT_W - 86){ this.goToWorldMap(); return; }
         if(cx >= 170 && cx <= 220){ this.togglePause(); return; }
       }
 
@@ -2308,7 +2324,23 @@ class PlatformerGame {
         this.handleMapClick(cx, cy);
       }
     });
-  }  navigateWorldMap(dir){
+  }
+
+  toggleFullscreen(){
+    const doc = window.document;
+    const docEl = doc.documentElement;
+    const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    try {
+      if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement){
+        if(req) req.call(docEl).catch(()=>{});
+      } else {
+        if(exit) exit.call(doc).catch(()=>{});
+      }
+    } catch(e){}
+  }
+
+  navigateWorldMap(dir){
     const nextIdx = this.currentLevelIdx + dir;
     if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length){
       audio.click();
@@ -2322,10 +2354,28 @@ class PlatformerGame {
   handleMapClick(cx, cy){
     audio.init();
 
-    // Top Navigation Arrows (◀ / ▶)
+    // Top Navigation & Action Buttons (◀, ▶, 👑, ⛶, 🔊)
     if(cy >= 6 && cy <= 48){
-      if(cx >= 290 && cx <= 338){ this.navigateWorldMap(-1); return; }
-      if(cx >= 342 && cx <= 390){ this.navigateWorldMap(1); return; }
+      if(cx >= 275 && cx <= 310){ this.navigateWorldMap(-1); return; }
+      if(cx >= 312 && cx <= 348){ this.navigateWorldMap(1); return; }
+      if(cx >= 352 && cx <= 402){
+        audio.click();
+        document.getElementById('closet-stardust-display').textContent = `Polvo Estelar Disponible: ★ ${this.starDust}`;
+        document.querySelectorAll('.hat-card').forEach(hc => {
+          hc.classList.toggle('selected', hc.dataset.hat === (this.selectedHat || 'crown'));
+        });
+        document.getElementById('modal-closet').classList.add('active');
+        return;
+      }
+      if(cx >= 405 && cx <= 455){
+        this.toggleFullscreen();
+        return;
+      }
+      if(cx >= 458 && cx <= 508){
+        this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
+        if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+        return;
+      }
     }
 
     // Bottom Play / Locked Button
@@ -3376,23 +3426,41 @@ class PlatformerGame {
     // 5. Top Plaque with Level Name & Mount Info
     ctx.save();
     ctx.fillStyle = 'rgba(15, 23, 54, 0.94)';
-    ctx.beginPath(); ctx.roundRect(8, 8, 280, 38, [18]); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(8, 8, 260, 38, [18]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0; ctx.stroke();
     
-    ctx.fillStyle = '#FFD700'; ctx.font = '900 11.5px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 11px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1] || ''), 16, 20);
     
     const mountNames = ['🦄 Unicornio Yoshi', '🐬 Delfín Cristal', '🐪 Camello Real', '🦄👑 Corcel Disney', '🦌 Sven Reno', '🪽 Pegaso', '🔮 Orbe Cuarzo', '🚀🌟 Dragón Cósmico', '🦅🔥 Fénix'];
     ctx.fillStyle = '#80DEEA'; ctx.font = '800 8.5px "Fredoka", sans-serif';
     ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 33);
 
-    // Top Navigation Arrows (◀ / ▶)
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)';
-    ctx.beginPath(); ctx.roundRect(295, 8, 40, 38, [12]); ctx.roundRect(345, 8, 40, 38, [12]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.roundRect(295, 8, 40, 38, [12]); ctx.roundRect(345, 8, 40, 38, [12]); ctx.stroke();
-    ctx.fillStyle = '#FFF'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('◀', 315, 27); ctx.fillText('▶', 365, 27);
+    // Top Navigation & Action Buttons (◀, ▶, 👑, ⛶, 🔊)
+    // Prev Arrow
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(275, 8, 34, 38, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('◀', 292, 27);
+
+    // Next Arrow
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(314, 8, 34, 38, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.fillText('▶', 331, 27);
+
+    // Closet & Trophy Button
+    ctx.fillStyle = 'rgba(206, 147, 216, 0.35)'; ctx.beginPath(); ctx.roundRect(353, 8, 48, 38, [10]); ctx.fill();
+    ctx.strokeStyle = '#CE93D8'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = 'bold 14px sans-serif'; ctx.fillText('👑🏆', 377, 27);
+
+    // Fullscreen Button
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(406, 8, 48, 38, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 16px "Fredoka", sans-serif'; ctx.fillText('⛶', 430, 27);
+
+    // Sound Button
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(459, 8, 45, 38, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = 'bold 14px sans-serif'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', 481, 27);
     ctx.restore();
 
     // 6. PROMINENT BOTTOM PLAY BUTTON
@@ -3992,6 +4060,24 @@ class PlatformerGame {
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
     ctx.fillStyle = '#FFF'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️', 193, 22);
     ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 140, 22);
+    ctx.restore();
+
+    // Top-Right Quick Action Buttons (Map, Fullscreen, Mute)
+    ctx.save();
+    // 1. Map Button
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 120, 6, 34, 28, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🗺️', VIRT_W - 103, 23);
+
+    // 2. Fullscreen Button
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 80, 6, 34, 28, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 14px "Fredoka", sans-serif'; ctx.fillText('⛶', VIRT_W - 63, 24);
+
+    // 3. Sound Mute Button
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 40, 6, 34, 28, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = 'bold 12px sans-serif'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', VIRT_W - 23, 23);
     ctx.restore();
 
     if(this.currentBoss) this.currentBoss.drawHUD(ctx, now);
