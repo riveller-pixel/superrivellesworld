@@ -564,77 +564,153 @@ class Camera {
 }
 
 class TouchController {
-  constructor(game){ this.game=game; this.active=false; this.activeTouches=new Map(); this.buttons={}; this.pressedButtons=new Set(); }
-  updateLayout(sw,sh){
-    const dSz=Math.max(54,Math.min(70,sw*0.085));
-    const gap=4,safeB=24,safeL=16,safeR=16;
-    const dpadY=sh-safeB-dSz*2-gap;
-    this.buttons={
-      up:    {x:safeL+dSz+gap,  y:dpadY-dSz-gap, w:dSz,h:dSz,label:'▲',input:'up'},
-      left:  {x:safeL,          y:dpadY,          w:dSz,h:dSz,label:'◀',input:'left'},
-      down:  {x:safeL+dSz+gap,  y:dpadY,          w:dSz,h:dSz,label:'▼',input:'down'},
-      right: {x:safeL+(dSz+gap)*2,y:dpadY,        w:dSz,h:dSz,label:'▶',input:'right'},
-      btnB:  {x:sw-safeR-dSz*2.5,y:sh-safeB-dSz*2.2,w:dSz*1.2,h:dSz*1.2,label:'B',sublabel:'ACCION/PODER',input:'action',color:'rgba(229,57,53,0.85)',borderColor:'#FFCDD2',round:true},
-      btnPaw:{x:sw-safeR-dSz*1.8,y:sh-safeB-dSz*1.4,w:dSz*0.95,h:dSz*0.95,label:'🐾',sublabel:'TOMMY',input:'paw',color:'rgba(255,152,0,0.85)',borderColor:'#FFE082',round:true},
-      btnA:  {x:sw-safeR-dSz*1.1,y:sh-safeB-dSz*2.5,w:dSz*1.2,h:dSz*1.2,label:'A',sublabel:'SALTO/MONTURA',input:'jump',color:'rgba(67,160,71,0.85)',borderColor:'#C8E6C9',round:true}
+  constructor(game){
+    this.game = game;
+    this.active = false;
+    this.activeTouches = new Map();
+    this.buttons = {};
+    this.pressedButtons = new Set();
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+  }
+  updateLayout(sw, sh){
+    const dSz = Math.max(54, Math.min(70, sw * 0.085));
+    const gap = 4, safeB = 24, safeL = 16, safeR = 16;
+    const dpadY = sh - safeB - dSz * 2 - gap;
+    this.buttons = {
+      up:    { x: safeL + dSz + gap, y: dpadY - dSz - gap, w: dSz, h: dSz, label: '▲', input: 'up' },
+      left:  { x: safeL, y: dpadY, w: dSz, h: dSz, label: '◀', input: 'left' },
+      down:  { x: safeL + dSz + gap, y: dpadY, w: dSz, h: dSz, label: '▼', input: 'down' },
+      right: { x: safeL + (dSz + gap) * 2, y: dpadY, w: dSz, h: dSz, label: '▶', input: 'right' },
+      btnB:  { x: sw - safeR - dSz * 2.5, y: sh - safeB - dSz * 2.2, w: dSz * 1.2, h: dSz * 1.2, label: 'B', sublabel: 'ACCION', input: 'action', color: 'rgba(229,57,53,0.85)', borderColor: '#FFCDD2', round: true },
+      btnPaw:{ x: sw - safeR - dSz * 1.8, y: sh - safeB - dSz * 1.4, w: dSz * 0.95, h: dSz * 0.95, label: '🐾', sublabel: 'TOMMY', input: 'paw', color: 'rgba(255,152,0,0.85)', borderColor: '#FFE082', round: true },
+      btnA:  { x: sw - safeR - dSz * 1.1, y: sh - safeB - dSz * 2.5, w: dSz * 1.2, h: dSz * 1.2, label: 'A', sublabel: 'SALTO', input: 'jump', color: 'rgba(67,160,71,0.85)', borderColor: '#C8E6C9', round: true }
     };
   }
-  hitTest(sx,sy){
-    for(const[name,btn]of Object.entries(this.buttons)){
-      if(btn.round){ const cx=btn.x+btn.w/2,cy=btn.y+btn.h/2,r=btn.w/2+12,dx=sx-cx,dy=sy-cy; if(dx*dx+dy*dy<=r*r)return name; }
-      else { const pad=10; if(sx>=btn.x-pad&&sx<=btn.x+btn.w+pad&&sy>=btn.y-pad&&sy<=btn.y+btn.h+pad)return name; }
-    } return null;
+  hitTest(sx, sy){
+    for(const [name, btn] of Object.entries(this.buttons)){
+      if(btn.round){
+        const cx = btn.x + btn.w/2, cy = btn.y + btn.h/2, r = btn.w/2 + 12, dx = sx - cx, dy = sy - cy;
+        if(dx * dx + dy * dy <= r * r) return name;
+      } else {
+        const pad = 10;
+        if(sx >= btn.x - pad && sx <= btn.x + btn.w + pad && sy >= btn.y - pad && sy <= btn.y + btn.h + pad) return name;
+      }
+    }
+    return null;
   }
   handleTouchStart(e){
-    if(this.game.state!=='PLAYING')return;
-    e.preventDefault(); audio.init(); this.active=true;
-    for(const t of e.changedTouches){ const btn=this.hitTest(t.clientX,t.clientY); if(btn){ this.activeTouches.set(t.identifier,btn); this.pressedButtons.add(btn); const b=this.buttons[btn]; if(b)this.game.input[b.input]=true; } }
+    audio.init();
+    if(this.game.state === 'LEVEL_COMPLETE'){
+      e.preventDefault();
+      this.game.goToWorldMap();
+      return;
+    }
+    if(this.game.state === 'WORLD_MAP'){
+      e.preventDefault();
+      const t = e.changedTouches[0];
+      this.touchStartX = t.clientX;
+      this.touchStartY = t.clientY;
+      return;
+    }
+    if(this.game.state !== 'PLAYING') return;
+    e.preventDefault();
+    this.active = true;
+    for(const t of e.changedTouches){
+      const btn = this.hitTest(t.clientX, t.clientY);
+      if(btn){
+        this.activeTouches.set(t.identifier, btn);
+        this.pressedButtons.add(btn);
+        const b = this.buttons[btn];
+        if(b) this.game.input[b.input] = true;
+      }
+    }
   }
   handleTouchMove(e){
-    if(this.game.state!=='PLAYING')return;
+    if(this.game.state !== 'PLAYING') return;
     e.preventDefault();
     for(const t of e.changedTouches){
-      const old=this.activeTouches.get(t.identifier),nw=this.hitTest(t.clientX,t.clientY);
-      if(old!==nw){ if(old){let s=false;for(const[id,b]of this.activeTouches)if(id!==t.identifier&&b===old){s=true;break;}if(!s){this.pressedButtons.delete(old);const b=this.buttons[old];if(b)this.game.input[b.input]=false;}} if(nw){this.activeTouches.set(t.identifier,nw);this.pressedButtons.add(nw);const b=this.buttons[nw];if(b)this.game.input[b.input]=true;}else this.activeTouches.delete(t.identifier); }
+      const old = this.activeTouches.get(t.identifier), nw = this.hitTest(t.clientX, t.clientY);
+      if(old !== nw){
+        if(old){
+          let s = false;
+          for(const [id, b] of this.activeTouches){ if(id !== t.identifier && b === old){ s = true; break; } }
+          if(!s){ this.pressedButtons.delete(old); const b = this.buttons[old]; if(b) this.game.input[b.input] = false; }
+        }
+        if(nw){
+          this.activeTouches.set(t.identifier, nw);
+          this.pressedButtons.add(nw);
+          const b = this.buttons[nw];
+          if(b) this.game.input[b.input] = true;
+        } else {
+          this.activeTouches.delete(t.identifier);
+        }
+      }
     }
   }
   handleTouchEnd(e){
-    if(this.game.state!=='PLAYING')return;
-    e.preventDefault();
-    for(const t of e.changedTouches){ const btn=this.activeTouches.get(t.identifier); if(btn){ this.activeTouches.delete(t.identifier); let s=false; for(const[,b]of this.activeTouches)if(b===btn){s=true;break;} if(!s){this.pressedButtons.delete(btn);const b=this.buttons[btn];if(b)this.game.input[b.input]=false;} } }
-  }
-  draw(ctx,sw,sh,cw,ch){
-    if(!this.active)return;
-    const sx=cw/sw,sy=ch/sh;
-    ctx.save();
-    for(const[name,btn]of Object.entries(this.buttons)){
-      const pressed=this.pressedButtons.has(name);
-      const bx=btn.x*sx,by=btn.y*sy,bw=btn.w*sx,bh=btn.h*sy;
-      ctx.globalAlpha=pressed?0.95:0.62;
-      if(btn.round){
-        const cx=bx+bw/2,cy=by+bh/2,r=bw/2;
-        ctx.fillStyle=pressed?'rgba(255,255,255,0.4)':(btn.color||'rgba(30,24,46,0.7)');
-        ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle=btn.borderColor||'#ffd700';ctx.lineWidth=pressed?3.5:2;ctx.stroke();
-        ctx.fillStyle='#fff';ctx.font=`bold ${Math.round(r*0.65)}px "Fredoka",sans-serif`;
-        ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(btn.label,cx,cy-(btn.sublabel?r*0.12:0));
-        if(btn.sublabel){ctx.font=`900 ${Math.max(6,Math.round(r*0.24))}px "Fredoka",sans-serif`;ctx.globalAlpha*=0.85;ctx.fillText(btn.sublabel,cx,cy+r*0.44);}
+    if(this.game.state === 'WORLD_MAP'){
+      e.preventDefault();
+      const t = e.changedTouches[0];
+      const dx = t.clientX - this.touchStartX;
+      const dy = t.clientY - this.touchStartY;
+      if(Math.abs(dx) > 35){
+        if(dx < 0) this.game.navigateWorldMap(1);
+        else this.game.navigateWorldMap(-1);
       } else {
-        ctx.fillStyle=pressed?'rgba(255,215,0,0.92)':'rgba(22,32,64,0.78)';
-        ctx.beginPath();ctx.roundRect(bx,by,bw,bh,[bw*0.25]);ctx.fill();
-        ctx.strokeStyle='#ffd700';ctx.lineWidth=pressed?3:2;ctx.stroke();
-        ctx.fillStyle=pressed?'#000':'#fff';ctx.font=`bold ${Math.round(bw*0.42)}px sans-serif`;
-        ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(btn.label,bx+bw/2,by+bh/2);
+        const rect = this.game.canvas.getBoundingClientRect();
+        const cx = (t.clientX - rect.left) * (VIRT_W / rect.width);
+        const cy = (t.clientY - rect.top) * (VIRT_H / rect.height);
+        this.game.handleMapClick(cx, cy);
       }
+      return;
+    }
+    if(this.game.state !== 'PLAYING') return;
+    e.preventDefault();
+    for(const t of e.changedTouches){
+      const btn = this.activeTouches.get(t.identifier);
+      if(btn){
+        this.activeTouches.delete(t.identifier);
+        let s = false;
+        for(const [id, b] of this.activeTouches){ if(b === btn){ s = true; break; } }
+        if(!s){
+          this.pressedButtons.delete(btn);
+          const b = this.buttons[btn];
+          if(b) this.game.input[b.input] = false;
+        }
+      }
+    }
+  }
+  draw(ctx, sw, sh, vw, vh){
+    if(!this.active) return;
+    const sx = vw / sw, sy = vh / sh;
+    ctx.save();
+    for(const [name, btn] of Object.entries(this.buttons)){
+      const pressed = this.pressedButtons.has(name);
+      ctx.save();
+      ctx.globalAlpha = pressed ? 0.95 : 0.65;
+      if(btn.round){
+        ctx.fillStyle = btn.color || 'rgba(33, 150, 243, 0.7)';
+        ctx.beginPath();
+        ctx.arc((btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy, (btn.w/2)*sx, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = btn.borderColor || '#FFF'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#FFF'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(btn.label, (btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy);
+      } else {
+        ctx.fillStyle = pressed ? 'rgba(255, 215, 0, 0.8)' : 'rgba(255, 255, 255, 0.35)';
+        ctx.beginPath();
+        ctx.roundRect(btn.x*sx, btn.y*sy, btn.w*sx, btn.h*sy, [8]);
+        ctx.fill();
+        ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = pressed ? '#000' : '#FFF'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(btn.label, (btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy);
+      }
+      ctx.restore();
     }
     ctx.restore();
   }
 }
-
-// ════════════════════════════════════════════════════════════
-// 2.5D SHADED ENEMY ROSTER
-// ════════════════════════════════════════════════════════════
 class Enemy {
   constructor(type,x,y,patrolMin,patrolMax){
     this.type=type; this.x=x; this.y=y;
@@ -1514,11 +1590,75 @@ class PlatformerGame {
     });
   }  navigateWorldMap(dir){
     const nextIdx = this.currentLevelIdx + dir;
-    if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length && this.unlockedLevels[nextIdx]){
-      audio.click(); this.currentLevelIdx = nextIdx; this.mapTargetIdx = nextIdx;
+    if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length){
+      audio.click();
+      this.currentLevelIdx = nextIdx;
+      this.mapTargetIdx = nextIdx;
+    } else {
+      audio.bump();
     }
   }
 
+  handleMapClick(cx, cy){
+    audio.init();
+
+    // Top Navigation Arrows (◀ / ▶)
+    if(cy >= 6 && cy <= 46){
+      if(cx >= 290 && cx <= 338){ this.navigateWorldMap(-1); return; }
+      if(cx >= 342 && cx <= 390){ this.navigateWorldMap(1); return; }
+    }
+
+    // Bottom Play / Locked Button
+    if(cy >= VIRT_H - 46){
+      if(this.unlockedLevels[this.currentLevelIdx]){
+        audio.jump();
+        this.startSelectedLevel();
+      } else {
+        audio.bump();
+        const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
+        this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 20, '#FF5252');
+      }
+      return;
+    }
+
+    // Clicking any of the 9 World Nodes
+    let clickedNode = false;
+    LEVEL_CONFIGS.forEach((cfg, idx) => {
+      const dist = Math.hypot(cx - cfg.mapX, cy - cfg.mapY);
+      if(dist < 36){
+        clickedNode = true;
+        audio.click();
+        if(this.currentLevelIdx === idx){
+          if(this.unlockedLevels[idx]){
+            this.startSelectedLevel();
+          } else {
+            audio.bump();
+            this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 20, '#FF5252');
+          }
+        } else {
+          this.currentLevelIdx = idx;
+          this.mapTargetIdx = idx;
+        }
+      }
+    });
+
+    // Clicking left / right sides of screen to browse worlds
+    if(!clickedNode && cy > 46 && cy < VIRT_H - 46){
+      if(cx < VIRT_W * 0.35){
+        this.navigateWorldMap(-1);
+      } else if(cx > VIRT_W * 0.65){
+        this.navigateWorldMap(1);
+      } else {
+        if(this.unlockedLevels[this.currentLevelIdx]){
+          this.startSelectedLevel();
+        } else {
+          audio.bump();
+          const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
+          this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 20, '#FF5252');
+        }
+      }
+    }
+  }
   togglePause(){
     this.state = 'PAUSED';
     document.getElementById('pause-level-title').innerText = LEVEL_CONFIGS[this.currentLevelIdx].name;
