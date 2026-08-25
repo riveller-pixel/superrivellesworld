@@ -1426,87 +1426,141 @@ class PlatformerGame {
   }
 
   initControls(){
-    window.addEventListener('keydown',e=>{
+    // KEYBOARD INPUTS
+    window.addEventListener('keydown', e => {
       audio.init();
-      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
-      if(e.code==='ArrowLeft'||e.code==='KeyA'){ this.input.left=true; if(this.state==='WORLD_MAP') this.navigateWorldMap(-1); }
-      if(e.code==='ArrowRight'||e.code==='KeyD'){ this.input.right=true; if(this.state==='WORLD_MAP') this.navigateWorldMap(1); }
-      if(e.code==='ArrowUp'||e.code==='KeyW')this.input.up=true;
-      if(e.code==='ArrowDown'||e.code==='KeyS')this.input.down=true;
-      if(e.code==='Space'||e.code==='KeyZ'||e.code==='Enter'){ this.input.jump=true; if(this.state==='WORLD_MAP') this.startSelectedLevel(); }
-      if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=true;
-      if(e.code==='KeyT')this.input.paw=true;
-      if(e.code==='KeyEscape'||e.code==='KeyP'){ if(this.state==='PLAYING') this.togglePause(); else if(this.state==='PAUSED') this.resumeGame(); }
-      if(e.code==='KeyM'){ this.soundMuted=!this.soundMuted; audio.muted=this.soundMuted; if(this.soundMuted) audio.stopBGM(); else audio.startBGM(); }
-    });
-    window.addEventListener('keyup',e=>{
-      if(e.code==='ArrowLeft'||e.code==='KeyA')this.input.left=false;
-      if(e.code==='ArrowRight'||e.code==='KeyD')this.input.right=false;
-      if(e.code==='ArrowUp'||e.code==='KeyW')this.input.up=false;
-      if(e.code==='ArrowDown'||e.code==='KeyS')this.input.down=false;
-      if(e.code==='Space'||e.code==='KeyZ')this.input.jump=false;
-      if(e.code==='KeyX'||e.code==='ShiftLeft'||e.code==='ShiftRight')this.input.action=false;
-      if(e.code==='KeyT')this.input.paw=false;
+      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+
+      if(this.state === 'LEVEL_COMPLETE'){
+        this.goToWorldMap();
+        return;
+      }
+
+      if(this.state === 'WORLD_MAP'){
+        if(e.code === 'ArrowLeft' || e.code === 'KeyA') this.navigateWorldMap(-1);
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') this.navigateWorldMap(1);
+        if(e.code === 'Space' || e.code === 'KeyZ' || e.code === 'Enter') this.startSelectedLevel();
+        return;
+      }
+
+      if(e.code === 'ArrowLeft' || e.code === 'KeyA') this.input.left = true;
+      if(e.code === 'ArrowRight' || e.code === 'KeyD') this.input.right = true;
+      if(e.code === 'ArrowUp' || e.code === 'KeyW') this.input.up = true;
+      if(e.code === 'ArrowDown' || e.code === 'KeyS') this.input.down = true;
+      if(e.code === 'Space' || e.code === 'KeyZ' || e.code === 'Enter') this.input.jump = true;
+      if(e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = true;
+      if(e.code === 'KeyT') this.input.paw = true;
+      if(e.code === 'KeyEscape' || e.code === 'KeyP'){
+        if(this.state === 'PLAYING') this.togglePause();
+        else if(this.state === 'PAUSED') this.resumeGame();
+      }
+      if(e.code === 'KeyM'){
+        this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
+        if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+      }
     });
 
-    this.canvas.addEventListener('touchstart',e=>this.touchCtrl.handleTouchStart(e),{passive:false});
-    this.canvas.addEventListener('touchmove', e=>this.touchCtrl.handleTouchMove(e), {passive:false});
-    this.canvas.addEventListener('touchend',  e=>this.touchCtrl.handleTouchEnd(e),  {passive:false});
+    window.addEventListener('keyup', e => {
+      if(e.code === 'ArrowLeft' || e.code === 'KeyA') this.input.left = false;
+      if(e.code === 'ArrowRight' || e.code === 'KeyD') this.input.right = false;
+      if(e.code === 'ArrowUp' || e.code === 'KeyW') this.input.up = false;
+      if(e.code === 'ArrowDown' || e.code === 'KeyS') this.input.down = false;
+      if(e.code === 'Space' || e.code === 'KeyZ') this.input.jump = false;
+      if(e.code === 'KeyX' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.input.action = false;
+      if(e.code === 'KeyT') this.input.paw = false;
+    });
 
-    document.querySelectorAll('.char-card').forEach(card=>{
-      card.addEventListener('click',()=>{
+    // TOUCH CONTROLS
+    this.canvas.addEventListener('touchstart', e => {
+      audio.init();
+      if(this.state === 'LEVEL_COMPLETE'){
+        e.preventDefault();
+        this.goToWorldMap();
+        return;
+      }
+      this.touchCtrl.handleTouchStart(e);
+    }, {passive: false});
+    this.canvas.addEventListener('touchmove', e => this.touchCtrl.handleTouchMove(e), {passive: false});
+    this.canvas.addEventListener('touchend',  e => this.touchCtrl.handleTouchEnd(e),  {passive: false});
+
+    // CHARACTER SELECTION MODAL
+    document.querySelectorAll('.char-card').forEach(card => {
+      card.addEventListener('click', () => {
         audio.click();
-        document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        this.selectedCharId=card.dataset.id;
+        this.selectedCharId = card.dataset.id;
       });
     });
 
-    document.getElementById('btn-start').addEventListener('click', ()=>{
+    document.getElementById('btn-start').addEventListener('click', () => {
       audio.init(); audio.jump();
       document.getElementById('modal-select').classList.remove('active');
-      this.state='WORLD_MAP';
+      this.goToWorldMap();
     });
 
-    document.getElementById('btn-resume').addEventListener('click', ()=>{ this.resumeGame(); });
-    document.getElementById('btn-restart-level').addEventListener('click', ()=>{
+    // PAUSE MODAL BUTTONS
+    document.getElementById('btn-resume').addEventListener('click', () => { this.resumeGame(); });
+    document.getElementById('btn-restart-level').addEventListener('click', () => {
       document.getElementById('modal-pause').classList.remove('active');
       this.startSelectedLevel();
     });
-    document.getElementById('btn-world-map').addEventListener('click', ()=>{
+    document.getElementById('btn-world-map').addEventListener('click', () => {
       document.getElementById('modal-pause').classList.remove('active');
-      this.state='WORLD_MAP';
+      this.goToWorldMap();
     });
 
-    document.querySelectorAll('.pause-char-item').forEach(item=>{
-      item.addEventListener('click', ()=>{
+    document.querySelectorAll('.pause-char-item').forEach(item => {
+      item.addEventListener('click', () => {
         audio.click();
-        document.querySelectorAll('.pause-char-item').forEach(it=>it.classList.remove('active'));
+        document.querySelectorAll('.pause-char-item').forEach(it => it.classList.remove('active'));
         item.classList.add('active');
         this.switchCharacterLive(item.dataset.id);
       });
     });
 
-    this.canvas.addEventListener('click', (e)=>{
-      const rect=this.canvas.getBoundingClientRect();
-      const cx=(e.clientX-rect.left)*(VIRT_W/rect.width);
-      const cy=(e.clientY-rect.top)*(VIRT_H/rect.height);
+    // CANVAS CLICK / POINTER INTERACTION
+    this.canvas.addEventListener('click', (e) => {
+      audio.init();
+      const rect = this.canvas.getBoundingClientRect();
+      const cx = (e.clientX - rect.left) * (VIRT_W / rect.width);
+      const cy = (e.clientY - rect.top) * (VIRT_H / rect.height);
 
-      if(this.state === 'PLAYING' && cy <= 36){
-        if(cx >= VIRT_W - 46 && cx <= VIRT_W - 6){ this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted; if(this.soundMuted) audio.stopBGM(); else audio.startBGM(); return; }
-        if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){ this.state = 'WORLD_MAP'; return; }
-        if(cx >= VIRT_W - 150 && cx <= VIRT_W - 100){ this.togglePause(); return; }
+      if(this.state === 'LEVEL_COMPLETE'){
+        this.goToWorldMap();
+        return;
       }
 
-      if(this.state==='WORLD_MAP'){
-        LEVEL_CONFIGS.forEach((cfg, idx)=>{
-          const dist=Math.hypot(cx-cfg.mapX, cy-cfg.mapY);
-          if(this.unlockedLevels[idx] && dist < 24){
+      if(this.state === 'PLAYING' && cy <= 38){
+        if(cx >= VIRT_W - 46 && cx <= VIRT_W - 6){
+          this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
+          if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+          return;
+        }
+        if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){ this.goToWorldMap(); return; }
+        if(cx >= 170 && cx <= 220){ this.togglePause(); return; }
+      }
+
+      if(this.state === 'WORLD_MAP'){
+        let clickedNode = false;
+        LEVEL_CONFIGS.forEach((cfg, idx) => {
+          const dist = Math.hypot(cx - cfg.mapX, cy - cfg.mapY);
+          if(dist < 28){
+            clickedNode = true;
+            if(!this.unlockedLevels[idx]){
+              audio.bump();
+              this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 18, '#FF5252');
+              return;
+            }
             audio.click();
-            if(this.currentLevelIdx === idx) this.startSelectedLevel();
-            else { this.currentLevelIdx = idx; this.mapTargetIdx = idx; }
+            this.currentLevelIdx = idx;
+            this.mapTargetIdx = idx;
+            this.startSelectedLevel();
           }
         });
+        if(!clickedNode && cy >= VIRT_H - 45){
+          if(this.unlockedLevels[this.currentLevelIdx]) this.startSelectedLevel();
+        }
       }
     });
   }
@@ -1514,7 +1568,11 @@ class PlatformerGame {
   navigateWorldMap(dir){
     const nextIdx = this.currentLevelIdx + dir;
     if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length && this.unlockedLevels[nextIdx]){
-      audio.click(); this.currentLevelIdx = nextIdx; this.mapTargetIdx = nextIdx;
+      audio.click();
+      this.currentLevelIdx = nextIdx;
+      this.mapTargetIdx = nextIdx;
+    } else {
+      audio.bump();
     }
   }
 
@@ -1563,338 +1621,6 @@ class PlatformerGame {
     audio.startBGM();
     this.addFloatingText(`¡NIVEL: ${cfg.name.split(':')[1]||cfg.name}! 🌟`, 120, 160, '#FFD700');
   }
-
-  buildLevel(cfg){
-    const lw = 3800;
-    this.staticPlatforms = [];
-    this.spawnedPlatforms = [];
-    this.destructibleBlocks = [];
-    this.questionBlocks = [];
-    this.starCoins = [];
-    this.zeroGBubbles = [];
-    this.enemies = [];
-    this.fireballs = [];
-    this.particles = [];
-    this.floatingTexts = [];
-    this.itemEntities = [];
-    this.galaxyBoss = null;
-
-    const _tbl = {
-      garden:[
-        {x:0,y:256,w:420,h:32},{x:490,y:256,w:320,h:32},{x:900,y:256,w:380,h:32},{x:1370,y:256,w:340,h:32},
-        {x:1790,y:256,w:410,h:32},{x:2290,y:256,w:360,h:32},{x:2740,y:256,w:400,h:32},{x:3250,y:256,w:560,h:32},
-        {x:220,y:195,w:80,h:14},{x:390,y:150,w:80,h:14},{x:560,y:195,w:80,h:14},{x:720,y:155,w:80,h:14},
-        {x:950,y:190,w:80,h:14},{x:1100,y:145,w:80,h:14},{x:1260,y:195,w:80,h:14},{x:1450,y:150,w:80,h:14},
-        {x:1600,y:195,w:80,h:14},{x:1820,y:160,w:80,h:14},{x:2000,y:120,w:80,h:14},{x:2200,y:165,w:80,h:14},
-        {x:2400,y:130,w:80,h:14},{x:2560,y:190,w:80,h:14},{x:2800,y:150,w:80,h:14},{x:2980,y:105,w:80,h:14},{x:3100,y:150,w:80,h:14}
-      ],
-      marine:[
-        {x:0,y:256,w:360,h:32},{x:420,y:256,w:300,h:32},{x:800,y:256,w:360,h:32},{x:1240,y:256,w:340,h:32},
-        {x:1660,y:256,w:400,h:32},{x:2160,y:256,w:360,h:32},{x:2620,y:256,w:400,h:32},{x:3100,y:256,w:700,h:32},
-        {x:200,y:200,w:80,h:14},{x:360,y:165,w:80,h:14},{x:500,y:135,w:80,h:14},{x:650,y:170,w:80,h:14},
-        {x:840,y:195,w:80,h:14},{x:1000,y:150,w:80,h:14},{x:1160,y:120,w:80,h:14},{x:1350,y:165,w:80,h:14},
-        {x:1550,y:200,w:80,h:14},{x:1720,y:165,w:80,h:14},{x:1900,y:120,w:80,h:14},{x:2060,y:160,w:80,h:14},
-        {x:2260,y:200,w:80,h:14},{x:2430,y:155,w:80,h:14},{x:2600,y:125,w:80,h:14},{x:2800,y:170,w:80,h:14}
-      ],
-      egypt:[
-        {x:0,y:256,w:380,h:32},{x:460,y:256,w:340,h:32},{x:880,y:256,w:380,h:32},{x:1340,y:256,w:360,h:32},
-        {x:1780,y:256,w:400,h:32},{x:2260,y:256,w:360,h:32},{x:2720,y:256,w:400,h:32},{x:3220,y:256,w:580,h:32},
-        {x:180,y:200,w:90,h:14},{x:350,y:158,w:90,h:14},{x:520,y:210,w:90,h:14},{x:700,y:165,w:90,h:14},
-        {x:900,y:195,w:90,h:14},{x:1060,y:148,w:90,h:14},{x:1230,y:200,w:90,h:14},{x:1430,y:155,w:90,h:14},
-        {x:1600,y:198,w:90,h:14},{x:1800,y:152,w:90,h:14},{x:1980,y:112,w:90,h:14},{x:2170,y:158,w:90,h:14},
-        {x:2380,y:125,w:90,h:14},{x:2550,y:185,w:90,h:14},{x:2760,y:140,w:90,h:14},{x:2950,y:100,w:90,h:14},{x:3100,y:145,w:90,h:14},
-        {x:620,y:240,w:60,h:14},{x:650,y:220,w:60,h:14},{x:680,y:200,w:60,h:14},
-        {x:2100,y:240,w:60,h:14},{x:2130,y:218,w:60,h:14},{x:2160,y:196,w:60,h:14}
-      ],
-      disney:[
-        {x:0,y:256,w:370,h:32},{x:450,y:256,w:330,h:32},{x:870,y:256,w:370,h:32},{x:1320,y:256,w:360,h:32},
-        {x:1760,y:256,w:400,h:32},{x:2250,y:256,w:370,h:32},{x:2720,y:256,w:400,h:32},{x:3220,y:256,w:580,h:32},
-        {x:175,y:198,w:80,h:14},{x:340,y:155,w:80,h:14},{x:510,y:200,w:80,h:14},{x:680,y:162,w:80,h:14},
-        {x:880,y:195,w:80,h:14},{x:1040,y:148,w:80,h:14},{x:1220,y:198,w:80,h:14},{x:1420,y:152,w:80,h:14},
-        {x:1590,y:195,w:80,h:14},{x:1800,y:150,w:80,h:14},{x:1990,y:108,w:80,h:14},{x:2180,y:155,w:80,h:14},
-        {x:2380,y:120,w:80,h:14},{x:2560,y:180,w:80,h:14},{x:2760,y:140,w:80,h:14},{x:2960,y:98,w:80,h:14},{x:3100,y:148,w:80,h:14}
-      ],
-      frozen:[
-        {x:0,y:256,w:370,h:32},{x:440,y:256,w:340,h:32},{x:860,y:256,w:380,h:32},{x:1320,y:256,w:360,h:32},
-        {x:1760,y:256,w:400,h:32},{x:2250,y:256,w:360,h:32},{x:2710,y:256,w:400,h:32},{x:3200,y:256,w:600,h:32},
-        {x:180,y:198,w:88,h:14},{x:355,y:155,w:88,h:14},{x:525,y:205,w:88,h:14},{x:700,y:160,w:88,h:14},
-        {x:900,y:196,w:88,h:14},{x:1060,y:150,w:88,h:14},{x:1240,y:200,w:88,h:14},{x:1440,y:155,w:88,h:14},
-        {x:1610,y:198,w:88,h:14},{x:1820,y:152,w:88,h:14},{x:2000,y:110,w:88,h:14},{x:2190,y:158,w:88,h:14},
-        {x:2390,y:122,w:88,h:14},{x:2560,y:182,w:88,h:14},{x:2770,y:142,w:88,h:14},{x:2970,y:102,w:88,h:14}
-      ],
-      sky:[
-        {x:0,y:256,w:280,h:16,isCloud:true},{x:350,y:232,w:260,h:16,isCloud:true},{x:690,y:212,w:280,h:16,isCloud:true},
-        {x:1060,y:248,w:270,h:16,isCloud:true},{x:1420,y:228,w:270,h:16,isCloud:true},{x:1790,y:208,w:280,h:16,isCloud:true},
-        {x:2170,y:248,w:270,h:16,isCloud:true},{x:2550,y:228,w:270,h:16,isCloud:true},{x:2920,y:208,w:280,h:16,isCloud:true},
-        {x:3300,y:248,w:500,h:16,isCloud:true},
-        {x:180,y:185,w:80,h:14,isCloud:true},{x:400,y:155,w:80,h:14,isCloud:true},{x:560,y:185,w:80,h:14,isCloud:true},
-        {x:730,y:148,w:80,h:14,isCloud:true},{x:900,y:188,w:80,h:14,isCloud:true},{x:1120,y:148,w:80,h:14,isCloud:true},
-        {x:1300,y:185,w:80,h:14,isCloud:true},{x:1490,y:145,w:80,h:14,isCloud:true},{x:1680,y:188,w:80,h:14,isCloud:true},
-        {x:1880,y:142,w:80,h:14,isCloud:true},{x:2080,y:110,w:80,h:14,isCloud:true},{x:2270,y:155,w:80,h:14,isCloud:true}
-      ],
-      cave:[
-        {x:0,y:256,w:370,h:32},{x:440,y:256,w:340,h:32},{x:860,y:256,w:380,h:32},{x:1320,y:256,w:360,h:32},
-        {x:1760,y:256,w:400,h:32},{x:2250,y:256,w:360,h:32},{x:2710,y:256,w:400,h:32},{x:3200,y:256,w:600,h:32},
-        {x:180,y:198,w:82,h:14},{x:355,y:155,w:82,h:14},{x:525,y:200,w:82,h:14},{x:700,y:158,w:82,h:14},
-        {x:900,y:195,w:82,h:14},{x:1060,y:148,w:82,h:14},{x:1240,y:195,w:82,h:14},{x:1440,y:150,w:82,h:14},
-        {x:1610,y:195,w:82,h:14},{x:1820,y:148,w:82,h:14},{x:2000,y:108,w:82,h:14},{x:2190,y:155,w:82,h:14},
-        {x:2390,y:120,w:82,h:14},{x:2560,y:180,w:82,h:14},{x:2770,y:140,w:82,h:14},{x:2970,y:100,w:82,h:14}
-      ],
-      galaxy:[
-        {x:0,y:256,w:350,h:20},{x:450,y:240,w:300,h:20},{x:840,y:220,w:320,h:20},{x:1260,y:205,w:300,h:20},
-        {x:1660,y:235,w:340,h:20},{x:2120,y:215,w:320,h:20},{x:2570,y:240,w:340,h:20},{x:3050,y:220,w:340,h:20},{x:3500,y:256,w:500,h:32},
-        {x:180,y:195,w:75,h:14},{x:340,y:152,w:75,h:14},{x:510,y:200,w:75,h:14},{x:680,y:160,w:75,h:14},
-        {x:880,y:180,w:75,h:14},{x:1050,y:135,w:75,h:14},{x:1230,y:180,w:75,h:14},{x:1420,y:140,w:75,h:14},
-        {x:1600,y:190,w:75,h:14},{x:1810,y:148,w:75,h:14},{x:2000,y:105,w:75,h:14},{x:2180,y:150,w:75,h:14},
-        {x:2380,y:115,w:75,h:14},{x:2560,y:175,w:75,h:14},{x:2760,y:135,w:75,h:14},{x:2960,y:95,w:75,h:14}
-      ],
-      castle:[
-        {x:0,y:256,w:350,h:32},{x:420,y:256,w:320,h:32},{x:820,y:256,w:360,h:32},{x:1260,y:256,w:340,h:32},
-        {x:1700,y:256,w:380,h:32},{x:2180,y:256,w:360,h:32},{x:2650,y:256,w:380,h:32},{x:3200,y:256,w:600,h:32},
-        {x:170,y:198,w:80,h:14},{x:340,y:155,w:80,h:14},{x:505,y:200,w:80,h:14},{x:680,y:158,w:80,h:14},
-        {x:875,y:195,w:80,h:14},{x:1040,y:148,w:80,h:14},{x:1215,y:195,w:80,h:14},{x:1415,y:150,w:80,h:14},
-        {x:1585,y:195,w:80,h:14},{x:1800,y:148,w:80,h:14},{x:1985,y:105,w:80,h:14},{x:2180,y:152,w:80,h:14},
-        {x:2380,y:118,w:80,h:14},{x:2550,y:178,w:80,h:14},{x:2760,y:138,w:80,h:14},{x:2960,y:98,w:80,h:14}
-      ]
-    };
-    const basePlats = (_tbl[cfg.theme] || _tbl.garden).map(function(p){ return Object.assign({},p); });
-    this.staticPlatforms = basePlats;
-
-    this.starCoins = [
-      new StarCoin(460, 85, 1),
-      new StarCoin(1720, 70, 2),
-      new StarCoin(2900, 95, 3)
-    ];
-
-    // Spawning 2 Accessible Mounts per world: 1 at start (x: 180) and 1 mid-level (x: 1850)
-    const mType = {
-      garden: 'unicorn', marine: 'dolphin', egypt: 'camel', disney: 'disney_steed',
-      frozen: 'sven', sky: 'pegasus', cave: 'crystal_orb', galaxy: 'cosmic_dragon', castle: 'phoenix'
-    }[cfg.theme] || 'unicorn';
-
-    this.mounts = [
-      new RideableMount(mType, 180, 226),
-      new RideableMount(mType, 1850, 120)
-    ];
-    this.currentMount = this.mounts[0];
-
-    const pos = [
-      260, 360, 480, 620, 760, 920, 1060, 1220, 1380, 1540,
-      1700, 1860, 2020, 2180, 2340, 2500, 2660, 2820, 2980, 3140, 3300, 3460
-    ];
-
-    if(cfg.theme === 'egypt'){
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 2 === 0) ? 'pokey' : 'mummy';
-        const y = (i % 3 === 0) ? 145 : 226;
-        return new Enemy(type, x, y, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'pharaoh'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'pharaoh'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'pharaoh')
-      ];
-    } else if(cfg.theme === 'disney'){
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 3 === 0) ? 'boo' : 'card_soldier';
-        const y = (type === 'boo') ? 130 : 226;
-        return new Enemy(type, x, y, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'princess'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'princess'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'princess')
-      ];
-    } else if(cfg.theme === 'frozen'){
-      this.enemies = pos.map((x, i) => {
-        return new Enemy('snow_golem', x, 224, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'frozen_queen'),
-        new QuestionBlock(860, 130, 'iceflower'),
-        new QuestionBlock(1480, 125, 'frozen_queen'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'iceflower')
-      ];
-    } else if(cfg.theme === 'galaxy'){
-      this.zeroGBubbles = [
-        {x: 420, y: 130, r: 70}, {x: 1040, y: 120, r: 80}, {x: 1680, y: 115, r: 80}, {x: 2380, y: 110, r: 85}, {x: 3000, y: 120, r: 80}
-      ];
-      this.enemies = pos.map((x, i) => {
-        return new Enemy('octo_alien', x, 120 + (i % 3) * 30, x - 90, x + 90);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'galaxy_astronaut'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'galaxy_astronaut'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'galaxy_astronaut')
-      ];
-    } else if(cfg.theme === 'marine'){
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 2 === 0) ? 'cheep_cheep' : 'blooper';
-        return new Enemy(type, x, 120 + (i % 4) * 25, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'bubble'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'bubble'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'bubble')
-      ];
-    } else if(cfg.theme === 'castle'){
-      this.enemies = pos.slice(0, 18).map((x, i) => {
-        const type = (i % 2 === 0) ? 'dry_bones' : 'thwomp';
-        const y = (type === 'thwomp') ? 80 : 226;
-        return new Enemy(type, x, y, x - 70, x + 70);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'fireflower'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'fireflower'),
-        new QuestionBlock(2200, 125, 'star')
-      ];
-      this.galaxyBoss = new GalaxyBoss(3620, 196);
-    } else if(cfg.theme === 'sky'){
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 2 === 0) ? 'koopa' : 'paratroopa';
-        const y = (type === 'paratroopa') ? 135 : 218;
-        return new Enemy(type, x, y, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'wing'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'wing'),
-        new QuestionBlock(2200, 125, 'star')
-      ];
-    } else if(cfg.theme === 'cave'){
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 2 === 0) ? 'buzzy_beetle' : 'boo';
-        const y = (type === 'boo') ? 130 : 226;
-        return new Enemy(type, x, y, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'star'),
-        new QuestionBlock(860, 130, 'mushroom'),
-        new QuestionBlock(1480, 125, 'star'),
-        new QuestionBlock(2200, 125, 'mushroom')
-      ];
-    } else {
-      // Garden (1-1)
-      this.enemies = pos.map((x, i) => {
-        const type = (i % 4 === 0) ? 'monty_mole' : (i % 2 === 0 ? 'koopa' : 'goomba');
-        return new Enemy(type, x, 226, x - 80, x + 80);
-      });
-      this.questionBlocks = [
-        new QuestionBlock(240, 135, 'mushroom'),
-        new QuestionBlock(860, 130, 'star'),
-        new QuestionBlock(1480, 125, 'fireflower'),
-        new QuestionBlock(2200, 125, 'star'),
-        new QuestionBlock(2900, 110, 'mushroom')
-      ];
-    }
-
-    this.destructibleBlocks = [
-      new DestructibleBlock(260, 135),
-      new DestructibleBlock(880, 130),
-      new DestructibleBlock(1500, 125),
-      new DestructibleBlock(2220, 125),
-      new DestructibleBlock(2920, 110)
-    ];
-
-    this.flagPole = new FlagPole(3720, lw);
-  }
-
-  completeLevel(){
-    if(this.currentLevelIdx < 8){
-      this.unlockedLevels[this.currentLevelIdx + 1] = true;
-      try { localStorage.setItem('srpw_unlocked', JSON.stringify(this.unlockedLevels)); } catch(e){}
-    }
-    this.state = 'LEVEL_COMPLETE';
-    audio.winFanfare();
-  }
-  getAllSolidPlatforms(){
-    const list = [...this.staticPlatforms];
-    if(this.spawnedPlatforms){
-      for(const sp of this.spawnedPlatforms) list.push({x:sp.x, y:sp.y, w:sp.w, h:sp.h});
-    }
-    if(this.destructibleBlocks){
-      for(const db of this.destructibleBlocks){
-        if(!db.destroyed) list.push({x:db.x, y:db.y, w:db.w, h:db.h, isDestructible:true, blockRef:db});
-      }
-    }
-    if(this.questionBlocks){
-      for(const qb of this.questionBlocks){
-        list.push({x:qb.x, y:qb.y, w:qb.w, h:qb.h, isQuestionBlock:true, blockRef:qb});
-      }
-    }
-    return list;
-  }
-  loop(now){
-    const dt=Math.min(now-this.lastTime,100);
-    this.lastTime=now; this.accumulator+=dt;
-    while(this.accumulator>=FRAME_TIME){ this.update(now); this.accumulator-=FRAME_TIME; }
-    this.render(now);
-    requestAnimationFrame(this.loop.bind(this));
-  }
-
-  update(now){
-    if(this.state==='WORLD_MAP'){
-      const target = LEVEL_CONFIGS[this.mapTargetIdx];
-      const dx = target.mapX - this.mapPlayerX, dy = target.mapY - this.mapPlayerY;
-      const dist = Math.hypot(dx, dy);
-      if(dist > 1.5){
-        this.mapPlayerX += (dx / dist) * 2.8; this.mapPlayerY += (dy / dist) * 2.8;
-        this.mapWalking = true;
-      } else {
-        this.mapPlayerX = target.mapX; this.mapPlayerY = target.mapY;
-        this.mapWalking = false;
-      }
-    }
-
-    if(this.state==='PLAYING'){
-      this.frameCount++;
-      const allPlatforms = this.getAllSolidPlatforms();
-
-      const pawEdge = this.input.paw && !this.prevPaw;
-      if(pawEdge && this.pawMeter >= 50 && this.tommyAI){
-        this.pawMeter -= 50;
-        this.tommyAI.triggerSonicBark(this, this.enemies);
-      }
-      this.prevPaw = this.input.paw;
-
-      if(this.hitStopFrames > 0){
-        this.hitStopFrames--;
-        return;
-      }
-
-      this.updatePlayer();
-      this.updateEntities(now);
-      this.updateEnemies();
-      if(this.mounts){
-        for(const m of this.mounts) m.update(this.player, this);
-      } else if(this.currentMount) this.currentMount.update(this.player, this);
-      if(this.itemEntities){
-        for(let i=this.itemEntities.length-1; i>=0; i--){
-          const it = this.itemEntities[i]; it.update(this.player, allPlatforms, this.globalGravity, this);
-          if(it.collected) this.itemEntities.splice(i, 1);
-        }
-      }
-      if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
-      if(this.tommyAI) this.tommyAI.update(this.player, this.enemies, allPlatforms, this.globalGravity, this);
-
-      for(const sc of this.starCoins) sc.check(this.player, this);
-    }
-    this.prevJump=this.input.jump;
-    this.prevAction=this.input.action;
-    this.prevPaw=this.input.paw;
-    this.updateParticles();
-  }
-
   updatePlayer(now){
     const p=this.player, char=CHARACTERS[this.selectedCharId];
     p.frame++;
@@ -2651,7 +2377,7 @@ class PlatformerGame {
     // Soft drop shadow under hero
     if(p.onGround && !p.isRiding){
       ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.30)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
       ctx.beginPath();
       ctx.ellipse(0, p.h/2 - walkBob + 2, p.w * 0.45, 4.5, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -2663,49 +2389,66 @@ class PlatformerGame {
       ctx.globalAlpha = 0.4;
     }
 
-    // Determine exact costume image key
-    let costumeKey = null;
-    if(p.isRiding){
-      costumeKey = `${this.selectedCharId}_mounted`;
-    } else if(p.powerState === 'pharaoh'){
-      costumeKey = `${this.selectedCharId}_pharaoh`;
-    } else if(p.powerState === 'princess'){
-      costumeKey = `${this.selectedCharId}_princess`;
-    } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
-      costumeKey = `${this.selectedCharId}_frozen`;
-    } else if(p.powerState === 'galaxy_astronaut'){
-      costumeKey = `${this.selectedCharId}_astronaut`;
-    } else if(p.powerState === 'fireflower'){
-      costumeKey = `${this.selectedCharId}_fire`;
-    }
-
-    const cImg = costumeKey ? costumeImages[costumeKey] : null;
-    const baseImg = loadedImages[this.selectedCharId];
-    const heroImg = (cImg && cImg.complete && cImg.naturalWidth > 0) ? cImg : baseImg;
+    // ── ALWAYS RENDER THE AUTHENTIC 3D CHARACTER SPRITE ──
+    const heroImg = loadedImages[this.selectedCharId];
+    const pw = p.w + 6, ph = p.h + 8;
 
     if(heroImg && heroImg.complete && heroImg.naturalWidth > 0){
-      const pw = p.w + 6, ph = p.h + 8;
       ctx.drawImage(heroImg, -pw/2, -ph/2, pw, ph);
     } else {
       ctx.fillStyle = '#FF5252';
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.fillRect(-pw/2, -ph/2, pw, ph);
     }
 
-    // ── Power-Up Particle Auras & Light Halos ──
+    // ── AUTHENTIC 2.5D COSTUME ACCESSORIES & AURAS ──
     if(p.powerState === 'pharaoh'){
-      ctx.strokeStyle = 'rgba(255, 193, 7, 0.7)'; ctx.lineWidth = 1.6;
+      // Golden Pharaoh Nemes Headdress & Cobra
+      const phImg = powerImages.pharaoh;
+      if(phImg && phImg.complete && phImg.naturalWidth > 0){
+        ctx.drawImage(phImg, -14, -ph/2 - 12, 28, 22);
+      }
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.75)'; ctx.lineWidth = 1.6;
       const sa = (now * 0.008);
       ctx.beginPath(); ctx.ellipse(0, 4, p.w * 0.85, 6, sa, 0, Math.PI * 2); ctx.stroke();
     } else if(p.powerState === 'princess'){
-      ctx.strokeStyle = 'rgba(255, 64, 129, 0.75)'; ctx.lineWidth = 1.8;
+      // Sparkling Diamond Tiara & Royal Star Glow
+      const prImg = powerImages.princess;
+      if(prImg && prImg.complete && prImg.naturalWidth > 0){
+        ctx.drawImage(prImg, -11, -ph/2 - 10, 22, 18);
+      }
+      ctx.strokeStyle = 'rgba(255, 64, 129, 0.8)'; ctx.lineWidth = 1.8;
       const pa = (now * 0.006);
       ctx.beginPath(); ctx.arc(0, 0, p.w * 0.9, pa, pa + Math.PI * 1.5); ctx.stroke();
     } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)'; ctx.lineWidth = 1.6;
+      // Glacier Ice Crown & Frost Aura
+      const fImg = powerImages.frozen;
+      if(fImg && fImg.complete && fImg.naturalWidth > 0){
+        ctx.drawImage(fImg, -11, -ph/2 - 10, 22, 18);
+      }
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.85)'; ctx.lineWidth = 1.6;
       ctx.beginPath(); ctx.arc(0, 0, p.w * 0.95, 0, Math.PI * 2); ctx.stroke();
+    } else if(p.powerState === 'galaxy_astronaut'){
+      // Cosmic Spacesuit Bubble Helmet with Cyan Visor
+      const aImg = powerImages.astronaut;
+      if(aImg && aImg.complete && aImg.naturalWidth > 0){
+        ctx.drawImage(aImg, -15, -ph/2 - 8, 30, 28);
+      }
     } else if(p.powerState === 'fireflower'){
-      ctx.strokeStyle = 'rgba(255, 87, 34, 0.8)'; ctx.lineWidth = 1.6;
+      // Fire Flower Crown & Blazing Aura
+      const fImg = powerImages.fireflower;
+      if(fImg && fImg.complete && fImg.naturalWidth > 0){
+        ctx.drawImage(fImg, -10, -ph/2 - 10, 20, 20);
+      }
+      ctx.strokeStyle = 'rgba(255, 87, 34, 0.85)'; ctx.lineWidth = 1.6;
       ctx.beginPath(); ctx.arc(0, 2, p.w * 0.85, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // If Riding, Draw Golden Saddle Reins
+    if(p.isRiding){
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(4, 4); ctx.lineTo(14, 12);
+      ctx.stroke();
     }
 
     ctx.restore();
@@ -2726,16 +2469,51 @@ class PlatformerGame {
   }
 
   renderLevelComplete(ctx,now){
-    ctx.fillStyle='#0d0620'; ctx.fillRect(0,0,VIRT_W,VIRT_H);
-    ctx.textAlign='center'; ctx.fillStyle='#FFD700'; ctx.font='bold 20px "Fredoka",sans-serif';
-    ctx.fillText('¡NIVEL COMPLETADO!',VIRT_W/2,80);
-    ctx.fillStyle='#80DEEA'; ctx.font='bold 12px "Fredoka",sans-serif';
-    ctx.fillText('PULSA PARA VOLVER AL MAPA 🗺️',VIRT_W/2,160);
-    if(!this._completeListener){
-      this._completeListener=true;
-      const handler=()=>{ this.state='WORLD_MAP'; this._completeListener=false; this.canvas.removeEventListener('click',handler); };
-      this.canvas.addEventListener('click',handler);
+    // Frosted Dark Gradient Background
+    const bgGrad = ctx.createRadialGradient(VIRT_W/2, VIRT_H/2, 20, VIRT_W/2, VIRT_H/2, VIRT_W*0.6);
+    bgGrad.addColorStop(0, '#1a103c'); bgGrad.addColorStop(0.7, '#0a0618'); bgGrad.addColorStop(1, '#04020a');
+    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
+
+    // Glowing Trophy & Stars
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 22px "Fredoka", sans-serif';
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)'; ctx.shadowBlur = 10;
+    ctx.fillText('🏆 ¡NIVEL COMPLETADO! 🌟', VIRT_W/2, 55);
+    ctx.shadowBlur = 0;
+
+    // Level Info Pill
+    const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 140, 80, 280, 75, [14]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.8; ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 13px "Fredoka", sans-serif';
+    ctx.fillText(cfg.name, VIRT_W/2, 100);
+
+    // Star Coins Display
+    ctx.fillStyle = '#FFE082'; ctx.font = '12px "Fredoka", sans-serif';
+    ctx.fillText(`Monedas Estrella: ${this.starCoinsCollected} / 3 ★   Puntuación: ${this.score}`, VIRT_W/2, 125);
+
+    // Next World Unlocked Announcement
+    if(this.currentLevelIdx < 8){
+      ctx.fillStyle = '#00E5FF'; ctx.font = 'bold 12px "Fredoka", sans-serif';
+      ctx.fillText(`🔓 ¡Mundo 1-${this.currentLevelIdx + 2} DESBLOQUEADO!`, VIRT_W/2, 175);
+    } else {
+      ctx.fillStyle = '#FF4081'; ctx.font = 'bold 12px "Fredoka", sans-serif';
+      ctx.fillText('👑 ¡HAS COMPLETADO TODOS LOS MUNDOS! 👑', VIRT_W/2, 175);
     }
+
+    // Pulsing Continue Button
+    const pulse = Math.sin(now * 0.006) * 0.15 + 0.85;
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = '#4CAF50';
+    ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 120, 205, 240, 36, [18]); ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 13px "Fredoka", sans-serif';
+    ctx.fillText('▶️ CONTINUAR AL MAPA (CLIC / SALTAR)', VIRT_W/2, 223);
+    ctx.restore();
   }
 }
 
