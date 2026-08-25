@@ -1413,6 +1413,60 @@ class DestructibleBlock {
     ctx.restore();
   }
 }
+class CheckpointFlag {
+  constructor(x, y){
+    this.x = x; this.y = y; this.w = 16; this.h = 44;
+    this.passed = false; this.anim = 0;
+  }
+  check(player, game){
+    if(this.passed) return;
+    if(player.x + player.w >= this.x && player.x <= this.x + this.w && player.y + player.h >= this.y && player.y <= this.y + this.h + 20){
+      this.passed = true;
+      game.checkpointActivated = true;
+      game.checkpointX = this.x;
+      game.checkpointY = this.y - 12;
+      audio.coin();
+      game.hitStopFrames = 3;
+      game.camera.shake(5);
+      game.addParticles(this.x + 8, this.y + 14, 18, ['#FFD700', '#FFF', '#FF4081', '#00E5FF'], 3.5);
+      game.addFloatingText('🚩 ¡PUNTO DE CONTROL! 🌟', this.x - 36, this.y - 18, '#FFD700');
+    }
+  }
+  update(){
+    if(this.passed && this.anim < 1) this.anim = Math.min(1, this.anim + 0.08);
+  }
+  draw(ctx, cam, now){
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x - 12, this.y - 12, this.w + 24, this.h + 24)) return;
+
+    ctx.save();
+    // Silver Post
+    ctx.fillStyle = '#CFD8DC';
+    ctx.fillRect(s.x + 6, s.y, 4, this.h);
+    ctx.strokeStyle = '#90A4AE'; ctx.lineWidth = 1; ctx.strokeRect(s.x + 6, s.y, 4, this.h);
+
+    // Ball topper
+    ctx.fillStyle = this.passed ? '#FFD700' : '#ECEFF1';
+    ctx.beginPath(); ctx.arc(s.x + 8, s.y, 5, 0, Math.PI*2); ctx.fill();
+
+    // Waving Pennant Flag
+    const flagY = s.y + 4 + (this.passed ? 0 : 20);
+    const flagColor = this.passed ? '#4CAF50' : '#FF5252';
+    const wave = Math.sin(now * 0.008 + this.x) * 3;
+
+    ctx.fillStyle = flagColor;
+    ctx.beginPath();
+    ctx.moveTo(s.x + 10, flagY);
+    ctx.lineTo(s.x + 28 + wave, flagY + 8);
+    ctx.lineTo(s.x + 10, flagY + 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.2; ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
 class FlagPole {
   constructor(x,levelW){ this.x=x; this.y=50; this.w=14; this.h=196; this.flagY=50; this.hit=false; }
   check(player,game){
@@ -1447,11 +1501,31 @@ class PlatformerGame {
     this.selectedCharId='candela';
     this.currentLevelIdx=0;
     try {
-      const s = localStorage.getItem('srpw_unlocked');
-      this.unlockedLevels = s ? JSON.parse(s) : [true,false,false,false,false,false,false,false,false];
+      const s = localStorage.getItem('srpw_save_data') || localStorage.getItem('srpw_unlocked');
+      let data = null;
+      try { data = JSON.parse(s); } catch(e){}
+      if(Array.isArray(data)){
+        this.unlockedLevels = data;
+        this.starCoinsPerLevel = {};
+        this.highScore = 0;
+      } else if(data && typeof data === 'object'){
+        this.unlockedLevels = data.unlocked || [true,false,false,false,false,false,false,false,false];
+        this.starCoinsPerLevel = data.starCoins || {};
+        this.highScore = data.highScore || 0;
+      } else {
+        this.unlockedLevels = [true,false,false,false,false,false,false,false,false];
+        this.starCoinsPerLevel = {};
+        this.highScore = 0;
+      }
     } catch(e){
       this.unlockedLevels = [true,false,false,false,false,false,false,false,false];
+      this.starCoinsPerLevel = {};
+      this.highScore = 0;
     }
+    this.checkpointActivated = false;
+    this.checkpointX = 80;
+    this.checkpointY = 210;
+    this.checkpointFlag = null;
     this.state='MENU';
 
     this.mapPlayerX = LEVEL_CONFIGS[0].mapX;
@@ -1950,13 +2024,25 @@ class PlatformerGame {
     ];
 
     this.flagPole = new FlagPole(3720, lw);
+    this.checkpointActivated = false;
+    this.checkpointX = 80;
+    this.checkpointY = 210;
+    this.checkpointFlag = new CheckpointFlag(1900, 185);
   }
 
   completeLevel(){
     if(this.currentLevelIdx < 8){
       this.unlockedLevels[this.currentLevelIdx + 1] = true;
-      try { localStorage.setItem('srpw_unlocked', JSON.stringify(this.unlockedLevels)); } catch(e){}
     }
+    this.starCoinsPerLevel[this.currentLevelIdx] = Math.max(this.starCoinsPerLevel[this.currentLevelIdx] || 0, this.starCoinsCollected);
+    this.highScore = Math.max(this.highScore || 0, this.score);
+    try {
+      localStorage.setItem('srpw_save_data', JSON.stringify({
+        unlocked: this.unlockedLevels,
+        starCoins: this.starCoinsPerLevel,
+        highScore: this.highScore
+      }));
+    } catch(e){}
     this.state = 'LEVEL_COMPLETE';
     audio.winFanfare();
   }
@@ -2150,9 +2236,30 @@ class PlatformerGame {
         p.isGliding = true; p.vy = 0.9;
       } else p.isGliding = false;
 
-      // Mount Flutter
-      if(p.isRiding && this.input.jump && !p.onGround && p.vy > 0){
-        p.vy = Math.max(-1.8, p.vy - 1.1); audio.flutter();
+      // ── UNIQUE MOUNT POWERS (NINTENDO 2.5D ABILITIES) ──
+      if(p.isRiding && this.currentMount){
+        const mType = this.currentMount.type;
+        // 1. Unicornio / Pegaso: Doble Salto Mágico con Estela Arcoíris
+        if((mType === 'unicorn' || mType === 'pegasus') && jumpJustPressed && !p.onGround && p.jumpCount === 1){
+          p.vy = -9.4; p.jumpCount = 2; audio.jump();
+          this.addParticles(p.x + p.w/2, p.y + p.h, 14, ['#FF4081', '#E040FB', '#00E5FF', '#FFD700'], 3.2);
+        }
+        // 2. Dragón Cósmico / Fénix: Vuelo Sostenido Cósmico
+        else if((mType === 'cosmic_dragon' || mType === 'phoenix') && this.input.jump && p.vy > 0){
+          p.vy = Math.min(p.vy, 0.85);
+          if(this.frameCount % 5 === 0) this.addParticles(p.x + (p.facingRight ? -4 : p.w + 4), p.y + 12, 2, ['#FF9800', '#FF5722', '#00E5FF'], 1.5);
+        }
+        // 3. Sven el Reno: Carga de Cornamenta Rompedora a Máxima Velocidad
+        else if(mType === 'sven' && Math.abs(p.vx) > 4.2){
+          if(this.frameCount % 6 === 0) this.addParticles(p.x + (p.facingRight ? p.w : 0), p.y + p.h, 2, ['#ECEFF1', '#81D4FA'], 2.0);
+          for(const en of this.enemies){
+            if(!en.dead && Math.hypot(en.x - p.x, en.y - p.y) < 32){ en.die(this); audio.enemyDie(); this.hitStopFrames = 2; }
+          }
+        }
+        // 4. Camello / Delfín / Otros: Impulso de Salto
+        else if(this.input.jump && !p.onGround && p.vy > 0){
+          p.vy = Math.max(-1.8, p.vy - 1.1); audio.flutter();
+        }
       }
 
       const coyoteOk = (p.coyoteFrames > 0);
@@ -2201,8 +2308,26 @@ class PlatformerGame {
     p.y += p.vy; this.resolveVertical(p, allPlats);
 
     if(p.y > VIRT_H + 20){
-      p.x = Math.max(80, p.x - 140); p.y = 80; p.vy = 0; p.invincibleTimer = 90;
-      audio.hazardScatter(); this.camera.shake(8);
+      if(this.checkpointActivated){
+        p.x = this.checkpointX;
+        p.y = this.checkpointY;
+      } else {
+        p.x = Math.max(80, p.x - 140);
+        p.y = 80;
+      }
+      p.vy = 0;
+      p.invincibleTimer = 120;
+      if(p.isRiding && this.currentMount){
+        p.isRiding = false;
+        this.currentMount.mounted = false;
+        this.currentMount.x = p.x + 35;
+        this.currentMount.y = p.y;
+        this.currentMount.isPanicking = true;
+        this.currentMount.fleeTimer = 220;
+      }
+      audio.hazardScatter();
+      this.camera.shake(8);
+      this.addFloatingText('¡CUIDADO! ⚠️', p.x, p.y - 20, '#FF5252');
     }
 
     p.squashX += (1 - p.squashX) * 0.15; p.squashY += (1 - p.squashY) * 0.15;
@@ -2211,6 +2336,13 @@ class PlatformerGame {
   resolveHorizontal(p, platforms){
     for(const pl of platforms){
       if(p.x < pl.x + pl.w && p.x + p.w > pl.x && p.y < pl.y + pl.h && p.y + p.h > pl.y){
+        // Corner / Ledge Forgiveness (4px tolerance: smoothly step up onto edge)
+        if((p.y + p.h) - pl.y <= 4 && p.vy >= 0){
+          p.y = pl.y - p.h;
+          p.onGround = true;
+          p.vy = 0;
+          continue;
+        }
         if(p.vx > 0) p.x = pl.x - p.w; else if(p.vx < 0) p.x = pl.x + pl.w;
         p.vx = 0;
       }
@@ -2245,6 +2377,7 @@ class PlatformerGame {
   updateEntities(now){
     const p=this.player;
     if(this.flagPole) this.flagPole.check(p, this);
+    if(this.checkpointFlag){ this.checkpointFlag.check(p, this); this.checkpointFlag.update(); }
     for(const qb of this.questionBlocks) { qb.checkBump(p, this.globalGravity, this); qb.update(); }
 
     if(!p.isRiding && this.mounts){
@@ -2817,6 +2950,7 @@ class PlatformerGame {
 
   renderEntities(ctx,now){
     const cam=this.camera;
+    if(this.checkpointFlag) this.checkpointFlag.draw(ctx, cam, now);
     for(const en of this.enemies) en.draw(ctx,cam,now);
     if(this.mounts){
       for(const m of this.mounts) m.draw(ctx,cam,now);
