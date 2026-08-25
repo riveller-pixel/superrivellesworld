@@ -529,11 +529,15 @@ const BOSS_ASSETS = {
   infernus: 'boss_infernus.png'
 };
 const bossImages = {};
-for(const [bKey, bSrc] of Object.entries(BOSS_ASSETS)){
-  const img = new Image();
-  img.src = bSrc;
-  img.onerror = () => { img.src = 'assets/' + bSrc; };
-  bossImages[bKey] = img;
+function getBossImage(bossKey){
+  if(!bossKey) return null;
+  if(!bossImages[bossKey]){
+    const img = new Image();
+    img.src = 'assets/' + (BOSS_ASSETS[bossKey] || 'boss_acornus.png');
+    img.onerror = () => { img.src = BOSS_ASSETS[bossKey] || 'boss_acornus.png'; };
+    bossImages[bossKey] = img;
+  }
+  return bossImages[bossKey];
 }
 
 // 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES & FINAL BOSSES
@@ -1410,7 +1414,7 @@ class WorldBoss {
     const breathe = Math.sin(now * (this.phase === 3 ? 0.015 : 0.008)) * 0.04;
     ctx.scale(1 + breathe, 1 - breathe);
 
-    const sprite = bossImages[this.bossKey];
+    const sprite = getBossImage(this.bossKey);
     if(sprite && sprite.complete && sprite.naturalWidth > 0){
       ctx.drawImage(sprite, -this.w/2, -this.h/2, this.w, this.h);
     } else {
@@ -2041,6 +2045,7 @@ class PlatformerGame {
 
     this.tommyAI=new TommyAI(50,220);
     this.camera=new Camera();
+    getBossImage(cfg.bossKey);
     this.buildLevel(cfg);
     audio.currentTrack=cfg.track;
     audio.startBGM();
