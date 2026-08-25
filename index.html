@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#FFD700">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="theme-color" content="#080c1a">
 <title>Super Rivelles Peris World - 2.5D Master Edition</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 <link rel="manifest" href="manifest.json">
@@ -28,11 +29,11 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none;
       -webkit-touch-callout:none; touch-action:none; -webkit-tap-highlight-color:transparent; }
-  html,body { width:100vw; height:100vh; height:100dvh; overflow:hidden; background:#080c1a;
-    font-family:'Fredoka','Nunito',sans-serif; color:#fff; position:fixed; top:0; left:0; right:0; bottom:0; }
-  #game-wrapper { position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; display:flex; justify-content:center; align-items:center;
+  html,body { width:100vw; height:100vh; height:100dvh; height:-webkit-fill-available; overflow:hidden; background:#080c1a;
+    font-family:'Fredoka','Nunito',sans-serif; color:#fff; position:fixed; top:0; left:0; right:0; bottom:0; margin:0; padding:0; }
+  #game-wrapper { position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; height:-webkit-fill-available; display:flex; justify-content:center; align-items:center;
     background:radial-gradient(circle at 50% 30%, #1e3c72 0%, #101a30 70%, #060913 100%);
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); margin:0; }
   canvas { display:block; position:absolute; top:0; left:0; width:100%; height:100%; touch-action:none; }
 
   /* ── Modals ── */
@@ -208,6 +209,7 @@
       <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
         <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL REINO! 🚀</button>
         <button class="snes-btn-closet" id="btn-open-closet">👑 ARMARIO & TROFEOS 🏆</button>
+        <button class="snes-btn-fullscreen" id="btn-modal-fullscreen" style="background:linear-gradient(180deg, #00BCD4 0%, #0097A7 100%); color:#FFF; border:2.5px solid #FFF; border-radius:30px; padding:11px 22px; font-weight:900; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,188,212,0.4); touch-action:manipulation;">⛶ PANTALLA COMPLETA</button>
       </div>
     </div>
   </div>
@@ -1863,12 +1865,17 @@ class ItemEntity {
     // Player collection check
     if(player && Math.hypot(player.x + player.w/2 - (this.x + this.w/2), player.y + player.h/2 - (this.y + this.h/2)) < 28){
       this.collected = true;
-      if(player.powerUp) player.powerUp(this.type, game);
-      audio.powerUp();
+      if(game && typeof game.applyPowerUp === 'function'){
+        game.applyPowerUp(this.type);
+      } else if(player && typeof player.powerUp === 'function'){
+        player.powerUp(this.type, game);
+      }
+      try{ audio.powerUp(); }catch(e){}
       if(game){
         game.score += 1000;
         game.addParticles(this.x + this.w/2, this.y + this.h/2, 25, ['#FFD700', '#00E5FF', '#FF4081', '#FFF'], 4.5);
-        game.addFloatingText('+1000 ★ ¡PODER ' + this.type.toUpperCase() + '!', this.x, this.y - 20, '#FFD700');
+        const pName = (this.type || 'PODER').toUpperCase();
+        game.addFloatingText('+1000 ★ ¡PODER ' + pName + '!', this.x, this.y - 20, '#FFD700');
       }
     }
   }
@@ -2108,34 +2115,7 @@ class PlatformerGame {
       powerTimer: 0,
       coyoteFrames:0, bufferFrames:0, jumpHoldFrames:0,
       walkCycle: 0, skidTimer: 0,
-      powerUp: (type, game)=>{
-        audio.powerUp();
-        if(type==='super' || type==='mushroom'){
-          this.player.w = 28; this.player.h = 44;
-          this.player.powerState = 'super';
-        } else if(type==='star' || type==='superstar'){
-          this.player.invincibleTimer = 500;
-          audio.invincible();
-        } else if(type==='fireflower' || type==='fire'){
-          this.player.powerState = 'fire';
-        } else if(type==='iceflower' || type==='ice'){
-          this.player.powerState = 'ice';
-        } else if(type==='frozen_queen' || type==='frozen'){
-          this.player.powerState = 'frozen_queen';
-        } else if(type==='galaxy_astronaut' || type==='astronaut'){
-          this.player.powerState = 'galaxy_astronaut';
-        } else if(type==='princess'){
-          this.player.powerState = 'princess';
-        } else if(type==='pharaoh'){
-          this.player.powerState = 'pharaoh';
-        } else if(type==='bubble'){
-          this.player.powerState = 'bubble';
-        } else if(type==='wing'){
-          this.player.powerState = 'wing';
-        } else {
-          this.player.powerState = type;
-        }
-      }
+      powerUp: (type)=>{ this.applyPowerUp(type); }
     };
 
     this.camera=new Camera();
@@ -2259,6 +2239,13 @@ class PlatformerGame {
       audio.click();
       this.toggleFullscreen();
     });
+    const mfs = document.getElementById('btn-modal-fullscreen');
+    if(mfs){
+      mfs.addEventListener('click', ()=>{
+        audio.click();
+        this.toggleFullscreen();
+      });
+    }
     document.getElementById('btn-world-map').addEventListener('click', ()=>{
       document.getElementById('modal-pause').classList.remove('active');
       this.goToWorldMap();
@@ -2328,16 +2315,67 @@ class PlatformerGame {
 
   toggleFullscreen(){
     const doc = window.document;
-    const docEl = doc.documentElement;
-    const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    const docEl = document.getElementById('game-wrapper') || doc.documentElement || doc.body;
+    const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
     const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
     try {
       if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement){
-        if(req) req.call(docEl).catch(()=>{});
+        if(req) {
+          const p = req.call(docEl);
+          if(p && typeof p.catch === 'function') p.catch(()=>{});
+        }
       } else {
-        if(exit) exit.call(doc).catch(()=>{});
+        if(exit) {
+          const p = exit.call(doc);
+          if(p && typeof p.catch === 'function') p.catch(()=>{});
+        }
       }
+      window.scrollTo(0, 1);
     } catch(e){}
+  }
+
+  applyPowerUp(type){
+    if(!type) return;
+    const p = this.player;
+    try {
+      if(type === 'super' || type === 'mushroom'){
+        p.w = 28; p.h = 44;
+        p.powerState = 'super';
+        audio.powerUp();
+      } else if(type === 'star' || type === 'superstar'){
+        p.invincibleTimer = 600;
+        audio.invincible();
+      } else if(type === 'fireflower' || type === 'fire'){
+        p.powerState = 'fire';
+        audio.powerUp();
+      } else if(type === 'iceflower' || type === 'ice'){
+        p.powerState = 'ice';
+        audio.powerUp();
+      } else if(type === 'frozen_queen' || type === 'frozen'){
+        p.powerState = 'frozen_queen';
+        audio.powerUp();
+      } else if(type === 'galaxy_astronaut' || type === 'astronaut'){
+        p.powerState = 'galaxy_astronaut';
+        audio.powerUp();
+      } else if(type === 'princess'){
+        p.powerState = 'princess';
+        audio.powerUp();
+      } else if(type === 'pharaoh'){
+        p.powerState = 'pharaoh';
+        audio.powerUp();
+      } else if(type === 'bubble'){
+        p.powerState = 'bubble';
+        audio.powerUp();
+      } else if(type === 'wing'){
+        p.powerState = 'wing';
+        audio.powerUp();
+      } else {
+        p.powerState = type;
+        audio.powerUp();
+      }
+    } catch(err) {
+      console.warn('applyPowerUp note:', err);
+    }
   }
 
   navigateWorldMap(dir){
@@ -3268,6 +3306,15 @@ class PlatformerGame {
             this.addParticles(m.x + m.w/2, m.y + m.h/2, 10, ['#FFF', '#81D4FA', '#E0F7FA'], 2.5);
           }
         }
+      }
+
+      // Check Star Invincibility contact defeat
+      if(!en.dead && p.invincibleTimer > 0 && p.x < en.x + en.w && p.x + p.w > en.x && p.y < en.y + en.h && p.y + p.h > en.y){
+        en.die(this);
+        audio.enemyDie();
+        this.camera.shake(3);
+        this.addParticles(en.x + en.w/2, en.y + en.h/2, 12, ['#FFD700', '#00E5FF', '#FFF'], 3.2);
+        continue;
       }
 
       // Check collision between Player (with or without Mount) and Enemy
