@@ -528,15 +528,15 @@ worldMapDioramaImg.onerror = () => { worldMapDioramaImg.src = 'assets/world_map_
 
 // 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: Colinas Bellota",    theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 38,  mapY: 195, color: "#2E7D32" },
-  { id: 2, name: "1-2: Océano de Coral",    theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 88,  mapY: 220, color: "#0288D1" },
-  { id: 3, name: "1-3: Pirámides de Egipto",theme: "egypt",  sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 145, mapY: 185, color: "#F57C00" },
-  { id: 4, name: "1-4: Castillo Disney",    theme: "disney", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
-  { id: 5, name: "1-5: Glaciares Frozen",   theme: "frozen", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
-  { id: 6, name: "1-6: Reino del Cielo",    theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
-  { id: 7, name: "1-7: Cavernas Zero-G",    theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
-  { id: 8, name: "1-8: Mario Galaxy",       theme: "galaxy", sky: ["#03001e","#7303c0","#ec38bc"], track: "galaxy",    mapX: 432, mapY: 135, color: "#D500F9" },
-  { id: 9, name: "1-9: Castillo Volcánico", theme: "castle", sky: ["#0b0410","#1e0b32","#3a155c"], track: "boss",      mapX: 480, mapY: 95,  color: "#D32F2F" }
+  { id: 1, name: "1-1: Colinas Bellota",     theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 200,  mapY: 165, color: "#2E7D32" },
+  { id: 2, name: "1-2: Océano de Coral",     theme: "marine", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 480,  mapY: 175, color: "#0288D1" },
+  { id: 3, name: "1-3: Pirámides de Egipto", theme: "egypt",  sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 760,  mapY: 155, color: "#F57C00" },
+  { id: 4, name: "1-4: Castillo Disney",     theme: "disney", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 1040, mapY: 140, color: "#AB47BC" },
+  { id: 5, name: "1-5: Glaciares Frozen",    theme: "frozen", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 1320, mapY: 135, color: "#26C6DA" },
+  { id: 6, name: "1-6: Reino del Cielo",     theme: "sky",    sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 1600, mapY: 120, color: "#FBC02D" },
+  { id: 7, name: "1-7: Cavernas Zero-G",     theme: "cave",   sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 1880, mapY: 165, color: "#8E24AA" },
+  { id: 8, name: "1-8: Mario Galaxy",        theme: "galaxy", sky: ["#050014","#1a0836","#00e5ff"], track: "galaxy",    mapX: 2160, mapY: 135, color: "#00E5FF" },
+  { id: 9, name: "1-9: Castillo de Lava",    theme: "castle", sky: ["#bf360c","#ff5722","#ffab91"], track: "castle",    mapX: 2440, mapY: 155, color: "#D50000" }
 ];
 
 class Camera {
@@ -1443,6 +1443,7 @@ class PlatformerGame {
     this.mapPlayerY = LEVEL_CONFIGS[0].mapY;
     this.mapTargetIdx = 0;
     this.mapWalking = false;
+    this.mapCamX = 0;
 
     this.globalGravity=1; this.flashTimer=0;
     this.starDust=0; this.score=0;
@@ -1602,13 +1603,13 @@ class PlatformerGame {
   handleMapClick(cx, cy){
     audio.init();
 
-    // Top Navigation Arrows (◀ / ▶)
-    if(cy >= 6 && cy <= 46){
-      if(cx >= 290 && cx <= 338){ this.navigateWorldMap(-1); return; }
-      if(cx >= 342 && cx <= 390){ this.navigateWorldMap(1); return; }
+    // Top Navigation Arrows (Screen space)
+    if(cy >= 6 && cy <= 50){
+      if(cx >= 285 && cx <= 335){ this.navigateWorldMap(-1); return; }
+      if(cx >= 335 && cx <= 385){ this.navigateWorldMap(1); return; }
     }
 
-    // Bottom Play / Locked Button
+    // Bottom Play / Locked Button (Screen space)
     if(cy >= VIRT_H - 46){
       if(this.unlockedLevels[this.currentLevelIdx]){
         audio.jump();
@@ -1621,11 +1622,14 @@ class PlatformerGame {
       return;
     }
 
-    // Clicking any of the 9 World Nodes
+    // Calculate World Coordinates using camera offset
+    const worldX = cx + (this.mapCamX || 0);
+
+    // Clicking any of the 9 World Nodes in World Space
     let clickedNode = false;
     LEVEL_CONFIGS.forEach((cfg, idx) => {
-      const dist = Math.hypot(cx - cfg.mapX, cy - cfg.mapY);
-      if(dist < 36){
+      const dist = Math.hypot(worldX - cfg.mapX, cy - cfg.mapY);
+      if(dist < 42){
         clickedNode = true;
         audio.click();
         if(this.currentLevelIdx === idx){
@@ -1642,11 +1646,11 @@ class PlatformerGame {
       }
     });
 
-    // Clicking left / right sides of screen to browse worlds
-    if(!clickedNode && cy > 46 && cy < VIRT_H - 46){
-      if(cx < VIRT_W * 0.35){
+    // Screen Left / Right click panning
+    if(!clickedNode && cy > 50 && cy < VIRT_H - 46){
+      if(cx < VIRT_W * 0.30){
         this.navigateWorldMap(-1);
-      } else if(cx > VIRT_W * 0.65){
+      } else if(cx > VIRT_W * 0.70){
         this.navigateWorldMap(1);
       } else {
         if(this.unlockedLevels[this.currentLevelIdx]){
@@ -1659,87 +1663,6 @@ class PlatformerGame {
       }
     }
   }
-  togglePause(){
-    this.state = 'PAUSED';
-    document.getElementById('pause-level-title').innerText = LEVEL_CONFIGS[this.currentLevelIdx].name;
-    document.getElementById('modal-pause').classList.add('active');
-  }
-
-  resumeGame(){
-    document.getElementById('modal-pause').classList.remove('active');
-    this.state = 'PLAYING';
-  }
-
-  switchCharacterLive(charId){
-    this.selectedCharId = charId;
-    const char = CHARACTERS[charId];
-    this.player.w = char.w; this.player.h = char.h;
-    this.addFloatingText(`¡CAMBIO A ${char.name}! 🌟`, this.player.x+this.player.w/2, this.player.y-20, '#FFD700');
-  }
-
-
-  handleMapClick(cx, cy){
-    audio.init();
-    // Check click on left/right nav arrows on map
-    if(cy >= 8 && cy <= 44){
-      if(cx >= 295 && cx <= 335){ this.navigateWorldMap(-1); return; }
-      if(cx >= 345 && cx <= 385){ this.navigateWorldMap(1); return; }
-    }
-
-    // Check click on bottom PLAY button
-    if(cy >= VIRT_H - 46){
-      if(this.unlockedLevels[this.currentLevelIdx]){
-        audio.jump();
-        this.startSelectedLevel();
-        return;
-      }
-    }
-
-    // Check click on any of the 9 world nodes (generous 36px radius)
-    let clickedAny = false;
-    LEVEL_CONFIGS.forEach((cfg, idx) => {
-      const dist = Math.hypot(cx - cfg.mapX, cy - cfg.mapY);
-      if(dist < 36){
-        clickedAny = true;
-        if(!this.unlockedLevels[idx]){
-          audio.bump();
-          this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 20, '#FF5252');
-          return;
-        }
-        audio.click();
-        if(this.currentLevelIdx === idx){
-          this.startSelectedLevel();
-        } else {
-          this.currentLevelIdx = idx;
-          this.mapTargetIdx = idx;
-        }
-      }
-    });
-
-    // If clicked anywhere else on map and on unlocked level, start
-    if(!clickedAny && cy > 50 && cy < VIRT_H - 46){
-      if(this.unlockedLevels[this.currentLevelIdx]){
-        audio.click();
-        this.startSelectedLevel();
-      }
-    }
-  }
-
-  navigateWorldMap(dir){
-    const nextIdx = this.currentLevelIdx + dir;
-    if(nextIdx >= 0 && nextIdx < LEVEL_CONFIGS.length){
-      if(this.unlockedLevels[nextIdx]){
-        audio.click();
-        this.currentLevelIdx = nextIdx;
-        this.mapTargetIdx = nextIdx;
-      } else {
-        audio.bump();
-        const cfg = LEVEL_CONFIGS[nextIdx];
-        this.addFloatingText('¡MUNDO BLOQUEADO! 🔒', cfg.mapX, cfg.mapY - 20, '#FF5252');
-      }
-    }
-  }
-
   startSelectedLevel(){
     this.state='PLAYING';
     const cfg=LEVEL_CONFIGS[this.currentLevelIdx];
@@ -2051,15 +1974,22 @@ class PlatformerGame {
       const target = LEVEL_CONFIGS[this.mapTargetIdx];
       const dx = target.mapX - this.mapPlayerX, dy = target.mapY - this.mapPlayerY;
       const dist = Math.hypot(dx, dy);
-      if(dist > 1.5){
-        this.mapPlayerX += (dx / dist) * 2.8; this.mapPlayerY += (dy / dist) * 2.8;
+      if(dist > 2.0){
+        this.mapPlayerX += (dx / dist) * 3.5;
+        this.mapPlayerY += (dy / dist) * 3.5;
         this.mapWalking = true;
       } else {
-        this.mapPlayerX = target.mapX; this.mapPlayerY = target.mapY;
+        this.mapPlayerX = target.mapX;
+        this.mapPlayerY = target.mapY;
         this.mapWalking = false;
       }
-    }
 
+      // Smooth Camera Pan centering on player
+      if(!this.mapDragging){
+        const targetCamX = Math.max(0, Math.min(2650 - VIRT_W, this.mapPlayerX - VIRT_W / 2));
+        this.mapCamX += (targetCamX - this.mapCamX) * 0.12;
+      }
+    }
     if(this.state==='PLAYING'){
       this.frameCount++;
       const allPlatforms = this.getAllSolidPlatforms();
@@ -2363,117 +2293,185 @@ class PlatformerGame {
   renderWorldMapNSMBWii(ctx, now){
     ctx.imageSmoothingEnabled = true;
 
-    // HD 3D Diorama Artwork Background
-    if(worldMapDioramaImg && worldMapDioramaImg.complete && worldMapDioramaImg.naturalWidth > 0){
-      ctx.drawImage(worldMapDioramaImg, 0, 0, VIRT_W, VIRT_H);
-      const vig = ctx.createRadialGradient(VIRT_W/2, VIRT_H/2, VIRT_W*0.35, VIRT_W/2, VIRT_H/2, VIRT_W*0.7);
-      vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(4, 8, 24, 0.40)');
-      ctx.fillStyle = vig; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
-    } else {
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
-      skyGrad.addColorStop(0, '#42A5F5'); skyGrad.addColorStop(0.5, '#90CAF9'); skyGrad.addColorStop(1, '#E3F2FD');
-      ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
-      ctx.fillStyle = '#8D6E63'; ctx.fillRect(0, 135, VIRT_W, VIRT_H - 135);
-      const gGrad = ctx.createLinearGradient(0, 120, 0, 145);
-      gGrad.addColorStop(0, '#81C784'); gGrad.addColorStop(1, '#388E3C');
-      ctx.fillStyle = gGrad; ctx.fillRect(0, 120, VIRT_W, 22);
+    // ── WORLD SCROLLING LAYER (Translated by mapCamX) ──
+    ctx.save();
+    ctx.translate(-Math.round(this.mapCamX || 0), 0);
+
+    // 1. Panoramic Sky & Clouds
+    const mapTotalW = 2650;
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
+    skyGrad.addColorStop(0, '#1565C0'); skyGrad.addColorStop(0.5, '#42A5F5'); skyGrad.addColorStop(1, '#B3E5FC');
+    ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, mapTotalW, VIRT_H);
+
+    // Distant Floating Clouds
+    for(let i=0; i<mapTotalW; i+=280){
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.beginPath(); ctx.ellipse(i + 140, 65 + Math.sin(i + now*0.001)*6, 80, 24, 0, 0, Math.PI*2); ctx.fill();
     }
 
-    // Glowing Golden Dotted Pathway
+    // 2. 3D Diorama Ground Terrains per Biome
+    // Garden & Ocean (0 - 620)
+    const gGrad1 = ctx.createLinearGradient(0, 130, 0, VIRT_H);
+    gGrad1.addColorStop(0, '#4CAF50'); gGrad1.addColorStop(0.4, '#2E7D32'); gGrad1.addColorStop(1, '#1B5E20');
+    ctx.fillStyle = gGrad1; ctx.fillRect(0, 140, 620, VIRT_H - 140);
+    // Ocean Lagoon
+    ctx.fillStyle = '#0288D1'; ctx.beginPath(); ctx.ellipse(480, 195, 130, 42, 0, 0, Math.PI*2); ctx.fill();
+
+    // Egypt Desert Sands (620 - 920)
+    const gGrad2 = ctx.createLinearGradient(0, 130, 0, VIRT_H);
+    gGrad2.addColorStop(0, '#FFB74D'); gGrad2.addColorStop(0.5, '#F57C00'); gGrad2.addColorStop(1, '#E65100');
+    ctx.fillStyle = gGrad2; ctx.fillRect(620, 135, 320, VIRT_H - 135);
+    // Pyramids
+    ctx.fillStyle = '#FFA726'; ctx.beginPath(); ctx.moveTo(760, 100); ctx.lineTo(700, 160); ctx.lineTo(820, 160); ctx.fill();
+    ctx.fillStyle = '#FB8C00'; ctx.beginPath(); ctx.moveTo(760, 100); ctx.lineTo(760, 160); ctx.lineTo(820, 160); ctx.fill();
+
+    // Disney Kingdom (920 - 1200)
+    const gGrad3 = ctx.createLinearGradient(0, 130, 0, VIRT_H);
+    gGrad3.addColorStop(0, '#CE93D8'); gGrad3.addColorStop(0.5, '#8E24AA'); gGrad3.addColorStop(1, '#4A148C');
+    ctx.fillStyle = gGrad3; ctx.fillRect(920, 130, 300, VIRT_H - 130);
+    // Disney Castle Spires
+    ctx.fillStyle = '#E1BEE7'; ctx.fillRect(1025, 80, 30, 60);
+    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(1040, 55); ctx.lineTo(1020, 80); ctx.lineTo(1060, 80); ctx.fill();
+
+    // Frozen Ice Glacier (1200 - 1480)
+    const gGrad4 = ctx.createLinearGradient(0, 120, 0, VIRT_H);
+    gGrad4.addColorStop(0, '#E0F7FA'); gGrad4.addColorStop(0.5, '#4DD0E1'); gGrad4.addColorStop(1, '#006064');
+    ctx.fillStyle = gGrad4; ctx.fillRect(1200, 125, 300, VIRT_H - 125);
+    // Ice Peaks
+    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(1320, 75); ctx.lineTo(1270, 135); ctx.lineTo(1370, 135); ctx.fill();
+
+    // Sky Kingdom Floating Nubes (1480 - 1760)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.beginPath(); ctx.ellipse(1600, 140, 140, 35, 0, 0, Math.PI*2); ctx.fill();
+
+    // Zero-G Crystal Cave (1760 - 2040)
+    const gGrad5 = ctx.createLinearGradient(0, 120, 0, VIRT_H);
+    gGrad5.addColorStop(0, '#7B1FA2'); gGrad5.addColorStop(0.6, '#311B92'); gGrad5.addColorStop(1, '#0D0620');
+    ctx.fillStyle = gGrad5; ctx.fillRect(1760, 135, 300, VIRT_H - 135);
+
+    // Galaxy Space Planet (2040 - 2320)
+    const gGrad6 = ctx.createLinearGradient(0, 100, 0, VIRT_H);
+    gGrad6.addColorStop(0, '#000000'); gGrad6.addColorStop(0.6, '#1A0033'); gGrad6.addColorStop(1, '#00E5FF');
+    ctx.fillStyle = gGrad6; ctx.fillRect(2040, 115, 300, VIRT_H - 115);
+    // Planetary Ring
+    ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.ellipse(2160, 135, 65, 18, -0.2, 0, Math.PI*2); ctx.stroke();
+
+    // Lava Bowser Volcano (2320 - 2650)
+    const gGrad7 = ctx.createLinearGradient(0, 100, 0, VIRT_H);
+    gGrad7.addColorStop(0, '#BF360C'); gGrad7.addColorStop(0.5, '#DD2C00'); gGrad7.addColorStop(1, '#212121');
+    ctx.fillStyle = gGrad7; ctx.fillRect(2320, 130, 330, VIRT_H - 130);
+    // Volcano Cone
+    ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.moveTo(2440, 70); ctx.lineTo(2380, 145); ctx.lineTo(2500, 145); ctx.fill();
+    ctx.fillStyle = '#FF3D00'; ctx.beginPath(); ctx.arc(2440, 70, 8, 0, Math.PI*2); ctx.fill();
+
+    // 3. Glowing Golden Dotted Pathway
     ctx.save();
-    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 4.0; ctx.setLineDash([7, 5]);
-    ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 5.0; ctx.setLineDash([9, 6]);
+    ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.moveTo(LEVEL_CONFIGS[0].mapX, LEVEL_CONFIGS[0].mapY);
     for(let i=1; i<LEVEL_CONFIGS.length; i++){ ctx.lineTo(LEVEL_CONFIGS[i].mapX, LEVEL_CONFIGS[i].mapY); }
     ctx.stroke();
     ctx.restore();
 
-    // 9 Themed Level Nodes with Dynamic Highlights
+    // 4. 9 Themed Level Nodes with Dynamic Highlights
     LEVEL_CONFIGS.forEach((cfg, idx) => {
       const selected = (this.currentLevelIdx === idx);
       ctx.save();
       ctx.translate(cfg.mapX, cfg.mapY);
       
+      // Selected Ring Animation
       if(selected){
-        ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
-        const sa = Math.sin(now * 0.008) * 3;
-        ctx.beginPath(); ctx.arc(0, 0, 17 + sa, 0, Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0;
+        ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 4.0;
+        const sa = Math.sin(now * 0.008) * 4;
         ctx.beginPath(); ctx.arc(0, 0, 20 + sa, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(0, 0, 24 + sa, 0, Math.PI*2); ctx.stroke();
       }
 
-      const nGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, 12);
-      nGrad.addColorStop(0, '#FFFFFF'); nGrad.addColorStop(0.35, cfg.color); nGrad.addColorStop(1, '#1A237E');
+      // 3D Spherical Node
+      const nGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 16);
+      nGrad.addColorStop(0, '#FFFFFF'); nGrad.addColorStop(0.35, cfg.color); nGrad.addColorStop(1, '#0D1B2A');
       ctx.fillStyle = nGrad;
-      ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.stroke();
 
       const isUnlocked = this.unlockedLevels[idx];
       if(isUnlocked){
-        ctx.fillStyle = '#FFFFFF'; ctx.font = '900 10px "Fredoka", sans-serif';
+        ctx.fillStyle = '#FFFFFF'; ctx.font = '900 11px "Fredoka", sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
         ctx.fillText('1-' + (idx+1), 0, 1);
       } else {
-        ctx.fillStyle = 'rgba(10, 10, 20, 0.70)'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#FFE082'; ctx.font = '900 11px sans-serif';
+        ctx.fillStyle = 'rgba(10, 10, 20, 0.75)'; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFE082'; ctx.font = '900 13px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('🔒', 0, 0);
       }
       ctx.restore();
     });
 
-    // Walking Hero on Map
+    // 5. Walking Hero on Map
     const heroImg = loadedImages[this.selectedCharId];
     ctx.save();
-    ctx.translate(this.mapPlayerX, this.mapPlayerY - 14);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath(); ctx.ellipse(0, 14, 10, 4, 0, 0, Math.PI*2); ctx.fill();
+    ctx.translate(this.mapPlayerX, this.mapPlayerY - 18);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.beginPath(); ctx.ellipse(0, 18, 12, 5, 0, 0, Math.PI*2); ctx.fill();
 
     if(heroImg && heroImg.complete){
-      const bob = this.mapWalking ? Math.sin(now * 0.015) * 2 : 0;
-      ctx.drawImage(heroImg, -12, -15 + bob, 24, 30);
+      const bob = this.mapWalking ? Math.sin(now * 0.015) * 3 : 0;
+      ctx.drawImage(heroImg, -14, -18 + bob, 28, 36);
     }
     ctx.restore();
 
+    ctx.restore(); // END WORLD SCROLLING LAYER
+
+    // ── FIXED SCREEN HUD LAYER ──
     // Top Plaque with Level Name & Mount Info
     ctx.save();
-    ctx.fillStyle = 'rgba(15, 23, 54, 0.92)';
-    ctx.beginPath(); ctx.roundRect(8, 8, 280, 36, [18]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.fillStyle = 'rgba(15, 23, 54, 0.94)';
+    ctx.beginPath(); ctx.roundRect(8, 8, 275, 40, [18]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.2; ctx.stroke();
     
-    ctx.fillStyle = '#FFD700'; ctx.font = '900 11px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''), 16, 20);
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 12px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''), 16, 21);
     
     const mountNames = ['🦄 Unicornio Yoshi', '🐬 Delfín Cristal', '🐪 Camello Real', '🦄👑 Corcel Disney', '🦌 Sven Reno', '🪽 Pegaso', '🔮 Orbe Cuarzo', '🚀🌟 Dragón Cósmico', '🦅🔥 Fénix'];
-    ctx.fillStyle = '#80DEEA'; ctx.font = '800 8.5px "Fredoka", sans-serif';
-    ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 32);
+    ctx.fillStyle = '#80DEEA'; ctx.font = '800 9px "Fredoka", sans-serif';
+    ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 35);
 
-    // Top Nav Arrows
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
-    ctx.beginPath(); ctx.roundRect(295, 8, 40, 36, [12]); ctx.roundRect(345, 8, 40, 36, [12]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.roundRect(295, 8, 40, 36, [12]); ctx.roundRect(345, 8, 40, 36, [12]); ctx.stroke();
-    ctx.fillStyle = '#FFF'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('◀', 315, 26); ctx.fillText('▶', 365, 26);
+    // Top Nav Arrows (◀ / ▶)
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)';
+    ctx.beginPath(); ctx.roundRect(290, 8, 42, 40, [12]); ctx.roundRect(340, 8, 42, 40, [12]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.roundRect(290, 8, 42, 40, [12]); ctx.roundRect(340, 8, 42, 40, [12]); ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('◀', 311, 28); ctx.fillText('▶', 361, 28);
+
+    // Minimap World Indicator Dots
+    const dotStartX = VIRT_W - 85;
+    for(let i=0; i<9; i++){
+      ctx.fillStyle = (i === this.currentLevelIdx) ? '#FFD700' : (this.unlockedLevels[i] ? '#00E5FF' : '#555');
+      ctx.beginPath(); ctx.arc(dotStartX + i*8, 28, (i === this.currentLevelIdx ? 3.5 : 2), 0, Math.PI*2); ctx.fill();
+    }
     ctx.restore();
 
     // ── PROMINENT BOTTOM PLAY BUTTON ──
     ctx.save();
     const isUnlocked = this.unlockedLevels[this.currentLevelIdx];
     const pulse = Math.sin(now * 0.007) * 0.12 + 0.88;
-    ctx.globalAlpha = isUnlocked ? pulse : 0.6;
-    ctx.fillStyle = isUnlocked ? '#4CAF50' : '#424242';
-    ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 130, VIRT_H - 42, 260, 34, [17]); ctx.fill();
-    ctx.strokeStyle = isUnlocked ? '#FFFFFF' : '#757575'; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.globalAlpha = isUnlocked ? pulse : 0.7;
+    ctx.fillStyle = isUnlocked ? '#4CAF50' : '#37474F';
+    ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 140, VIRT_H - 44, 280, 36, [18]); ctx.fill();
+    ctx.strokeStyle = isUnlocked ? '#FFFFFF' : '#78909C'; ctx.lineWidth = 2.0; ctx.stroke();
 
-    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px "Fredoka", sans-serif';
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12.5px "Fredoka", sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if(isUnlocked){
-      ctx.fillText(`▶️ JUGAR MUNDO 1-${this.currentLevelIdx + 1} (TOCA O PULSA ESPACIO)`, VIRT_W/2, VIRT_H - 25);
+      ctx.fillText(`▶️ JUGAR MUNDO 1-${this.currentLevelIdx + 1} (TOCA O PULSA ESPACIO)`, VIRT_W/2, VIRT_H - 26);
     } else {
-      ctx.fillText(`🔒 MUNDO BLOQUEADO (COMPLETA EL ANTERIOR)`, VIRT_W/2, VIRT_H - 25);
+      ctx.fillText(`🔒 MUNDO BLOQUEADO (COMPLETA EL MUNDO 1-${this.currentLevelIdx})`, VIRT_W/2, VIRT_H - 26);
     }
     ctx.restore();
   }
