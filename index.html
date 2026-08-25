@@ -514,9 +514,20 @@ class SoundFX {
   blockBump(){ try{ this.playTone(300,'square',0.08,0.25,240); }catch(e){} }
   bump(){ try{ this.playTone(180, 'triangle', 0.1, 0.25, 90); }catch(e){} }
   fireball(){ try{ this.fireballShoot(); }catch(e){} }
-  magicPower(){ [587, 784, 987, 1174].forEach((f, i) => setTimeout(() => { try{ this.playTone(f, 'sine', 0.12, 0.22, f * 1.2); }catch(e){} }, i * 40)); }
+  magicPower(){
+    try {
+      this.playTone(659, 'sine', 0.08, 0.22, 880);
+      setTimeout(() => { try{ this.playTone(880, 'sine', 0.12, 0.25, 1174); }catch(e){} }, 45);
+    }catch(e){}
+  }
   thwomp(){ try{ this.playTone(80, 'sawtooth', 0.35, 0.45, 25); }catch(e){} }
-  invincible(){ [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => { try{ this.playTone(f, 'square', 0.1, 0.2, f * 1.1); }catch(e){} }, i * 50)); }
+  invincible(){
+    try {
+      [523, 659, 784, 1046, 1318].forEach((f, i) => {
+        setTimeout(() => { try{ this.playTone(f, 'triangle', 0.09, 0.2, f * 1.05); }catch(e){} }, i * 45);
+      });
+    }catch(e){}
+  }
   winFanfare(){ try{ this.fanfareVictory(); }catch(e){} }
   click(){ try{ this.playTone(600,'sine',0.04,0.15,900); }catch(e){} }
 
@@ -878,32 +889,40 @@ class TouchController {
   }
   draw(ctx, sw, sh, vw, vh){
     if(!this.active) return;
-    const sx = vw / sw, sy = vh / sh;
-    ctx.save();
-    for(const [name, btn] of Object.entries(this.buttons)){
-      const pressed = this.pressedButtons.has(name);
+    try {
+      const validSw = (typeof sw === 'number' && sw > 0) ? sw : window.innerWidth;
+      const validSh = (typeof sh === 'number' && sh > 0) ? sh : window.innerHeight;
+      const sx = (validSw > 0) ? vw / validSw : 1;
+      const sy = (validSh > 0) ? vh / validSh : 1;
       ctx.save();
-      ctx.globalAlpha = pressed ? 0.95 : 0.65;
-      if(btn.round){
-        ctx.fillStyle = btn.color || 'rgba(33, 150, 243, 0.7)';
-        ctx.beginPath();
-        ctx.arc((btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy, (btn.w/2)*sx, 0, Math.PI*2);
-        ctx.fill();
-        ctx.strokeStyle = btn.borderColor || '#FFF'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#FFF'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(btn.label, (btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy);
-      } else {
-        ctx.fillStyle = pressed ? 'rgba(255, 215, 0, 0.8)' : 'rgba(255, 255, 255, 0.35)';
-        ctx.beginPath();
-        ctx.roundRect(btn.x*sx, btn.y*sy, btn.w*sx, btn.h*sy, [8]);
-        ctx.fill();
-        ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = pressed ? '#000' : '#FFF'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(btn.label, (btn.x + btn.w/2)*sx, (btn.y + btn.h/2)*sy);
+      for(const [name, btn] of Object.entries(this.buttons)){
+        const pressed = this.pressedButtons.has(name);
+        ctx.save();
+        ctx.globalAlpha = pressed ? 0.95 : 0.65;
+        const rad = Math.max(10, (btn.w / 2) * sx);
+        const bx = (btn.x + btn.w/2) * sx;
+        const by = (btn.y + btn.h/2) * sy;
+        if(btn.round){
+          ctx.fillStyle = btn.color || 'rgba(33, 150, 243, 0.7)';
+          ctx.beginPath();
+          ctx.arc(bx, by, rad, 0, Math.PI*2);
+          ctx.fill();
+          ctx.strokeStyle = btn.borderColor || '#FFF'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.fillStyle = '#FFF'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(btn.label, bx, by);
+        } else {
+          ctx.fillStyle = pressed ? 'rgba(255, 215, 0, 0.8)' : 'rgba(255, 255, 255, 0.35)';
+          ctx.beginPath();
+          ctx.roundRect(btn.x*sx, btn.y*sy, Math.max(12, btn.w*sx), Math.max(12, btn.h*sy), [8]);
+          ctx.fill();
+          ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = pressed ? '#000' : '#FFF'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(btn.label, bx, by);
+        }
+        ctx.restore();
       }
       ctx.restore();
-    }
-    ctx.restore();
+    } catch(e){}
   }
 }
 class Enemy {
@@ -3170,9 +3189,14 @@ class PlatformerGame {
       }
       // Base Innate Character Powers (Normal State)
       else if(char.id === 'candela'){
-        this.fireballs.push({ type: 'petal', x: p.x + (p.facingRight ? p.w : 0), y: p.y + 12, vx: dir * 6.8, vy: -0.6, life: 110 });
+        const px = p.x + (p.facingRight ? p.w : 0), py = p.y + 12;
+        this.fireballs.push({ type: 'petal', x: px, y: py, vx: dir * 7.0, vy: -0.4, bounces: 2, life: 120 });
+        if(!p.onGround){
+          this.spawnedPlatforms.push({ x: p.x - 12, y: p.y + p.h, w: 48, h: 8, life: 140, maxLife: 140, isCloud: true });
+        }
         try{ audio.magicPower(); }catch(e){}
-        this.addParticles(p.x + (p.facingRight ? p.w : 0), p.y + 12, 10, ['#FF4081', '#FF80AB', '#FFEB3B', '#FFF'], 3.0);
+        this.addParticles(px, py, 12, ['#FF4081', '#FF80AB', '#FFEB3B', '#00E5FF', '#FFF'], 3.2);
+        this.addFloatingText('✨ ¡VARITA ESTELAR!', p.x, p.y - 18, '#FF4081');
       } else if(char.id === 'cayetana'){
         p.vx = dir * 8.5;
         p.invincibleTimer = Math.max(p.invincibleTimer, 24);
@@ -3275,6 +3299,16 @@ class PlatformerGame {
     for(const ls of this.launchStars) ls.check(p, this);
     for(const mp of this.magicPortals) mp.check(p, this);
     if(p.portalCooldown > 0) p.portalCooldown--;
+
+    if(this.spawnedPlatforms){
+      for(let i = this.spawnedPlatforms.length - 1; i >= 0; i--){
+        const sp = this.spawnedPlatforms[i];
+        if(sp.life !== undefined){
+          sp.life--;
+          if(sp.life <= 0) this.spawnedPlatforms.splice(i, 1);
+        }
+      }
+    }
 
     // Water currents
     for(const wc of this.waterCurrents){
@@ -3992,19 +4026,29 @@ class PlatformerGame {
         ctx.beginPath(); ctx.arc(fs2.x, fs2.y, 6.5, 0, PI2); ctx.fill(); ctx.stroke();
       } else if(fb.type==='petal'){
         ctx.fillStyle='#FF4081'; ctx.strokeStyle='#FFEB3B'; ctx.lineWidth=1.5;
+        ctx.save();
+        ctx.translate(fs2.x, fs2.y);
+        ctx.rotate(((now || 0) * 0.015) % (Math.PI * 2));
         ctx.beginPath();
-        try { ctx.ellipse(fs2.x, fs2.y, 7, 4, (now || 0) * 0.02, 0, PI2); }
-        catch(e) { ctx.arc(fs2.x, fs2.y, 6, 0, PI2); }
+        ctx.arc(0, 0, 6, 0, PI2);
         ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2.2, 0, PI2);
+        ctx.fill();
+        ctx.restore();
       } else if(fb.type==='plasma'){
         ctx.fillStyle='#00E5FF'; ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
         ctx.beginPath(); ctx.arc(fs2.x, fs2.y, 6.0, 0, PI2); ctx.fill(); ctx.stroke();
       } else if(fb.type==='feather'){
         ctx.fillStyle='#FFFFFF'; ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.5;
+        ctx.save();
+        ctx.translate(fs2.x, fs2.y);
+        ctx.rotate(0.3);
         ctx.beginPath();
-        try { ctx.ellipse(fs2.x, fs2.y, 8, 4, 0.4, 0, PI2); }
-        catch(e) { ctx.arc(fs2.x, fs2.y, 6, 0, PI2); }
+        ctx.arc(0, 0, 5, 0, PI2);
         ctx.fill(); ctx.stroke();
+        ctx.restore();
       } else {
         ctx.fillStyle='#E040FB'; ctx.strokeStyle='#00E5FF'; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.arc(fs2.x, fs2.y, 6, 0, PI2); ctx.fill(); ctx.stroke();
