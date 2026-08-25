@@ -439,6 +439,45 @@ const tommyImg = new Image();
 tommyImg.src = 'tommy.png';
 tommyImg.onerror = () => { tommyImg.src = 'assets/tommy.png'; };
 
+// HD 2.5D Mount Assets
+const MOUNT_ASSETS = {
+  unicorn: 'mount_unicorn.png',
+  dolphin: 'mount_dolphin.png',
+  camel: 'mount_camel.png',
+  disney_steed: 'mount_disneysteed.png',
+  sven: 'mount_sven.png',
+  pegasus: 'mount_pegasus.png',
+  crystal_orb: 'mount_orb.png',
+  cosmic_dragon: 'mount_cosmicdragon.png',
+  phoenix: 'mount_phoenix.png'
+};
+const mountImages = {};
+for(const [mKey, mSrc] of Object.entries(MOUNT_ASSETS)){
+  const img = new Image();
+  img.src = mSrc;
+  img.onerror = () => { img.src = 'assets/' + mSrc; };
+  mountImages[mKey] = img;
+}
+
+// HD 2.5D Enemy Assets
+const ENEMY_ASSETS = {
+  goomba: 'enemy_goomba.png',
+  koopa: 'enemy_koopa.png',
+  cheep_cheep: 'enemy_cheep.png'
+};
+const enemyImages = {};
+for(const [eKey, eSrc] of Object.entries(ENEMY_ASSETS)){
+  const img = new Image();
+  img.src = eSrc;
+  img.onerror = () => { img.src = 'assets/' + eSrc; };
+  enemyImages[eKey] = img;
+}
+
+// HD World Map Diorama Background
+const worldMapDioramaImg = new Image();
+worldMapDioramaImg.src = 'world_map_diorama.png';
+worldMapDioramaImg.onerror = () => { worldMapDioramaImg.src = 'assets/world_map_diorama.png'; };
+
 // 9 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES
 const LEVEL_CONFIGS = [
   { id: 1, name: "1-1: Colinas Bellota",    theme: "garden", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 38,  mapY: 195, color: "#2E7D32" },
@@ -771,8 +810,13 @@ class Enemy {
     if(this.facingRight) ctx.scale(-1,1);
     if(this.dead) ctx.globalAlpha=0.7;
 
-    // 2.5D Shaded Sphere / Cylindrical Elements with Lighting Highlights
-    if(this.type==='pokey'){
+    const eImg = enemyImages[this.type];
+    if(eImg && eImg.complete && eImg.naturalWidth > 0 && !this.dead){
+      const ew = this.w + 8, eh = this.h + 8;
+      const walkSquash = (this.state==='patrol') ? Math.sin(this.frame * 0.2) * 0.08 : 0;
+      ctx.scale(1 + walkSquash, 1 - walkSquash);
+      ctx.drawImage(eImg, -ew/2, -eh/2, ew, eh);
+    } else if(this.type==='pokey'){
       for(let b=-12; b<=12; b+=12){
         const pGrad = ctx.createRadialGradient(-2, b-2, 1, 0, b, 8);
         pGrad.addColorStop(0, '#FFE082'); pGrad.addColorStop(0.6, '#FFA000'); pGrad.addColorStop(1, '#FF6F00');
@@ -823,7 +867,6 @@ class Enemy {
     ctx.restore();
   }
 }
-
 // ════════════════════════════════════════════════════════════
 // 2.5D SHADED RIDEABLE MOUNTS (9 EXCLUSIVE MOUNTS)
 // ════════════════════════════════════════════════════════════
@@ -845,55 +888,66 @@ class RideableMount {
   }
   draw(ctx, cam, now){
     const s = cam.toScreen(this.x, this.y);
-    if(!cam.isVisible(this.x, this.y, this.w, this.h)) return;
+    if(!cam.isVisible(this.x - 10, this.y - 10, this.w + 20, this.h + 20)) return;
 
     ctx.save();
-    ctx.translate(s.x + this.w/2, s.y + this.h/2);
+    const bob = Math.sin(this.frame * 0.1) * 1.5;
+    ctx.translate(s.x + this.w/2, s.y + this.h/2 + bob);
     if(!this.facingRight) ctx.scale(-1, 1);
 
-    // 2.5D Mount Body Shading
-    if(this.type === 'camel'){
-      const cGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
-      cGrad.addColorStop(0, '#FFE082'); cGrad.addColorStop(0.7, '#FFA000'); cGrad.addColorStop(1, '#FF8F00');
-      ctx.fillStyle = cGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 14, 10, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(-5, -6, 5.5, 0, Math.PI*2); ctx.arc(5, -6, 5.5, 0, Math.PI*2); ctx.fill();
-    } else if(this.type === 'dolphin'){
-      const dGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
-      dGrad.addColorStop(0, '#80DEEA'); dGrad.addColorStop(0.7, '#00ACC1'); dGrad.addColorStop(1, '#006064');
-      ctx.fillStyle = dGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 15, 8, 0.1, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(-4, -12); ctx.lineTo(6, -2); ctx.fill();
-    } else if(this.type === 'disney_steed'){
-      const sGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
-      sGrad.addColorStop(0, '#FFFFFF'); sGrad.addColorStop(0.7, '#F3E5F5'); sGrad.addColorStop(1, '#E1BEE7');
-      ctx.fillStyle = sGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(12, -22); ctx.lineTo(15, -14); ctx.fill();
-    } else if(this.type === 'sven'){
-      const svGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
-      svGrad.addColorStop(0, '#BCAAA4'); svGrad.addColorStop(0.7, '#8D6E63'); svGrad.addColorStop(1, '#4E342E');
-      ctx.fillStyle = svGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 14, 11, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.moveTo(8, -8); ctx.lineTo(16, -22); ctx.lineTo(12, -18); ctx.lineTo(18, -20); ctx.stroke();
-    } else if(this.type === 'cosmic_dragon'){
-      const drGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 15);
-      drGrad.addColorStop(0, '#E040FB'); drGrad.addColorStop(0.7, '#7C4DFF'); drGrad.addColorStop(1, '#00E5FF');
-      ctx.fillStyle = drGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 15, 9, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(-18, -16); ctx.lineTo(-4, -8); ctx.fill();
+    // Soft drop shadow underneath mount
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(0, this.h/2 - bob + 3, this.w * 0.45, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Check if HD image is loaded
+    const img = mountImages[this.type];
+    if(img && img.complete && img.naturalWidth > 0){
+      const mw = 46, mh = 44;
+      ctx.drawImage(img, -mw/2, -mh/2 - 2, mw, mh);
     } else {
-      const uGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
-      uGrad.addColorStop(0, '#FFFFFF'); uGrad.addColorStop(0.7, '#F8BBD0'); uGrad.addColorStop(1, '#F48FB1');
-      ctx.fillStyle = uGrad;
-      ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(10, -12); ctx.lineTo(17, -24); ctx.lineTo(14, -12); ctx.fill();
+      if(this.type === 'camel'){
+        const cGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+        cGrad.addColorStop(0, '#FFE082'); cGrad.addColorStop(0.7, '#FFA000'); cGrad.addColorStop(1, '#FF8F00');
+        ctx.fillStyle = cGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 14, 10, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-5, -6, 5.5, 0, Math.PI*2); ctx.arc(5, -6, 5.5, 0, Math.PI*2); ctx.fill();
+      } else if(this.type === 'dolphin'){
+        const dGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+        dGrad.addColorStop(0, '#80DEEA'); dGrad.addColorStop(0.7, '#00ACC1'); dGrad.addColorStop(1, '#006064');
+        ctx.fillStyle = dGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 15, 8, 0.1, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(-4, -12); ctx.lineTo(6, -2); ctx.fill();
+      } else if(this.type === 'disney_steed'){
+        const sGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+        sGrad.addColorStop(0, '#FFFFFF'); sGrad.addColorStop(0.7, '#F3E5F5'); sGrad.addColorStop(1, '#E1BEE7');
+        ctx.fillStyle = sGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(12, -22); ctx.lineTo(15, -14); ctx.fill();
+      } else if(this.type === 'sven'){
+        const svGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+        svGrad.addColorStop(0, '#BCAAA4'); svGrad.addColorStop(0.7, '#8D6E63'); svGrad.addColorStop(1, '#4E342E');
+        ctx.fillStyle = svGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 14, 11, 0, 0, Math.PI*2); ctx.fill();
+      } else if(this.type === 'cosmic_dragon'){
+        const drGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 15);
+        drGrad.addColorStop(0, '#E040FB'); drGrad.addColorStop(0.7, '#7C4DFF'); drGrad.addColorStop(1, '#00E5FF');
+        ctx.fillStyle = drGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 15, 9, 0, 0, Math.PI*2); ctx.fill();
+      } else {
+        const uGrad = ctx.createRadialGradient(-3, 0, 2, 0, 4, 14);
+        uGrad.addColorStop(0, '#FFFFFF'); uGrad.addColorStop(0.7, '#F8BBD0'); uGrad.addColorStop(1, '#F48FB1');
+        ctx.fillStyle = uGrad;
+        ctx.beginPath(); ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI*2); ctx.fill();
+      }
     }
 
     ctx.restore();
   }
 }
-
 class GalaxyBoss {
   constructor(x, y){
     this.x = x; this.y = y;
@@ -1842,93 +1896,92 @@ class PlatformerGame {
   renderWorldMapNSMBWii(ctx, now){
     ctx.imageSmoothingEnabled = true;
 
-    // Vibrant Sky
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
-    skyGrad.addColorStop(0, '#42A5F5'); skyGrad.addColorStop(0.5, '#90CAF9'); skyGrad.addColorStop(1, '#E3F2FD');
-    ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
+    // HD 3D Diorama Artwork Background
+    if(worldMapDioramaImg && worldMapDioramaImg.complete && worldMapDioramaImg.naturalWidth > 0){
+      ctx.drawImage(worldMapDioramaImg, 0, 0, VIRT_W, VIRT_H);
+      const vig = ctx.createRadialGradient(VIRT_W/2, VIRT_H/2, VIRT_W*0.35, VIRT_W/2, VIRT_H/2, VIRT_W*0.7);
+      vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(4, 8, 24, 0.45)');
+      ctx.fillStyle = vig; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
+    } else {
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, VIRT_H);
+      skyGrad.addColorStop(0, '#42A5F5'); skyGrad.addColorStop(0.5, '#90CAF9'); skyGrad.addColorStop(1, '#E3F2FD');
+      ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
 
-    // Terraced Diorama Base
-    ctx.fillStyle = '#8D6E63';
-    ctx.fillRect(0, 135, VIRT_W, VIRT_H - 135);
-    const gGrad = ctx.createLinearGradient(0, 120, 0, 145);
-    gGrad.addColorStop(0, '#81C784'); gGrad.addColorStop(1, '#388E3C');
-    ctx.fillStyle = gGrad;
-    ctx.fillRect(0, 120, VIRT_W, 22);
+      ctx.fillStyle = '#8D6E63'; ctx.fillRect(0, 135, VIRT_W, VIRT_H - 135);
+      const gGrad = ctx.createLinearGradient(0, 120, 0, 145);
+      gGrad.addColorStop(0, '#81C784'); gGrad.addColorStop(1, '#388E3C');
+      ctx.fillStyle = gGrad; ctx.fillRect(0, 120, VIRT_W, 22);
 
-    // 🌊 Blue Sparkling River with Bridge
-    ctx.fillStyle = '#0288D1';
-    ctx.beginPath(); ctx.moveTo(70, 142); ctx.lineTo(120, VIRT_H); ctx.lineTo(165, VIRT_H); ctx.lineTo(110, 142); ctx.fill();
-    ctx.fillStyle = '#6D4C41'; ctx.fillRect(80, 180, 48, 12); // Bridge
+      ctx.fillStyle = '#0288D1';
+      ctx.beginPath(); ctx.moveTo(70, 142); ctx.lineTo(120, VIRT_H); ctx.lineTo(165, VIRT_H); ctx.lineTo(110, 142); ctx.fill();
+      ctx.fillStyle = '#6D4C41'; ctx.fillRect(80, 180, 48, 12);
+    }
 
-    // 🏜️ 3D Egyptian Pyramid
-    ctx.fillStyle = '#FFA000';
-    ctx.beginPath(); ctx.moveTo(145, 80); ctx.lineTo(110, 142); ctx.lineTo(180, 142); ctx.fill();
-    ctx.strokeStyle = '#FF8F00'; ctx.lineWidth = 1.5; ctx.stroke();
-
-    // 🏰 3D Disney Castle Towers
-    ctx.fillStyle = '#6A1B9A';
-    ctx.fillRect(195, 85, 20, 45);
-    ctx.beginPath(); ctx.moveTo(190, 85); ctx.lineTo(205, 55); ctx.lineTo(220, 85); ctx.fill();
-
-    // ❄️ 3D Frozen Ice Glaciers
-    ctx.fillStyle = '#80DEEA';
-    ctx.beginPath(); ctx.moveTo(265, 70); ctx.lineTo(240, 135); ctx.lineTo(290, 135); ctx.fill();
-
-    // 🚀 3D Mario Galaxy Orbit Planet
-    ctx.fillStyle = '#D500F9';
-    ctx.beginPath(); ctx.arc(432, 90, 18, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.5; ctx.stroke();
-
-    // 🌋 Volcanic Castle Fortress
-    ctx.fillStyle = '#37474F';
-    ctx.fillRect(465, 65, 30, 60);
-    ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.moveTo(465, 65); ctx.lineTo(480, 45); ctx.lineTo(495, 65); ctx.fill();
-
-    // Dotted Pathway
+    // Glowing Golden Dotted Pathway
     ctx.save();
-    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 3.5; ctx.setLineDash([6, 5]);
+    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 4.0; ctx.setLineDash([7, 5]);
+    ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.moveTo(LEVEL_CONFIGS[0].mapX, LEVEL_CONFIGS[0].mapY);
     for(let i=1; i<LEVEL_CONFIGS.length; i++){ ctx.lineTo(LEVEL_CONFIGS[i].mapX, LEVEL_CONFIGS[i].mapY); }
-    ctx.stroke(); ctx.restore();
+    ctx.stroke();
+    ctx.restore();
 
-    // 9 Level Nodes
+    // 9 Themed Level Nodes with Dynamic Highlights
     LEVEL_CONFIGS.forEach((cfg, idx) => {
       const selected = (this.currentLevelIdx === idx);
       ctx.save();
       ctx.translate(cfg.mapX, cfg.mapY);
+      
       if(selected){
         ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 3.5;
         const sa = Math.sin(now * 0.008) * 3;
         ctx.beginPath(); ctx.arc(0, 0, 16 + sa, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0;
+        ctx.beginPath(); ctx.arc(0, 0, 19 + sa, 0, Math.PI*2); ctx.stroke();
       }
-      ctx.fillStyle = cfg.color;
-      ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI*2); ctx.fill();
+
+      const nGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, 12);
+      nGrad.addColorStop(0, '#FFFFFF'); nGrad.addColorStop(0.35, cfg.color); nGrad.addColorStop(1, '#1A237E');
+      ctx.fillStyle = nGrad;
+      ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill();
       ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 8.5px "Fredoka", sans-serif';
+
+      ctx.fillStyle = '#FFFFFF'; ctx.font = '900 9px "Fredoka", sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(`1-${idx+1}`, 0, 1);
+      ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
+      ctx.fillText('1-' + (idx+1), 0, 1);
       ctx.restore();
     });
 
-    // Walking Hero
+    // Walking Hero on Map
     const heroImg = loadedImages[this.selectedCharId];
     ctx.save();
     ctx.translate(this.mapPlayerX, this.mapPlayerY - 14);
-    if(heroImg && heroImg.complete) ctx.drawImage(heroImg, -11, -14, 22, 28);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.beginPath(); ctx.ellipse(0, 14, 10, 4, 0, 0, Math.PI*2); ctx.fill();
+
+    if(heroImg && heroImg.complete){
+      const bob = this.mapWalking ? Math.sin(now * 0.015) * 2 : 0;
+      ctx.drawImage(heroImg, -12, -15 + bob, 24, 30);
+    }
     ctx.restore();
 
-    // Top Plaque
+    // Top Plaque with Level Name & Mount Info
     ctx.save();
-    ctx.fillStyle = '#FFB300'; ctx.beginPath(); ctx.roundRect(8, 8, 200, 30, [15]); ctx.fill();
-    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#3E2723'; ctx.font = 'bold 10.5px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(`WORLD 1-${this.currentLevelIdx + 1}: ${LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''}`, 16, 23);
+    ctx.fillStyle = 'rgba(15, 23, 54, 0.92)';
+    ctx.beginPath(); ctx.roundRect(8, 8, 280, 36, [18]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.5; ctx.stroke();
+    
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 11px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1]||''), 16, 20);
+    
+    const mountNames = ['🦄 Unicornio Yoshi', '🐬 Delfín Cristal', '🐪 Camello Real', '🦄👑 Corcel Disney', '🦌 Sven Reno', '🪽 Pegaso', '🔮 Orbe Cuarzo', '🚀🌟 Dragón Cósmico', '🦅🔥 Fénix'];
+    ctx.fillStyle = '#80DEEA'; ctx.font = '800 8.5px "Fredoka", sans-serif';
+    ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 32);
     ctx.restore();
   }
 
-  // ════════════════════════════════════════════════════════════
-  // 2.5D PARALLAX BACKGROUNDS - 5 RICH LAYERS PER WORLD
   renderBackground(ctx, now){
     const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
     const cx  = this.camera.x;
