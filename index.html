@@ -1158,16 +1158,19 @@ class ItemEntity {
   update(player, allPlats, globalGravity, game){
     if(this.collected) return;
     this.frame++;
-    this.vy = Math.min(this.vy + 0.32 * globalGravity, 6);
+    const plats = (allPlats && Array.isArray(allPlats)) ? allPlats : (game ? game.getAllSolidPlatforms() : []);
+    const grav = (typeof globalGravity === 'number') ? globalGravity : 1;
+
+    this.vy = Math.min(this.vy + 0.30 * grav, 5.5);
     this.x += this.vx;
     this.y += this.vy;
 
     // Platform collision
-    for(const p of allPlats){
+    for(const p of plats){
       if(this.x < p.x + p.w && this.x + this.w > p.x && this.y < p.y + p.h && this.y + this.h > p.y){
-        if(this.vy > 0 && this.y + this.h - this.vy <= p.y + 8){
+        if(this.vy > 0 && this.y + this.h - this.vy <= p.y + 10){
           this.y = p.y - this.h;
-          this.vy = (this.type === 'superstar') ? -4.2 : 0;
+          this.vy = (this.type === 'superstar') ? -4.0 : 0;
           this.onGround = true;
         } else {
           this.vx = -this.vx;
@@ -1175,14 +1178,16 @@ class ItemEntity {
       }
     }
 
-    // Player collection
-    if(Math.hypot(player.x + player.w/2 - (this.x + this.w/2), player.y + player.h/2 - (this.y + this.h/2)) < 26){
+    // Player collection check
+    if(player && Math.hypot(player.x + player.w/2 - (this.x + this.w/2), player.y + player.h/2 - (this.y + this.h/2)) < 28){
       this.collected = true;
-      player.powerUp(this.type, game);
+      if(player.powerUp) player.powerUp(this.type, game);
       audio.powerUp();
-      game.score += 1000;
-      game.addParticles(this.x + this.w/2, this.y + this.h/2, 25, ['#FFD700', '#00E5FF', '#FF4081', '#FFF'], 4.5);
-      game.addFloatingText('+1000 ★ ¡PODER ' + this.type.toUpperCase() + '!', this.x, this.y - 20, '#FFD700');
+      if(game){
+        game.score += 1000;
+        game.addParticles(this.x + this.w/2, this.y + this.h/2, 25, ['#FFD700', '#00E5FF', '#FF4081', '#FFF'], 4.5);
+        game.addFloatingText('+1000 ★ ¡PODER ' + this.type.toUpperCase() + '!', this.x, this.y - 20, '#FFD700');
+      }
     }
   }
   draw(ctx, cam, now){
@@ -1218,53 +1223,91 @@ class ItemEntity {
     ctx.restore();
   }
 }
-
 class QuestionBlock {
-  constructor(x,y,item='mushroom'){ this.x=x;this.y=y;this.w=18;this.h=18;this.item=item;this.hit=false;this.bumpT=0;this.baseY=y; }
-  checkBump(player,globalGravity,game){
-    if(this.hit)return;
-    if(player.x<this.x+this.w&&player.x+player.w>this.x&&player.vy<0&&player.y<=this.y+this.h&&player.y+player.h>=this.y){
-      this._release(game); player.vy=Math.abs(player.vy)*0.5;
+  constructor(x, y, item='mushroom'){
+    this.x = x; this.y = y; this.w = 18; this.h = 18;
+    this.item = item;
+    this.hit = false;
+    this.bumpT = 0;
+    this.baseY = y;
+  }
+  checkBump(player, globalGravity, game){
+    if(this.hit) return;
+    if(player.x < this.x + this.w && player.x + player.w > this.x && player.y <= this.y + this.h + 6 && player.y + player.h >= this.y){
+      this._release(game);
+      player.vy = Math.abs(player.vy) * 0.5 + 2.0;
     }
   }
   _release(game){
-    this.hit=true; this.bumpT=12; audio.blockBump(); game.camera.shake(3);
-    const px=this.x+this.w/2 - 10, py=this.y - 22;
-    if(!game.itemEntities) game.itemEntities = [];
-    game.itemEntities.push(new ItemEntity(px, py, this.item));
-    game.addParticles(this.x+this.w/2, this.y, 12, ['#FFD700', '#FFF', '#FF9800'], 3.0);
+    if(this.hit) return;
+    this.hit = true;
+    this.bumpT = 12;
+    audio.blockBump();
+    if(game){
+      game.camera.shake(4);
+      const px = this.x + this.w/2 - 10, py = this.y - 20;
+      if(!game.itemEntities) game.itemEntities = [];
+      game.itemEntities.push(new ItemEntity(px, py, this.item));
+      game.addParticles(this.x + this.w/2, this.y, 14, ['#FFD700', '#FFF', '#FF9800', '#FFEB3B'], 3.2);
+    }
   }
-  update(){ if(this.bumpT>0){ this.bumpT--; this.y=this.baseY-Math.sin((this.bumpT/12)*Math.PI)*8; } else this.y=this.baseY; }
-  draw(ctx,cam,now){
-    const s=cam.toScreen(this.x,this.y); if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
+  update(){
+    if(this.bumpT > 0){
+      this.bumpT--;
+      this.y = this.baseY - Math.sin((this.bumpT / 12) * Math.PI) * 8;
+    } else {
+      this.y = this.baseY;
+    }
+  }
+  draw(ctx, cam, now){
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x - 4, this.y - 4, this.w + 8, this.h + 8)) return;
     ctx.save();
-    const bGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y+this.h);
-    if(this.hit){ bGrad.addColorStop(0, '#8D6E63'); bGrad.addColorStop(1, '#4E342E'); }
-    else { bGrad.addColorStop(0, '#FFF176'); bGrad.addColorStop(0.5, '#FFB300'); bGrad.addColorStop(1, '#FF8F00'); }
+    const bGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + this.h);
+    if(this.hit){
+      bGrad.addColorStop(0, '#8D6E63'); bGrad.addColorStop(1, '#4E342E');
+    } else {
+      bGrad.addColorStop(0, '#FFF176'); bGrad.addColorStop(0.5, '#FFB300'); bGrad.addColorStop(1, '#FF8F00');
+    }
     ctx.fillStyle = bGrad;
     ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [3]); ctx.fill();
-    ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.2; ctx.stroke();
-    if(!this.hit){ ctx.fillStyle = '#FFF'; ctx.font='bold 11px "Fredoka",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?', s.x+this.w/2, s.y+this.h/2); }
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.2; ctx.stroke();
+    if(!this.hit){
+      ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 11px "Fredoka", sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('?', s.x + this.w/2, s.y + this.h/2 + 1);
+    }
     ctx.restore();
   }
 }
 
 class DestructibleBlock {
-  constructor(x,y){ this.x=x;this.y=y;this.w=18;this.h=18;this.destroyed=false; }
+  constructor(x, y){
+    this.x = x; this.y = y; this.w = 18; this.h = 18;
+    this.destroyed = false;
+  }
   destroy(game){
-    if(this.destroyed)return; this.destroyed=true;
-    game.addParticles(this.x+this.w/2,this.y+this.h/2,16,['#FF7043','#BF360C'],3.5);
+    if(this.destroyed) return;
+    this.destroyed = true;
+    if(game){
+      game.addParticles(this.x + this.w/2, this.y + this.h/2, 16, ['#FF7043', '#BF360C', '#FFAB91'], 3.5);
+      game.camera.shake(5);
+    }
     audio.groundPoundImpact();
   }
-  draw(ctx,cam){
-    if(this.destroyed)return;
-    const s=cam.toScreen(this.x,this.y); if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
+  draw(ctx, cam){
+    if(this.destroyed) return;
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x - 2, this.y - 2, this.w + 4, this.h + 4)) return;
     ctx.save();
-    ctx.fillStyle = '#E64A19'; ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [2.5]); ctx.fill();
+    const brGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + this.h);
+    brGrad.addColorStop(0, '#FF7043'); brGrad.addColorStop(1, '#D84315');
+    ctx.fillStyle = brGrad;
+    ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [2.5]); ctx.fill();
+    ctx.strokeStyle = '#FFAB91'; ctx.lineWidth = 1.0; ctx.stroke();
     ctx.restore();
   }
 }
-
 class FlagPole {
   constructor(x,levelW){ this.x=x; this.y=50; this.w=14; this.h=196; this.flagY=50; this.hit=false; }
   check(player,game){
@@ -1761,12 +1804,22 @@ class PlatformerGame {
     audio.winFanfare();
   }
   getAllSolidPlatforms(){
-    const list=[...this.staticPlatforms];
-    for(const sp of this.spawnedPlatforms) list.push({x:sp.x,y:sp.y,w:sp.w,h:sp.h});
-    for(const db of this.destructibleBlocks) if(!db.destroyed) list.push({x:db.x,y:db.y,w:db.w,h:db.h});
+    const list = [...this.staticPlatforms];
+    if(this.spawnedPlatforms){
+      for(const sp of this.spawnedPlatforms) list.push({x:sp.x, y:sp.y, w:sp.w, h:sp.h});
+    }
+    if(this.destructibleBlocks){
+      for(const db of this.destructibleBlocks){
+        if(!db.destroyed) list.push({x:db.x, y:db.y, w:db.w, h:db.h, isDestructible:true, blockRef:db});
+      }
+    }
+    if(this.questionBlocks){
+      for(const qb of this.questionBlocks){
+        list.push({x:qb.x, y:qb.y, w:qb.w, h:qb.h, isQuestionBlock:true, blockRef:qb});
+      }
+    }
     return list;
   }
-
   loop(now){
     const dt=Math.min(now-this.lastTime,100);
     this.lastTime=now; this.accumulator+=dt;
@@ -1791,15 +1844,21 @@ class PlatformerGame {
 
     if(this.state==='PLAYING'){
       this.frameCount++;
+      const allPlatforms = this.getAllSolidPlatforms();
+
       const pawEdge = this.input.paw && !this.prevPaw;
-      if(pawEdge && this.pawMeter >= 50 && this.tommyAI) {
-        this.pawMeter -= 50; this.tommyAI.triggerSonicBark(this, this.enemies);
+      if(pawEdge && this.pawMeter >= 50 && this.tommyAI){
+        this.pawMeter -= 50;
+        this.tommyAI.triggerSonicBark(this, this.enemies);
+      }
+      this.prevPaw = this.input.paw;
+
+      if(this.hitStopFrames > 0){
+        this.hitStopFrames--;
+        return;
       }
 
-      if(this.hitStopFrames > 0){ this.hitStopFrames--; return; }
-
-      this.updatePlayer(now);
-      this.camera.update(this.player, 3800);
+      this.updatePlayer();
       this.updateEntities(now);
       this.updateEnemies();
       if(this.mounts){
@@ -1812,11 +1871,10 @@ class PlatformerGame {
         }
       }
       if(this.galaxyBoss) this.galaxyBoss.update(this.player, this);
-      if(this.tommyAI) this.tommyAI.update(this.player, this.enemies, this.getAllSolidPlatforms(), this.globalGravity, this);
+      if(this.tommyAI) this.tommyAI.update(this.player, this.enemies, allPlatforms, this.globalGravity, this);
 
       for(const sc of this.starCoins) sc.check(this.player, this);
     }
-
     this.prevJump=this.input.jump;
     this.prevAction=this.input.action;
     this.prevPaw=this.input.paw;
@@ -1965,13 +2023,21 @@ class PlatformerGame {
           else { p.vy = 0; p.onGround = true; p.jumpCount = 0; }
           if(p.isGroundPounding){
             p.isGroundPounding = false; audio.groundPoundImpact(); this.camera.shake(14);
+            if(pl.isDestructible && pl.blockRef) pl.blockRef.destroy(this);
             for(const en of this.enemies){ if(!en.dead && Math.hypot(en.x-p.x, en.y-p.y) < 240) en.stunTimer = 200; }
           }
-        } else if(p.vy < 0){ p.y = pl.y + pl.h; p.vy = 0; }
+        } else if(p.vy < 0){
+          p.y = pl.y + pl.h;
+          p.vy = 1.5;
+          if(pl.isQuestionBlock && pl.blockRef){
+            pl.blockRef._release(this);
+          } else if(pl.isDestructible && pl.blockRef){
+            pl.blockRef.destroy(this);
+          }
+        }
       }
     }
   }
-
   updateEntities(now){
     const p=this.player;
     if(this.flagPole) this.flagPole.check(p, this);
