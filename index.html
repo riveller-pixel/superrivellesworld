@@ -105,6 +105,24 @@
   .snes-btn-gold:hover { transform:translateY(-2px); }
   .snes-btn-gold:active { transform:translateY(3px); box-shadow:0 2px 0 #B26A00; }
   
+  .snes-btn-closet {
+    background:linear-gradient(180deg, #CE93D8 0%, #AB47BC 50%, #7B1FA2 100%);
+    color:#FFFFFF; border:3px solid #FFFFFF; border-radius:30px; padding:12px 28px;
+    font-family:'Fredoka','Nunito',sans-serif; font-size:14px; font-weight:900; letter-spacing:0.8px;
+    cursor:pointer; box-shadow:0 5px 0 #4A148C, 0 8px 18px rgba(0,0,0,0.4);
+    transition:transform 0.12s; touch-action:manipulation; display:inline-block;
+  }
+  .snes-btn-closet:hover { transform:translateY(-2px); }
+  .snes-btn-closet:active { transform:translateY(3px); box-shadow:0 2px 0 #4A148C; }
+
+  .hat-card {
+    background:linear-gradient(180deg, rgba(30, 41, 77, 0.9) 0%, rgba(18, 25, 52, 0.95) 100%);
+    border:2px solid rgba(255, 255, 255, 0.15); border-radius:14px; padding:8px 4px;
+    cursor:pointer; display:flex; flex-direction:column; align-items:center;
+    transition:transform 0.15s, border-color 0.15s; touch-action:manipulation;
+  }
+  .hat-card:hover, .hat-card.selected { border-color:#FFD700; transform:scale(1.04); background:rgba(255,215,0,0.15); }
+
   /* ── In-Game Pause Modal ── */
   .pause-modal {
     background:linear-gradient(180deg, rgba(25, 38, 77, 0.96) 0%, rgba(12, 19, 44, 0.98) 100%);
@@ -187,7 +205,64 @@
           Monta en cada mundo: Camello 🐪, Delfín 🐬, Corcel Real 🦄👑, Reno Sven 🦌 y Dragón Galáctico 🚀🌟.
         </div>
       </div>
-      <button class="snes-btn-gold" id="btn-start">¡EXPLORAR EL MAPA DE MUNDOS! 🗺️</button>
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
+        <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL REINO! 🚀</button>
+        <button class="snes-btn-closet" id="btn-open-closet">👑 ARMARIO & TROFEOS 🏆</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Closet & Trophy Room Modal -->
+  <div class="screen-overlay" id="modal-closet">
+    <div class="select-modal" style="max-width:680px;">
+      <div class="modal-header-badge">👑 ARMARIO REAL & SALÓN DE TROFEOS 🏆</div>
+      <div class="modal-title">COLECCIÓN & PERSONALIZACIÓN</div>
+      <div class="modal-subtitle" id="closet-stardust-display">Polvo Estelar Disponible: ★ 0</div>
+
+      <div style="text-align:left; font-size:12px; font-weight:800; color:#FFD700; margin:10px 0 6px;">✨ SOMBREROS & ACCESORIOS (EQUIPA A TUS PERSONAJES):</div>
+      <div class="hats-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px;">
+        <div class="hat-card selected" data-hat="crown" id="hat-crown">
+          <div style="font-size:28px;">👑</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Corona Real</div>
+          <div style="font-size:9px; color:#A5D6A7;">DESBLOQUEADO</div>
+        </div>
+        <div class="hat-card" data-hat="sunglasses" id="hat-sunglasses">
+          <div style="font-size:28px;">🕶️</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Gafas Cool</div>
+          <div style="font-size:9px; color:#A5D6A7;">DESBLOQUEADO</div>
+        </div>
+        <div class="hat-card" data-hat="flower_crown" id="hat-flower_crown">
+          <div style="font-size:28px;">🌸</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Diadema Floral</div>
+          <div style="font-size:9px; color:#A5D6A7;">DESBLOQUEADO</div>
+        </div>
+        <div class="hat-card" data-hat="cape" id="hat-cape">
+          <div style="font-size:28px;">🦸</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Capa Heroica</div>
+          <div style="font-size:9px; color:#A5D6A7;">DESBLOQUEADO</div>
+        </div>
+        <div class="hat-card" data-hat="astro_helmet" id="hat-astro_helmet">
+          <div style="font-size:28px;">🚀</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Casco Galaxy</div>
+          <div style="font-size:9px; color:#A5D6A7;">DESBLOQUEADO</div>
+        </div>
+        <div class="hat-card" data-hat="none" id="hat-none">
+          <div style="font-size:28px;">✨</div>
+          <div style="font-weight:900; font-size:11px; color:#FFD700;">Estilo Clásico</div>
+          <div style="font-size:9px; color:#80DEEA;">SIN ACCESORIO</div>
+        </div>
+      </div>
+
+      <div style="text-align:left; font-size:12px; font-weight:800; color:#FFD700; margin:10px 0 6px;">🏆 SALÓN DE LA GLORIA:</div>
+      <div style="background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,215,0,0.4); border-radius:14px; padding:10px; display:flex; align-items:center; gap:12px; text-align:left;">
+        <img src="assets/master_trophy.png" alt="Trofeo Maestro" style="width:58px; height:58px; object-fit:contain;" onerror="this.src='master_trophy.png'">
+        <div>
+          <div style="font-weight:900; font-size:13px; color:#FFD700;">🏆 GRAN COPA FAMILIAR DE CAMPEONES</div>
+          <div style="font-size:10px; color:#FFFFFF; margin-top:2px;">Derrota a los 9 Titanes Finales y recolecta las 27 Monedas Estrella para coronarte como Maestro del Reino.</div>
+        </div>
+      </div>
+
+      <button class="snes-btn-gold" id="btn-close-closet" style="margin-top:14px;">🔙 VOLVER A LA SELECCIÓN</button>
     </div>
   </div>
 
@@ -345,6 +420,26 @@ class SoundFX {
   bossHit(){ this.playTone(140,'sawtooth',0.25,0.45,40); }
   bossDefeat(){ [220, 330, 440, 550, 660, 880, 1100].forEach((f, i) => setTimeout(() => this.playTone(f, 'sawtooth', 0.22, 0.4, f*1.5), i * 90)); }
   starCollect(){ this.playTone(987.77,'square',0.07,0.18); setTimeout(()=>this.playTone(1318.51,'square',0.14,0.2),65); }
+  coinStreak(count){
+    const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+    const idx = Math.min((count - 1), pentatonic.length - 1);
+    const freq = pentatonic[idx];
+    this.playTone(freq, 'triangle', 0.12, 0.22, freq * 1.25);
+    if(count >= 5) setTimeout(() => this.playTone(freq * 1.5, 'sine', 0.16, 0.25), 45);
+  }
+  warpPipe(){ this.playTone(400, 'sine', 0.25, 0.3, 150); setTimeout(() => this.playTone(200, 'triangle', 0.2, 0.25, 80), 80); }
+  launchStar(){ [440, 554, 659, 880, 1108, 1318, 1760].forEach((f, i) => setTimeout(() => this.playTone(f, 'sine', 0.12, 0.25, f * 1.3), i * 35)); }
+  starlightAssist(){ [784, 987, 1318, 1568].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.1, 0.2), i * 40)); }
+  fanfareVictory(){
+    const chords = [
+      [523, 659, 784], [587, 740, 880], [659, 830, 987], [784, 987, 1318, 1568]
+    ];
+    chords.forEach((chord, step) => {
+      setTimeout(() => {
+        chord.forEach(f => this.playTone(f, step === 3 ? 'sawtooth' : 'triangle', 0.28, 0.35));
+      }, step * 180);
+    });
+  }
   mountUnicorn(){ [523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>this.playTone(f,'triangle',0.14,0.25),i*55)); }
   mountPanic(){ [880,740,620,520].forEach((f,i)=>setTimeout(()=>this.playTone(f,'sawtooth',0.12,0.28,f*0.7),i*65)); }
   hazardScatter(){ this.playTone(220,'sawtooth',0.2,0.35,60); }
@@ -1558,6 +1653,141 @@ class TommyAI {
   }
 }
 
+class CoinEntity {
+  constructor(x, y){
+    this.x = x; this.y = y; this.r = 7.5; this.collected = false; this.frame = Math.random() * 20;
+  }
+  check(player, game){
+    if(this.collected) return;
+    if(Math.hypot((player.x + player.w/2) - this.x, (player.y + player.h/2) - this.y) < this.r + 15){
+      this.collected = true;
+      game.collectStarDust(this.x, this.y);
+    }
+  }
+  draw(ctx, cam, now){
+    if(this.collected) return;
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x - 12, this.y - 12, 24, 24)) return;
+    ctx.save();
+    const spin = Math.abs(Math.sin((now * 0.006) + this.frame));
+    const bob = Math.sin((now * 0.008) + this.frame) * 2;
+    ctx.translate(s.x, s.y + bob);
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, Math.max(1.8, 7.5 * spin), 8.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#FFF9C4'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.restore();
+  }
+}
+
+class SeeSawPlatform {
+  constructor(x, y, w = 130){
+    this.x = x; this.y = y; this.w = w; this.h = 10;
+    this.angle = 0; this.angVel = 0;
+  }
+  update(player){
+    if(player.onGround && player.x + player.w > this.x && player.x < this.x + this.w && Math.abs((player.y + player.h) - this.y) < 16){
+      const relX = (player.x + player.w/2) - (this.x + this.w/2);
+      const torque = (relX / (this.w/2)) * 0.004;
+      this.angVel += torque;
+    }
+    this.angle += this.angVel;
+    this.angVel *= 0.88;
+    this.angle = Math.max(-0.42, Math.min(0.42, this.angle));
+  }
+  draw(ctx, cam, now){
+    const s = cam.toScreen(this.x + this.w/2, this.y);
+    if(!cam.isVisible(this.x - 20, this.y - 40, this.w + 40, 80)) return;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    // Base Fulcrum Triangle
+    ctx.fillStyle = '#795548';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-12, 18); ctx.lineTo(12, 18); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#D7CCC8'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Tilting Plank
+    ctx.rotate(this.angle);
+    const plGrad = ctx.createLinearGradient(-this.w/2, -5, -this.w/2, 5);
+    plGrad.addColorStop(0, '#FFA000'); plGrad.addColorStop(1, '#FF6F00');
+    ctx.fillStyle = plGrad;
+    ctx.beginPath(); ctx.roundRect(-this.w/2, -5, this.w, 10, [3]); ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+  }
+}
+
+class LaunchStar {
+  constructor(x, y, targetX, targetY){
+    this.x = x; this.y = y; this.w = 32; this.h = 32;
+    this.targetX = targetX; this.targetY = targetY;
+  }
+  check(player, game){
+    if(player.isLaunching) return;
+    if(Math.hypot((player.x + player.w/2) - this.x, (player.y + player.h/2) - this.y) < 26){
+      player.isLaunching = true;
+      audio.launchStar();
+      game.camera.shake(8);
+      game.addParticles(this.x, this.y, 25, ['#FFD700', '#00E5FF', '#FF4081', '#76FF03'], 4.5);
+      game.addFloatingText('🚀 ¡LANZAMIENTO ESTELAR! 🌟', this.x - 40, this.y - 24, '#00E5FF');
+      
+      const dx = this.targetX - player.x;
+      const dy = this.targetY - player.y;
+      player.vx = dx * 0.055;
+      player.vy = dy * 0.055 - 8.5;
+      player.invincibleTimer = 90;
+      setTimeout(() => { player.isLaunching = false; }, 900);
+    }
+  }
+  draw(ctx, cam, now){
+    const s = cam.toScreen(this.x, this.y);
+    if(!cam.isVisible(this.x - 20, this.y - 20, 40, 40)) return;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(now * 0.004);
+    // Outer Spinning Ring
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.stroke();
+    // Inner Golden Launch Star
+    ctx.fillStyle = '#00E5FF';
+    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('💫', 0, 1);
+    ctx.restore();
+  }
+}
+
+class MagicPortal {
+  constructor(x1, y1, x2, y2, color='#E040FB'){
+    this.x1 = x1; this.y1 = y1; this.x2 = x2; this.y2 = y2; this.color = color;
+  }
+  check(player, game){
+    if(player.portalCooldown && player.portalCooldown > 0) return;
+    if(Math.hypot((player.x + player.w/2) - this.x1, (player.y + player.h/2) - this.y1) < 24){
+      player.x = this.x2; player.y = this.y2;
+      player.portalCooldown = 60;
+      audio.warpPipe();
+      game.camera.shake(6);
+      game.addParticles(this.x1, this.y1, 18, [this.color, '#FFD700', '#FFF'], 3.5);
+      game.addParticles(this.x2, this.y2, 18, [this.color, '#00E5FF', '#FFF'], 3.5);
+      game.addFloatingText('✨ ¡ESPEJO MÁGICO! ✨', this.x2 - 20, this.y2 - 20, this.color);
+    }
+  }
+  draw(ctx, cam, now){
+    [ {x: this.x1, y: this.y1}, {x: this.x2, y: this.y2} ].forEach(p => {
+      const s = cam.toScreen(p.x, p.y);
+      if(!cam.isVisible(p.x - 20, p.y - 30, 40, 60)) return;
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      const pulse = Math.sin(now * 0.008) * 3;
+      const mGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 16 + pulse);
+      mGrad.addColorStop(0, '#FFFFFF'); mGrad.addColorStop(0.5, this.color); mGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = mGrad;
+      ctx.beginPath(); ctx.ellipse(0, 0, 14 + pulse, 22 + pulse, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+    });
+  }
+}
+
 class StarCoin {
   constructor(x, y, id){ this.x = x; this.y = y; this.id = id; this.r = 15; this.collected = false; }
   check(player, game){
@@ -1754,24 +1984,61 @@ class DestructibleBlock {
   }
 }
 class FlagPole {
-  constructor(x,levelW){ this.x=x; this.y=50; this.w=14; this.h=196; this.flagY=50; this.hit=false; }
+  constructor(x,levelW){ this.x=x; this.y=45; this.w=14; this.h=205; this.flagY=45; this.hit=false; this.fireworkTimer=0; }
   check(player,game){
     if(this.hit)return;
     if(game.currentBoss && game.currentBoss.state !== 'defeated') return;
     if(player.x+player.w>=this.x&&player.x<=this.x+this.w&&player.y+player.h>=this.y&&player.y<=this.y+this.h){
-      this.hit=true; game.score+=500;
-      audio.levelComplete(); game.camera.shake(8);
-      game.addFloatingText('¡META COMPLETADA! ★',this.x,player.y-16,'#FFD700');
-      setTimeout(()=>{ game.completeLevel(); }, 2400);
+      this.hit=true;
+      const heightBonus = (player.y <= this.y + 35) ? 5000 : ((player.y <= this.y + 100) ? 2500 : 1000);
+      game.score += heightBonus;
+      audio.fanfareVictory();
+      game.camera.shake(10);
+      game.addFloatingText((heightBonus === 5000 ? '👑 ¡CIMA DORADA! +5000 ★' : `¡META! +${heightBonus} ★`), this.x - 30, player.y - 20, '#FFD700');
+      
+      // Firework bursts
+      for(let f = 0; f < 5; f++){
+        setTimeout(() => {
+          const fx = this.x - 40 + Math.random() * 80;
+          const fy = this.y + Math.random() * 80;
+          game.addParticles(fx, fy, 25, ['#FFD700', '#FF4081', '#00E5FF', '#76FF03', '#FFFFFF'], 5.0);
+          audio.click();
+        }, f * 350);
+      }
+
+      if(game.tommyAI){
+        game.tommyAI.doSpinJoy();
+        game.tommyAI.x = this.x + 24;
+      }
+
+      setTimeout(()=>{ game.completeLevel(); }, 2800);
     }
   }
-  update(){ if(this.hit && this.flagY<this.y+this.h-24) this.flagY+=4; }
+  update(){
+    if(this.hit && this.flagY < this.y + this.h - 28) this.flagY += 4.5;
+  }
   draw(ctx,cam,now){
-    const s=cam.toScreen(this.x,this.y); if(!cam.isVisible(this.x,this.y,this.w,this.h))return;
+    const s=cam.toScreen(this.x,this.y); if(!cam.isVisible(this.x-10,this.y-10,this.w+40,this.h+20))return;
     ctx.save();
-    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(s.x+3, s.y, 6, this.h);
+    // Golden Star Finial at top
+    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(s.x+6, s.y-2, 7, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFE082'; ctx.lineWidth = 2; ctx.stroke();
+    // Shiny Chrome Flagpole
+    const pGrad = ctx.createLinearGradient(s.x, s.y, s.x+10, s.y);
+    pGrad.addColorStop(0, '#E0E0E0'); pGrad.addColorStop(0.5, '#FFFFFF'); pGrad.addColorStop(1, '#9E9E9E');
+    ctx.fillStyle = pGrad; ctx.fillRect(s.x+3, s.y, 6, this.h);
+    // Satin Flag with wavy motion
     const fy=s.y+(this.flagY-this.y);
-    ctx.fillStyle='#D50000'; ctx.beginPath(); ctx.moveTo(s.x+9, fy); ctx.lineTo(s.x+42, fy+12); ctx.lineTo(s.x+9, fy+24); ctx.fill();
+    const wave = Math.sin(now * 0.01) * 3;
+    const fGrad = ctx.createLinearGradient(s.x+9, fy, s.x+44, fy);
+    fGrad.addColorStop(0, '#FF1744'); fGrad.addColorStop(1, '#FFD700');
+    ctx.fillStyle = fGrad;
+    ctx.beginPath();
+    ctx.moveTo(s.x+9, fy);
+    ctx.lineTo(s.x+44 + wave, fy+12);
+    ctx.lineTo(s.x+9, fy+26);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
   }
 }
@@ -1870,8 +2137,15 @@ class PlatformerGame {
     this.currentMount=null;
     this.currentBoss=null;
 
+    this.selectedHat = localStorage.getItem('srpw_hat') || 'crown';
+    this.unlockedHats = JSON.parse(localStorage.getItem('srpw_unlocked_hats') || '["crown"]');
+    this.coinStreakCount = 0;
+    this.lastCoinTime = 0;
+
     this.staticPlatforms=[]; this.spawnedPlatforms=[]; this.enemies=[];
     this.questionBlocks=[]; this.destructibleBlocks=[]; this.starCoins=[];
+    this.coins=[]; this.seeSaws=[]; this.launchStars=[]; this.magicPortals=[];
+    this.waterCurrents=[]; this.quicksands=[]; this.windCurrents=[];
     this.zeroGBubbles=[]; this.flagPole=null;
     this.fireballs=[]; this.particles=[]; this.floatingTexts=[];
 
@@ -1942,6 +2216,32 @@ class PlatformerGame {
       this.goToWorldMap();
     });
 
+    document.getElementById('btn-open-closet').addEventListener('click', ()=>{
+      audio.click();
+      document.getElementById('closet-stardust-display').textContent = `Polvo Estelar Disponible: ★ ${this.starDust}`;
+      document.querySelectorAll('.hat-card').forEach(hc => {
+        hc.classList.toggle('selected', hc.dataset.hat === (this.selectedHat || 'crown'));
+      });
+      document.getElementById('modal-select').classList.remove('active');
+      document.getElementById('modal-closet').classList.add('active');
+    });
+
+    document.getElementById('btn-close-closet').addEventListener('click', ()=>{
+      audio.click();
+      document.getElementById('modal-closet').classList.remove('active');
+      document.getElementById('modal-select').classList.add('active');
+    });
+
+    document.querySelectorAll('.hat-card').forEach(hc => {
+      hc.addEventListener('click', ()=>{
+        audio.click();
+        document.querySelectorAll('.hat-card').forEach(c => c.classList.remove('selected'));
+        hc.classList.add('selected');
+        this.selectedHat = hc.dataset.hat;
+        localStorage.setItem('srpw_hat', this.selectedHat);
+      });
+    });
+
     document.getElementById('btn-resume').addEventListener('click', ()=>{ this.resumeGame(); });
     document.getElementById('btn-restart-level').addEventListener('click', ()=>{
       document.getElementById('modal-pause').classList.remove('active');
@@ -1980,6 +2280,28 @@ class PlatformerGame {
         }
         if(cx >= VIRT_W - 96 && cx <= VIRT_W - 50){ this.goToWorldMap(); return; }
         if(cx >= 170 && cx <= 220){ this.togglePause(); return; }
+      }
+
+      if(this.state === 'PLAYING' && cy > 38){
+        const cam = this.camera;
+        const worldX = cx + cam.x;
+        const worldY = cy + cam.y;
+        this.addParticles(worldX, worldY, 15, ['#00E5FF', '#FFD700', '#FF4081', '#FFF'], 3.5);
+        audio.starlightAssist();
+        if(this.tommyAI) this.tommyAI.doSpinJoy();
+        for(const en of this.enemies){
+          if(!en.dead && Math.hypot(en.x + en.w/2 - worldX, en.y + en.h/2 - worldY) < 65){
+            en.stunTimer = 200;
+            this.addFloatingText('⭐ ¡ASISTENCIA!', en.x, en.y - 18, '#00E5FF');
+            this.addParticles(en.x + en.w/2, en.y + en.h/2, 10, ['#00E5FF', '#FFF'], 3.0);
+          }
+        }
+        for(const c of this.coins){
+          if(!c.collected && Math.hypot(c.x - worldX, c.y - worldY) < 55){
+            c.collected = true;
+            this.collectStarDust(c.x, c.y);
+          }
+        }
       }
 
       if(this.state === 'WORLD_MAP'){
@@ -2093,6 +2415,14 @@ class PlatformerGame {
     this.destructibleBlocks = [];
     this.questionBlocks = [];
     this.starCoins = [];
+    this.coins = [];
+    this.seeSaws = [];
+    this.launchStars = [];
+    this.magicPortals = [];
+    this.waterCurrents = [];
+    this.quicksands = [];
+    this.windCurrents = [];
+    this.isIceLevel = (cfg.theme === 'frozen');
     this.zeroGBubbles = [];
     this.enemies = [];
     this.fireballs = [];
@@ -2336,7 +2666,52 @@ class PlatformerGame {
       new DestructibleBlock(2920, 110)
     ];
 
+    // Spawn rich coin trails
+    const coinSpawns = [
+      300, 320, 340, 520, 540, 560, 920, 940, 960, 1140, 1160, 1180,
+      1420, 1440, 1460, 1780, 1800, 1820, 2140, 2160, 2180, 2460, 2480, 2500, 2840, 2860, 2880
+    ];
+    this.coins = coinSpawns.map((cx, i) => new CoinEntity(cx, 160 - (i % 3) * 14));
+
+    // World Interactive Gimmicks
+    if(cfg.theme === 'garden'){
+      this.seeSaws.push(new SeeSawPlatform(1100, 215, 130), new SeeSawPlatform(2200, 215, 130));
+    } else if(cfg.theme === 'marine'){
+      this.waterCurrents.push({x: 750, y: 50, w: 50, h: 210, vy: -5.5}, {x: 1950, y: 50, w: 50, h: 210, vy: -5.5});
+    } else if(cfg.theme === 'egypt'){
+      this.quicksands.push({x: 1200, y: 256, w: 220, h: 32}, {x: 2350, y: 256, w: 200, h: 32});
+    } else if(cfg.theme === 'disney'){
+      this.magicPortals.push(new MagicPortal(950, 190, 1420, 110, '#E040FB'), new MagicPortal(2050, 190, 2520, 100, '#00E5FF'));
+    } else if(cfg.theme === 'sky'){
+      this.windCurrents.push({x: 1200, y: 0, w: 350, h: 288, forceX: 1.6, forceY: -1.2});
+    } else if(cfg.theme === 'galaxy'){
+      this.launchStars.push(new LaunchStar(1350, 195, 2050, 110), new LaunchStar(2400, 195, 3050, 110));
+    } else if(cfg.theme === 'castle'){
+      this.seeSaws.push(new SeeSawPlatform(1500, 190, 120));
+    }
+
     this.flagPole = new FlagPole(3720, lw);
+  }
+
+  collectStarDust(x, y){
+    const now = performance.now();
+    if(now - (this.lastCoinTime || 0) < 1800){
+      this.coinStreakCount = (this.coinStreakCount || 0) + 1;
+    } else {
+      this.coinStreakCount = 1;
+    }
+    this.lastCoinTime = now;
+    this.starDust++;
+    const pts = 100 * this.coinStreakCount;
+    this.score += pts;
+    audio.coinStreak(this.coinStreakCount);
+    this.addParticles(x, y, 6, ['#FFD700', '#FFF', '#FFEB3B'], 2.0);
+    if(this.coinStreakCount >= 5){
+      this.addFloatingText(`¡COMBO x${this.coinStreakCount}! 🔥 +${pts}`, x, y - 20, '#FFD700');
+      this.addParticles(x, y, 15, ['#FFD700', '#FF4081', '#00E5FF', '#FFF'], 3.5);
+    } else {
+      this.addFloatingText(`+${pts}`, x, y - 14, '#FFD700');
+    }
   }
 
   completeLevel(){
@@ -2500,8 +2875,8 @@ class PlatformerGame {
       let maxSpd = (this.input.action ? char.sprintSpeed : char.baseSpeed);
       if(p.isRiding) maxSpd *= 1.35;
 
-      const acc = ACCEL * char.accelMult;
-      const dec = DECEL * char.accelMult;
+      const acc = (this.isIceLevel ? ACCEL * 0.35 : (ACCEL * char.accelMult));
+      const dec = (this.isIceLevel ? DECEL * 0.18 : (DECEL * char.accelMult));
 
       if(this.input.left){ p.vx = Math.max(p.vx - acc, -maxSpd); p.facingRight = false; }
       else if(this.input.right){ p.vx = Math.min(p.vx + acc, maxSpd); p.facingRight = true; }
@@ -2511,6 +2886,9 @@ class PlatformerGame {
         p.walkCycle += Math.abs(p.vx) * 0.20;
         if(this.frameCount % 8 === 0 && Math.abs(p.vx) > 2.6){
           this.addParticles(p.x + p.w/2, p.y + p.h, 2, ['#E0E0E0', '#FFF'], 1.2);
+        }
+        if(this.isIceLevel && Math.abs(p.vx) > 1.0 && this.frameCount % 4 === 0){
+          this.addParticles(p.x + p.w/2, p.y + p.h, 2, ['#80DEEA', '#FFFFFF', '#E0F7FA'], 1.4);
         }
       } else {
         p.walkCycle = 0;
@@ -2732,6 +3110,35 @@ class PlatformerGame {
     const p=this.player;
     if(this.flagPole) this.flagPole.check(p, this);
     for(const qb of this.questionBlocks) { qb.checkBump(p, this.globalGravity, this); qb.update(); }
+    for(const c of this.coins) c.check(p, this);
+    for(const ss of this.seeSaws) ss.update(p);
+    for(const ls of this.launchStars) ls.check(p, this);
+    for(const mp of this.magicPortals) mp.check(p, this);
+    if(p.portalCooldown > 0) p.portalCooldown--;
+
+    // Water currents
+    for(const wc of this.waterCurrents){
+      if(p.x + p.w > wc.x && p.x < wc.x + wc.w && p.y + p.h > wc.y && p.y < wc.y + wc.h){
+        p.vy = Math.max(wc.vy, p.vy - 1.2);
+        if(this.frameCount % 4 === 0) this.addParticles(p.x + p.w/2, p.y + p.h, 2, ['#80DEEA', '#E0F7FA', '#FFF'], 2.0);
+      }
+    }
+    // Quicksands
+    for(const qs of this.quicksands){
+      if(p.x + p.w > qs.x && p.x < qs.x + qs.w && p.y + p.h >= qs.y && p.y < qs.y + qs.h){
+        p.vx *= 0.65;
+        p.vy = Math.min(p.vy, 1.2);
+        if(this.input.jump && !this.prevJump) p.vy = -7.5;
+      }
+    }
+    // Wind currents
+    for(const wnd of this.windCurrents){
+      if(p.x + p.w > wnd.x && p.x < wnd.x + wnd.w && p.y + p.h > wnd.y && p.y < wnd.y + wnd.h){
+        p.vx += wnd.forceX * 0.15;
+        p.vy += wnd.forceY * 0.12;
+        if(this.frameCount % 6 === 0) this.addParticles(wnd.x + Math.random()*wnd.w, wnd.y + Math.random()*wnd.h, 1, ['#E0F7FA', '#FFF'], 1.8);
+      }
+    }
 
     if(!p.isRiding && this.mounts){
       for(const m of this.mounts){
@@ -3334,6 +3741,41 @@ class PlatformerGame {
       ctx.restore();
     }
 
+    // Render Water Currents (Bubbles rising)
+    for(const wc of this.waterCurrents){
+      const s = cam.toScreen(wc.x, wc.y);
+      if(!cam.isVisible(wc.x, wc.y, wc.w, wc.h)) continue;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 229, 255, 0.18)'; ctx.fillRect(s.x, s.y, wc.w, wc.h);
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)'; ctx.lineWidth = 1.5; ctx.strokeRect(s.x, s.y, wc.w, wc.h);
+      for(let bi = 0; bi < 5; bi++){
+        const by = s.y + ((now * 0.08 + bi * 42) % wc.h);
+        const bx = s.x + 8 + (bi % 3) * 14;
+        ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(bx, by, 3, 0, PI2); ctx.fill();
+      }
+      ctx.restore();
+    }
+    // Render Quicksand
+    for(const qs of this.quicksands){
+      const s = cam.toScreen(qs.x, qs.y);
+      if(!cam.isVisible(qs.x, qs.y, qs.w, qs.h)) continue;
+      ctx.save();
+      const qg = ctx.createLinearGradient(s.x, s.y, s.x, s.y + qs.h);
+      qg.addColorStop(0, '#FFA000'); qg.addColorStop(0.6, '#FF8F00'); qg.addColorStop(1, '#E65100');
+      ctx.fillStyle = qg; ctx.fillRect(s.x, s.y, qs.w, qs.h);
+      ctx.fillStyle = 'rgba(255, 240, 180, 0.6)';
+      for(let qi = 0; qi < qs.w; qi += 24){
+        const wave = Math.sin((now * 0.005) + qi) * 2;
+        ctx.fillRect(s.x + qi, s.y + wave, 12, 3);
+      }
+      ctx.restore();
+    }
+
+    for(const c of this.coins) c.draw(ctx, cam, now);
+    for(const ss of this.seeSaws) ss.draw(ctx, cam, now);
+    for(const ls of this.launchStars) ls.draw(ctx, cam, now);
+    for(const mp of this.magicPortals) mp.draw(ctx, cam, now);
+
     for(const sp of this.spawnedPlatforms){
       if(!cam.isVisible(sp.x,sp.y,sp.w,sp.h)) continue;
       const s=cam.toScreen(sp.x,sp.y);
@@ -3486,6 +3928,46 @@ class PlatformerGame {
       }
       ctx.strokeStyle = 'rgba(255, 87, 34, 0.85)'; ctx.lineWidth = 1.6;
       ctx.beginPath(); ctx.arc(0, 2, p.w * 0.85, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // ── EQUIPPED CUSTOM ACCESSORY (CLOSET SHOP) ──
+    const hat = this.selectedHat || 'crown';
+    if(hat === 'crown'){
+      ctx.fillStyle = '#FFD700'; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-9, -ph/2);
+      ctx.lineTo(-7, -ph/2 - 10);
+      ctx.lineTo(-3, -ph/2 - 4);
+      ctx.lineTo(0, -ph/2 - 13);
+      ctx.lineTo(3, -ph/2 - 4);
+      ctx.lineTo(7, -ph/2 - 10);
+      ctx.lineTo(9, -ph/2);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(0, -ph/2 - 5, 2.0, 0, Math.PI*2); ctx.fill();
+    } else if(hat === 'sunglasses'){
+      ctx.fillStyle = '#212121'; ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.roundRect(-8, -ph/2 + 7, 7, 5, [2]); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(1, -ph/2 + 7, 7, 5, [2]); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-1, -ph/2 + 8); ctx.lineTo(1, -ph/2 + 8); ctx.stroke();
+    } else if(hat === 'flower_crown'){
+      const fCols = ['#FF4081', '#FFEB3B', '#00E5FF', '#E040FB', '#76FF03'];
+      for(let fi = -8; fi <= 8; fi += 4){
+        ctx.fillStyle = fCols[(Math.abs(fi)) % fCols.length];
+        ctx.beginPath(); ctx.arc(fi, -ph/2 - 1, 3, 0, Math.PI*2); ctx.fill();
+      }
+    } else if(hat === 'cape'){
+      const flap = Math.sin(now * 0.015) * 3.5;
+      ctx.fillStyle = '#D50000'; ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(-6, -ph/4);
+      ctx.lineTo(-18 - flap, ph/3 + flap);
+      ctx.lineTo(-4, ph/4);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else if(hat === 'astro_helmet'){
+      ctx.fillStyle = 'rgba(0, 229, 255, 0.25)'; ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(0, -ph/3, 15, 0, Math.PI*2); ctx.fill(); ctx.stroke();
     }
 
     // If Riding, Draw Golden Saddle Reins
