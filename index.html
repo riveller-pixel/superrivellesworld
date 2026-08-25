@@ -149,15 +149,78 @@
   .pause-char-img { max-width:100%; max-height:38px; object-fit:contain; }
   .pause-char-name { font-size:7.5px; font-weight:800; color:#FFD700; margin-top:2px; }
 
-  @media(max-width:680px) {
-    .modal-title { font-size:17px; }
-    .char-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
-    .char-thumb-wrap { width:58px; height:70px; }
-    .snes-btn-gold { padding:10px 22px; font-size:12px; }
+  /* ── Landscape Mobile Optimization (max-height: 520px) ── */
+  @media (max-height: 520px) {
+    .screen-overlay { justify-content: flex-start; padding: 4px; overflow-y: auto; }
+    .select-modal {
+      padding: 6px 12px 8px;
+      max-height: 98vh;
+      width: 98%;
+      border-radius: 16px;
+      border-width: 2px;
+    }
+    .modal-header-badge { display: none; }
+    .modal-title { font-size: 14px; margin-bottom: 2px; }
+    .modal-subtitle { display: none; }
+    .char-grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+    .char-card {
+      padding: 4px 2px 3px;
+      border-radius: 10px;
+    }
+    .char-card.selected::after {
+      font-size: 6.5px;
+      top: -7px;
+      padding: 1px 4px;
+    }
+    .char-thumb-wrap {
+      width: 42px;
+      height: 46px;
+      margin-bottom: 2px;
+    }
+    .char-title { font-size: 9.5px; margin-bottom: 1px; }
+    .char-ability-tag { font-size: 7px; line-height: 1.1; }
+    .tommy-banner { display: none; }
+    .snes-btn-gold {
+      padding: 7px 18px;
+      font-size: 12px;
+      box-shadow: 0 3px 0 #B26A00;
+    }
+    .snes-btn-closet {
+      padding: 7px 14px;
+      font-size: 11px;
+      box-shadow: 0 3px 0 #4A148C;
+    }
+    .snes-btn-fullscreen {
+      padding: 7px 14px !important;
+      font-size: 11px !important;
+    }
+    .pause-modal { padding: 10px 16px; border-radius: 16px; }
+    .pause-char-item { width: 42px; height: 50px; }
+    .pause-char-img { max-height: 30px; }
+    .pause-btn { padding: 6px 12px; font-size: 11.5px; }
   }
-  @media(max-width:400px) {
-    .char-grid { grid-template-columns:repeat(2,1fr); gap:5px; }
-    .char-thumb-wrap { width:48px; height:60px; }
+
+  /* ── Portrait Mobile Optimization ── */
+  @media (max-width: 680px) and (min-height: 521px) {
+    .modal-title { font-size: 17px; }
+    .char-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+    .char-thumb-wrap { width: 56px; height: 66px; }
+    .char-title { font-size: 10.5px; }
+    .char-ability-tag { font-size: 8px; }
+    .tommy-banner { padding: 6px 10px; margin-bottom: 8px; }
+    .tommy-banner-img { width: 32px; height: 32px; }
+    .tommy-banner-text { font-size: 9.5px; }
+    .snes-btn-gold { padding: 10px 20px; font-size: 12.5px; }
+    .snes-btn-closet { padding: 10px 16px; font-size: 12px; }
+    .snes-btn-fullscreen { padding: 10px 16px !important; font-size: 12px !important; }
+  }
+  @media (max-width: 400px) and (min-height: 521px) {
+    .char-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; }
+    .char-thumb-wrap { width: 48px; height: 60px; }
   }
 </style>
 </head>
