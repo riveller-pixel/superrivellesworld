@@ -269,10 +269,11 @@
           Monta en cada mundo: Camello 🐪, Delfín 🐬, Corcel Real 🦄👑, Reno Sven 🦌 y Dragón Galáctico 🚀🌟.
         </div>
       </div>
-      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:6px;">
+      <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:6px;">
         <button class="snes-btn-gold" id="btn-start">¡ENTRAR AL REINO! 🚀</button>
         <button class="snes-btn-closet" id="btn-open-closet">👑 ARMARIO & TROFEOS 🏆</button>
         <button class="snes-btn-fullscreen" id="btn-modal-fullscreen" style="background:linear-gradient(180deg, #00BCD4 0%, #0097A7 100%); color:#FFF; border:2.5px solid #FFF; border-radius:30px; padding:11px 22px; font-weight:900; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,188,212,0.4); touch-action:manipulation;">⛶ PANTALLA COMPLETA</button>
+        <button id="btn-clear-cache" style="background:rgba(255,255,255,0.15); color:#FFF; border:1.5px solid rgba(255,255,255,0.4); border-radius:30px; padding:7px 14px; font-weight:800; font-size:11px; cursor:pointer; touch-action:manipulation;">🔄 ACTUALIZAR JUEGO (v2.2 LIVE)</button>
       </div>
     </div>
   </div>
@@ -2337,6 +2338,23 @@ class PlatformerGame {
       mfs.addEventListener('click', ()=>{
         audio.click();
         this.toggleFullscreen();
+      });
+    }
+    const clearCacheBtn = document.getElementById('btn-clear-cache');
+    if(clearCacheBtn){
+      clearCacheBtn.addEventListener('click', async () => {
+        clearCacheBtn.textContent = '⏳ LIMPIANDO CACHÉ...';
+        try {
+          if('serviceWorker' in navigator){
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for(const reg of regs) await reg.unregister();
+          }
+          if('caches' in window){
+            const keys = await caches.keys();
+            for(const key of keys) await caches.delete(key);
+          }
+        } catch(e){}
+        window.location.reload(true);
       });
     }
     document.getElementById('btn-world-map').addEventListener('click', ()=>{
