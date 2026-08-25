@@ -431,6 +431,20 @@ const CHARACTERS = {
 };
 
 const loadedImages = {};
+const costumeImages = {};
+const CHAR_IDS = ['candela', 'cayetana', 'valentina', 'mama', 'papa'];
+const COSTUME_KEYS = ['pharaoh', 'princess', 'frozen', 'astronaut', 'fire', 'mounted'];
+
+for (const cid of CHAR_IDS) {
+  for (const ckey of COSTUME_KEYS) {
+    const key = `${cid}_${ckey}`;
+    const img = new Image();
+    img.src = `${key}.png`;
+    img.onerror = () => { img.src = `assets/${key}.png`; };
+    costumeImages[key] = img;
+  }
+}
+
 for(const [key,char] of Object.entries(CHARACTERS)){
   const img = new Image(); img.src = char.imgSrc; img.onerror = () => { img.src = char.fallback; };
   loadedImages[key] = img;
@@ -1928,7 +1942,27 @@ class PlatformerGame {
       else if(this.input.right){ p.vx = Math.min(p.vx + acc, maxSpd); p.facingRight = true; }
       else { if(p.vx > 0) p.vx = Math.max(0, p.vx - dec); else if(p.vx < 0) p.vx = Math.min(0, p.vx + dec); }
 
-      if(p.onGround && Math.abs(p.vx) > 0.2) p.walkCycle += Math.abs(p.vx) * 0.18; else p.walkCycle = 0;
+      if(p.onGround && Math.abs(p.vx) > 0.2){
+        p.walkCycle += Math.abs(p.vx) * 0.20;
+        if(this.frameCount % 8 === 0 && Math.abs(p.vx) > 2.6){
+          this.addParticles(p.x + p.w/2, p.y + p.h, 2, ['#E0E0E0', '#FFF'], 1.2);
+        }
+      } else {
+        p.walkCycle = 0;
+      }
+
+      // Mid-air acrobatic somersault on double jumps
+      if(!p.onGround && (p.jumpCount > 1 || Math.abs(p.vy) > 6.5)){
+        p.airSpinAngle = (p.airSpinAngle || 0) + (p.facingRight ? 0.24 : -0.24);
+        if(Math.abs(p.airSpinAngle) >= Math.PI * 2) p.airSpinAngle = 0;
+      } else {
+        p.airSpinAngle = 0;
+      }
+
+      // Skid turnaround dust
+      if(p.onGround && ((this.input.left && p.vx > 1.2) || (this.input.right && p.vx < -1.2))){
+        this.addParticles(p.x + (p.vx > 0 ? p.w : 0), p.y + p.h - 2, 2, ['#FFFFFF', '#E0E0E0'], 1.8);
+      }
 
       // Frozen Queen Snowflake Path
       if(p.powerState === 'frozen_queen' && jumpJustPressed && !p.onGround){
@@ -2604,19 +2638,20 @@ class PlatformerGame {
     const s = cam.toScreen(p.x, p.y);
     ctx.save();
 
-    // Natural running tilt & bounce
-    const walkBob = (p.onGround && Math.abs(p.vx) > 0.2) ? Math.sin(p.walkCycle) * 2.0 : 0;
-    const runTilt = (p.vx * 0.035); // Lean forward into run direction
+    // Natural running tilt, step bobbing & aerial somersault
+    const walkBob = (p.onGround && Math.abs(p.vx) > 0.2) ? Math.sin(p.walkCycle) * 2.2 : 0;
+    const runTilt = (p.vx * 0.04); // Lean into motion
+    const spinRot = (p.airSpinAngle || 0); // Aerial acrobatic front-flip
 
     ctx.translate(s.x + p.w/2, s.y + p.h/2 + walkBob);
     if(!p.facingRight) ctx.scale(-1, 1);
-    ctx.rotate(runTilt);
+    ctx.rotate(runTilt + spinRot);
     ctx.scale(p.squashX, p.squashY);
 
-    // Drop shadow under hero
-    if(p.onGround){
+    // Soft drop shadow under hero
+    if(p.onGround && !p.isRiding){
       ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.30)';
       ctx.beginPath();
       ctx.ellipse(0, p.h/2 - walkBob + 2, p.w * 0.45, 4.5, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -2628,49 +2663,49 @@ class PlatformerGame {
       ctx.globalAlpha = 0.4;
     }
 
-    // Main Hero Sprite
-    const img = loadedImages[this.selectedCharId];
-    if(img && img.complete && img.naturalWidth > 0){
-      ctx.drawImage(img, -p.w/2 - 2, -p.h/2 - 3, p.w + 4, p.h + 6);
+    // Determine exact costume image key
+    let costumeKey = null;
+    if(p.isRiding){
+      costumeKey = `${this.selectedCharId}_mounted`;
+    } else if(p.powerState === 'pharaoh'){
+      costumeKey = `${this.selectedCharId}_pharaoh`;
+    } else if(p.powerState === 'princess'){
+      costumeKey = `${this.selectedCharId}_princess`;
+    } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
+      costumeKey = `${this.selectedCharId}_frozen`;
+    } else if(p.powerState === 'galaxy_astronaut'){
+      costumeKey = `${this.selectedCharId}_astronaut`;
+    } else if(p.powerState === 'fireflower'){
+      costumeKey = `${this.selectedCharId}_fire`;
+    }
+
+    const cImg = costumeKey ? costumeImages[costumeKey] : null;
+    const baseImg = loadedImages[this.selectedCharId];
+    const heroImg = (cImg && cImg.complete && cImg.naturalWidth > 0) ? cImg : baseImg;
+
+    if(heroImg && heroImg.complete && heroImg.naturalWidth > 0){
+      const pw = p.w + 6, ph = p.h + 8;
+      ctx.drawImage(heroImg, -pw/2, -ph/2, pw, ph);
     } else {
       ctx.fillStyle = '#FF5252';
       ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
     }
 
-    // ── Enhanced Outfits & Power-Up Overlays with 3D PNGs & Auras ──
+    // ── Power-Up Particle Auras & Light Halos ──
     if(p.powerState === 'pharaoh'){
-      // Golden Pharaoh Aura & Headdress
-      const pImg = powerImages.pharaoh;
-      if(pImg && pImg.complete && pImg.naturalWidth > 0){
-        ctx.drawImage(pImg, -14, -p.h/2 - 12, 28, 20);
-      }
-      // Desert sand swirl particles
-      ctx.strokeStyle = 'rgba(255, 193, 7, 0.6)'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.7)'; ctx.lineWidth = 1.6;
       const sa = (now * 0.008);
-      ctx.beginPath(); ctx.ellipse(0, 4, p.w * 0.8, 6, sa, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(0, 4, p.w * 0.85, 6, sa, 0, Math.PI * 2); ctx.stroke();
     } else if(p.powerState === 'princess'){
-      // Diamond Tiara & Royal Star Glow
-      const prImg = powerImages.princess;
-      if(prImg && prImg.complete && prImg.naturalWidth > 0){
-        ctx.drawImage(prImg, -11, -p.h/2 - 10, 22, 16);
-      }
-      ctx.strokeStyle = 'rgba(255, 64, 129, 0.7)'; ctx.lineWidth = 1.8;
+      ctx.strokeStyle = 'rgba(255, 64, 129, 0.75)'; ctx.lineWidth = 1.8;
       const pa = (now * 0.006);
-      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.85, pa, pa + Math.PI * 1.5); ctx.stroke();
-    } else if(p.powerState === 'frozen_queen'){
-      // Arctic Ice Crown & Frost Aura
-      const fImg = powerImages.frozen;
-      if(fImg && fImg.complete && fImg.naturalWidth > 0){
-        ctx.drawImage(fImg, -11, -p.h/2 - 10, 22, 16);
-      }
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.9, 0, Math.PI * 2); ctx.stroke();
-    } else if(p.powerState === 'galaxy_astronaut'){
-      // Cosmic Helmet & Specular Ring
-      const aImg = powerImages.astronaut;
-      if(aImg && aImg.complete && aImg.naturalWidth > 0){
-        ctx.drawImage(aImg, -14, -p.h/2 - 8, 28, 26);
-      }
+      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.9, pa, pa + Math.PI * 1.5); ctx.stroke();
+    } else if(p.powerState === 'frozen_queen' || p.powerState === 'iceflower'){
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(0, 0, p.w * 0.95, 0, Math.PI * 2); ctx.stroke();
+    } else if(p.powerState === 'fireflower'){
+      ctx.strokeStyle = 'rgba(255, 87, 34, 0.8)'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(0, 2, p.w * 0.85, 0, Math.PI * 2); ctx.stroke();
     }
 
     ctx.restore();
