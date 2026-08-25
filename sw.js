@@ -10,13 +10,15 @@ const ASSETS_TO_CACHE = [
   './papa.png',
   './tommy.png',
   './world_map_diorama.png',
+  './master_trophy.png',
   './assets/candela.png',
   './assets/cayetana.png',
   './assets/valentina.png',
   './assets/mama.png',
   './assets/papa.png',
   './assets/tommy.png',
-  './assets/world_map_diorama.png'
+  './assets/world_map_diorama.png',
+  './assets/master_trophy.png'
 ];
 
 self.addEventListener('install', (e) => {
