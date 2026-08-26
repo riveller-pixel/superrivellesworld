@@ -384,10 +384,12 @@
 
       <div class="pause-btn-group">
         <button class="pause-btn primary" id="btn-resume">▶️ CONTINUAR PARTIDA</button>
-        <button class="pause-btn" id="btn-pause-boss-rush" style="background:linear-gradient(180deg, #FF1744 0%, #B71C1C 100%); color:#FFF; border:1.5px solid #FFD700;">⚔️ BOSS RUSH ARENA</button>
         <button class="pause-btn" id="btn-restart-level">🔄 REINICIAR NIVEL</button>
-        <button class="pause-btn" id="btn-toggle-fullscreen">⛶ PANTALLA COMPLETA</button>
+        <button class="pause-btn" id="btn-pause-mute" style="background:linear-gradient(180deg, #37474F 0%, #263238 100%); border:1.5px solid #80DEEA; color:#80DEEA;">🔊 SILENCIAR SONIDO</button>
         <button class="pause-btn" id="btn-world-map">🗺️ VOLVER AL MAPA DE MUNDOS</button>
+        <button class="pause-btn" id="btn-pause-main-menu" style="background:linear-gradient(180deg, #5C6BC0 0%, #3949AB 100%); border:1.5px solid #9FA8DA;">👥 SELECCIÓN DE PERSONAJES</button>
+        <button class="pause-btn" id="btn-pause-boss-rush" style="background:linear-gradient(180deg, #FF1744 0%, #B71C1C 100%); color:#FFF; border:1.5px solid #FFD700;">⚔️ BOSS RUSH ARENA</button>
+        <button class="pause-btn" id="btn-toggle-fullscreen">⛶ PANTALLA COMPLETA</button>
       </div>
     </div>
   </div>
@@ -4137,6 +4139,19 @@ class PlatformerGame {
         window.location.reload(true);
       });
     }
+    const btnPauseMute = document.getElementById('btn-pause-mute');
+    if(btnPauseMute){
+      btnPauseMute.addEventListener('click', ()=>{
+        this.toggleSoundMute();
+      });
+    }
+    const btnPauseMainMenu = document.getElementById('btn-pause-main-menu');
+    if(btnPauseMainMenu){
+      btnPauseMainMenu.addEventListener('click', ()=>{
+        document.getElementById('modal-pause').classList.remove('active');
+        this.goToCharacterSelect();
+      });
+    }
     document.getElementById('btn-world-map').addEventListener('click', ()=>{
       document.getElementById('modal-pause').classList.remove('active');
       this.goToWorldMap();
@@ -4178,17 +4193,22 @@ class PlatformerGame {
         }
       }
 
-      if((this.state === 'PLAYING' || this.state === 'BOSS_RUSH') && cy <= 38){
-        if(cx >= VIRT_W - 40 && cx <= VIRT_W - 6){
-          this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
-          if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+      if((this.state === 'PLAYING' || this.state === 'BOSS_RUSH') && cy <= 42){
+        // 1. Sound Mute Toggle: VIRT_W - 46 to VIRT_W
+        if(cx >= VIRT_W - 46){
+          this.toggleSoundMute();
           return;
         }
-        if(cx >= VIRT_W - 80 && cx <= VIRT_W - 44){
-          this.toggleFullscreen();
+        // 2. Pause Button: VIRT_W - 92 to VIRT_W - 46
+        if(cx >= VIRT_W - 92 && cx < VIRT_W - 46){
+          this.togglePause();
           return;
         }
-        if(this.state === 'PLAYING' && cx >= VIRT_W - 122 && cx <= VIRT_W - 86){ this.goToWorldMap(); return; }
+        // 3. Back to Map / Exit Button: VIRT_W - 138 to VIRT_W - 92
+        if(cx >= VIRT_W - 138 && cx < VIRT_W - 92){
+          this.goToWorldMap();
+          return;
+        }
         if(cx >= 135 && cx <= 220){ this.togglePause(); return; }
       }
 
@@ -4509,21 +4529,24 @@ class PlatformerGame {
   handleMapClick(cx, cy){
     audio.init();
 
-    // Top Navigation & Action Buttons (◀, ▶, 👑, ⛶, 🔊)
+    // Top Navigation & Action Buttons (◀️ MENÚ, ◀, ▶, 👑🏆, ⛶, 🔊)
     if(cy >= 6 && cy <= 48){
-      if(cx >= 275 && cx <= 310){ this.navigateWorldMap(-1); return; }
-      if(cx >= 312 && cx <= 348){ this.navigateWorldMap(1); return; }
-      if(cx >= 352 && cx <= 402){
+      if(cx >= 6 && cx <= 80){
+        this.goToCharacterSelect();
+        return;
+      }
+      if(cx >= 270 && cx <= 305){ this.navigateWorldMap(-1); return; }
+      if(cx >= 306 && cx <= 338){ this.navigateWorldMap(1); return; }
+      if(cx >= 340 && cx <= 386){
         this.openClosetModal();
         return;
       }
-      if(cx >= 405 && cx <= 455){
+      if(cx >= 388 && cx <= 436){
         this.toggleFullscreen();
         return;
       }
-      if(cx >= 458 && cx <= 508){
-        this.soundMuted = !this.soundMuted; audio.muted = this.soundMuted;
-        if(this.soundMuted) audio.stopBGM(); else audio.startBGM();
+      if(cx >= 438 && cx <= 508){
+        this.toggleSoundMute();
         return;
       }
     }
@@ -4745,6 +4768,31 @@ class PlatformerGame {
     } catch(e){}
   }
 
+  toggleSoundMute(){
+    this.soundMuted = !this.soundMuted;
+    if(typeof audio !== 'undefined'){
+      audio.muted = this.soundMuted;
+      if(this.soundMuted){
+        audio.stopBGM();
+      } else {
+        audio.startBGM();
+      }
+    }
+    const muteBtn = document.getElementById('btn-pause-mute');
+    if(muteBtn){
+      muteBtn.textContent = this.soundMuted ? '🔇 ACTIVAR SONIDO' : '🔊 SILENCIAR SONIDO';
+    }
+  }
+
+  goToCharacterSelect(){
+    if(typeof audio !== 'undefined' && audio.click) audio.click();
+    if(typeof audio !== 'undefined') audio.stopBGM();
+    this.state = 'MENU';
+    document.querySelectorAll('.screen-overlay').forEach(el => el.classList.remove('active'));
+    const sel = document.getElementById('modal-select');
+    if(sel) sel.classList.add('active');
+  }
+
   togglePause(){
     if(this.state === 'PLAYING' || this.state === 'BOSS_RUSH'){
       this.prevStateBeforePause = this.state;
@@ -4760,6 +4808,10 @@ class PlatformerGame {
             const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
             lvlTitle.textContent = cfg ? cfg.name : 'EN PAUSA';
           }
+        }
+        const muteBtn = document.getElementById('btn-pause-mute');
+        if(muteBtn){
+          muteBtn.textContent = this.soundMuted ? '🔇 ACTIVAR SONIDO' : '🔊 SILENCIAR SONIDO';
         }
         pauseModal.classList.add('active');
       }
@@ -6403,25 +6455,34 @@ class PlatformerGame {
     }
     ctx.restore();
 
-    // 5. Top Plaque with Level Name & Mount Info
+    // 5. Back to Characters Button
     ctx.save();
     ctx.fillStyle = 'rgba(15, 23, 54, 0.94)';
-    ctx.beginPath(); ctx.roundRect(8, 8, 260, 38, [18]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(8, 8, 70, 38, [12]); ctx.fill();
+    ctx.strokeStyle = '#80DEEA'; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.fillStyle = '#80DEEA'; ctx.font = '900 10px "Fredoka", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('◀️ MENÚ', 43, 27);
+    ctx.restore();
+
+    // 5b. Top Plaque with Level Name & Mount Info
+    ctx.save();
+    ctx.fillStyle = 'rgba(15, 23, 54, 0.94)';
+    ctx.beginPath(); ctx.roundRect(84, 8, 185, 38, [14]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.8; ctx.stroke();
     
-    ctx.fillStyle = '#FFD700'; ctx.font = '900 10.5px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 10px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     if(this.currentLevelIdx === 9){
-      ctx.fillText('★ MUNDO SECRETO S-1: Vía Láctea', 16, 20);
+      ctx.fillText('★ S-1: Vía Láctea', 92, 20);
     } else if(this.currentLevelIdx === 10){
-      ctx.fillText('★ MUNDO SECRETO S-2: Valle Dulzón', 16, 20);
+      ctx.fillText('★ S-2: Valle Dulzón', 92, 20);
     } else if(this.currentLevelIdx === 11){
-      ctx.fillText('★ MUNDO SECRETO S-3: Metrópolis Neón', 16, 20);
+      ctx.fillText('★ S-3: Metrópolis Neón', 92, 20);
     } else if(this.currentLevelIdx === 12){
-      ctx.fillText('★ MUNDO SECRETO S-4: Selva de Magma', 16, 20);
+      ctx.fillText('★ S-4: Selva Magma', 92, 20);
     } else if(this.currentLevelIdx === 13){
-      ctx.fillText('★ MUNDO SECRETO S-5: Torre Crono', 16, 20);
+      ctx.fillText('★ S-5: Torre Crono', 92, 20);
     } else {
-      ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1] || ''), 16, 20);
+      ctx.fillText('★ 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1] || ''), 92, 20);
     }
     
     const mountNames = [
@@ -6430,33 +6491,33 @@ class PlatformerGame {
       '🚀🌟 Dragón Astral', '🦄🍬 Unicornio Caramelo', '🚀⚡ Ciber Dragón', '🦅🔥 Fénix Magma', '🪽⏱️ Pegaso Crono'
     ];
     ctx.fillStyle = '#80DEEA'; ctx.font = '800 8.5px "Fredoka", sans-serif';
-    ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 33);
+    ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 92, 33);
 
     // Top Navigation & Action Buttons (◀, ▶, 👑, ⛶, 🔊)
     // Prev Arrow
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(275, 8, 34, 38, [10]); ctx.fill();
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(274, 8, 30, 38, [10]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#FFF'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('◀', 292, 27);
+    ctx.fillStyle = '#FFF'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('◀', 289, 27);
 
     // Next Arrow
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(314, 8, 34, 38, [10]); ctx.fill();
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(308, 8, 30, 38, [10]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#FFF'; ctx.fillText('▶', 331, 27);
+    ctx.fillStyle = '#FFF'; ctx.fillText('▶', 323, 27);
 
     // Closet & Trophy Button
-    ctx.fillStyle = 'rgba(206, 147, 216, 0.35)'; ctx.beginPath(); ctx.roundRect(353, 8, 48, 38, [10]); ctx.fill();
+    ctx.fillStyle = 'rgba(206, 147, 216, 0.35)'; ctx.beginPath(); ctx.roundRect(342, 8, 44, 38, [10]); ctx.fill();
     ctx.strokeStyle = '#CE93D8'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = 'bold 14px sans-serif'; ctx.fillText('👑🏆', 377, 27);
+    ctx.font = 'bold 13px sans-serif'; ctx.fillText('👑🏆', 364, 27);
 
     // Fullscreen Button
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(406, 8, 48, 38, [10]); ctx.fill();
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(390, 8, 44, 38, [10]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 16px "Fredoka", sans-serif'; ctx.fillText('⛶', 430, 27);
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 15px "Fredoka", sans-serif'; ctx.fillText('⛶', 412, 27);
 
     // Sound Button
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(459, 8, 45, 38, [10]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = 'bold 14px sans-serif'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', 481, 27);
+    ctx.fillStyle = this.soundMuted ? 'rgba(255, 82, 82, 0.35)' : 'rgba(255, 215, 0, 0.28)'; ctx.beginPath(); ctx.roundRect(438, 8, 66, 38, [10]); ctx.fill();
+    ctx.strokeStyle = this.soundMuted ? '#FF5252' : '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(this.soundMuted ? '🔇 MUTE' : '🔊 ON', 471, 27);
     ctx.restore();
 
     // 6. PROMINENT BOTTOM PLAY BUTTON
@@ -7652,33 +7713,29 @@ class PlatformerGame {
   renderHUD(ctx,now){
     const char=CHARACTERS[this.selectedCharId];
     ctx.save(); ctx.font='bold 10px "Fredoka",sans-serif';
-    ctx.fillStyle='rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(6, 6, 210, 30, [15]); ctx.fill();
+    ctx.fillStyle='rgba(10, 18, 42, 0.78)'; ctx.beginPath(); ctx.roundRect(6, 6, 175, 30, [15]); ctx.fill();
     ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle='#FFF'; ctx.fillText(char.name, 16, 22);
-    ctx.fillStyle='#FFD700'; ctx.fillText('★ ' + this.starDust, 90, 22);
-    // Pause button in HUD
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)'; ctx.beginPath(); ctx.roundRect(175, 8, 36, 26, [8]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#FFF'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️', 193, 22);
-    ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 140, 22);
+    ctx.fillStyle='#FFF'; ctx.fillText(char.name, 14, 22);
+    ctx.fillStyle='#FFD700'; ctx.fillText('★ ' + this.starDust, 78, 22);
+    ctx.fillStyle='#80DEEA'; ctx.fillText(String(this.score).padStart(5,'0'), 128, 22);
     ctx.restore();
 
-    // Top-Right Quick Action Buttons (Map, Fullscreen, Mute)
+    // Top-Right Quick Action Buttons (◀️ MAPA, ⏸️ PAUSA, 🔊/🔇 MUTE)
     ctx.save();
-    // 1. Map Button
-    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 120, 6, 34, 28, [10]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🗺️', VIRT_W - 103, 23);
+    // 1. Back to Map Button
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 138, 6, 42, 30, [10]); ctx.fill();
+    ctx.strokeStyle = '#80DEEA'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#80DEEA'; ctx.font = '900 9.5px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◀️ MAPA', VIRT_W - 117, 21);
 
-    // 2. Fullscreen Button
-    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 80, 6, 34, 28, [10]); ctx.fill();
+    // 2. Pause Button
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 92, 6, 42, 30, [10]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 14px "Fredoka", sans-serif'; ctx.fillText('⛶', VIRT_W - 63, 24);
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⏸️', VIRT_W - 71, 21);
 
     // 3. Sound Mute Button
-    ctx.fillStyle = 'rgba(10, 18, 42, 0.72)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 40, 6, 34, 28, [10]); ctx.fill();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = 'bold 12px sans-serif'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', VIRT_W - 23, 23);
+    ctx.fillStyle = this.soundMuted ? 'rgba(255, 82, 82, 0.35)' : 'rgba(10, 18, 42, 0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 46, 6, 40, 30, [10]); ctx.fill();
+    ctx.strokeStyle = this.soundMuted ? '#FF5252' : '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = '900 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', VIRT_W - 26, 21);
     ctx.restore();
 
     if(this.currentBoss) this.currentBoss.drawHUD(ctx, now);
@@ -7714,23 +7771,10 @@ class PlatformerGame {
     ctx.font = '12px sans-serif';
     ctx.fillText(heartStr, 80, 21);
 
-    // Pause button in HUD
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
-    ctx.beginPath();
-    ctx.roundRect(142, 8, 30, 26, [8]);
-    ctx.fill();
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = '#FFF';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('⏸️', 157, 21);
-
-    // 2. Top-Right: Live Timer & Boss Defeat Counter Pill
+    // 2. Timer & Boss Defeat Pill
     ctx.fillStyle = 'rgba(10, 18, 42, 0.78)';
     ctx.beginPath();
-    ctx.roundRect(VIRT_W - 195, 6, 189, 30, [15]);
+    ctx.roundRect(VIRT_W - 325, 6, 180, 30, [15]);
     ctx.fill();
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 1.5;
@@ -7738,18 +7782,33 @@ class PlatformerGame {
 
     const timeStr = formatTime(this.bossRushElapsedTime || 0);
     ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.font = 'bold 10.5px "Courier New", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(`⏱️ ${timeStr}`, VIRT_W - 187, 21);
+    ctx.fillText(`⏱️ ${timeStr}`, VIRT_W - 317, 21);
 
-    const defeatedStr = `⚔️ ${Math.min(9, (this.bossRushIdx || 0) + 1)}/9 JEFES`;
+    const defeatedStr = `⚔️ ${Math.min(9, (this.bossRushIdx || 0) + 1)}/9`;
     ctx.fillStyle = '#00E5FF';
-    ctx.font = 'bold 10px "Fredoka", sans-serif';
-    ctx.fillText(defeatedStr, VIRT_W - 95, 21);
+    ctx.font = 'bold 9.5px "Fredoka", sans-serif';
+    ctx.fillText(defeatedStr, VIRT_W - 225, 21);
 
+    // 3. Top Action Buttons for Boss Rush (◀️ SALIR, ⏸️, 🔊/🔇)
+    // Exit Boss Rush Button
+    ctx.fillStyle = 'rgba(10, 18, 42, 0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 138, 6, 42, 30, [10]); ctx.fill();
+    ctx.strokeStyle = '#FF5252'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FF5252'; ctx.font = '900 9.5px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◀️ SALIR', VIRT_W - 117, 21);
+
+    // Pause Button
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.25)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 92, 6, 42, 30, [10]); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 12px sans-serif'; ctx.fillText('⏸️', VIRT_W - 71, 21);
+
+    // Sound Button
+    ctx.fillStyle = this.soundMuted ? 'rgba(255, 82, 82, 0.35)' : 'rgba(10, 18, 42, 0.85)'; ctx.beginPath(); ctx.roundRect(VIRT_W - 46, 6, 40, 30, [10]); ctx.fill();
+    ctx.strokeStyle = this.soundMuted ? '#FF5252' : '#FFD700'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.font = '900 12px sans-serif'; ctx.fillText(this.soundMuted ? '🔇' : '🔊', VIRT_W - 26, 21);
     ctx.restore();
 
-    // 3. Top-Center: Current Boss Health & Name HUD
+    // 4. Current Boss Health & Name HUD
     if(this.currentBoss) {
       this.currentBoss.drawHUD(ctx, now);
     }
