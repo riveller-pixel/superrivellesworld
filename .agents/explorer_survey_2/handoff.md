@@ -1,86 +1,105 @@
-# HANDOFF REPORT: BOSS SYSTEMS & BOSS RUSH ARENA MODE ARCHITECTURE
-**Role**: Explorer 2 (Survey Phase)  
-**Agent ID**: `explorer_survey_2`  
-**Parent Agent**: `49228a22-7b07-4af5-b258-425b04eb0d59`  
-**Target Path**: `.agents/explorer_survey_2/handoff.md`  
-**Date**: 2026-08-25  
+# Handoff Report: Boss Systems & Audio Engine Investigation
+
+**Agent**: Explorer 2 (Boss Systems & Audio Engine Specialist)  
+**Parent Conversation ID**: `947c34f9-5b82-419c-8a5a-484c0c0e14cf`  
+**Working Directory**: `c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_2\`  
+**Date**: 2026-08-26  
+**Status**: COMPLETE (Hard Handoff)
 
 ---
 
 ## 1. Observation
 
-1. **Boss Definitions & Assets**:
-   - `index.html:785-795`: `BOSS_ASSETS` contains 9 keys: `acornus`, `octobeard`, `tutankobra`, `marionetta`, `frostfang`, `tempesto`, `graviton`, `cosmomecha`, `infernus`.
-   - `index.html:809-819`: `LEVEL_CONFIGS` configures all 9 worlds with boss keys, names, titles, sky colors, and audio tracks.
-   - `index.html:1348-1750`: `WorldBoss` class defines 3 HP, 3 phases ($\text{phase} = \max(1, 4 - \text{hp})$), phase speed scaling ($1.1\times \to 1.6\times \to 2.2\times$), `invincTimer = 85`, `stunTimer = 40`, and unique projectile mechanics for each of the 9 bosses.
-   - `index.html:1598-1627`: Damage interaction between player and boss body / projectiles grants 90 invulnerability frames (`invincibleTimer = 90`) and knockback.
+1. **WorldBoss Class Lifecycle & State Machine**:
+   - Location: `index.html` lines 1578–2225.
+   - Line 1590: Physical dimensions scale per character type: `isLarge ? 80 : (isMedium ? 70 : 62)`.
+   - Line 1660: Phase dynamically computed: `this.phase = Math.max(1, 4 - this.hp)`.
+   - Line 1661: `const speedMult = this.phase === 3 ? 2.2 : (this.phase === 2 ? 1.6 : 1.1)`.
+   - Line 1668–1918: Boss-specific update switch case (`acornus`, `octobeard`, `tutankobra`, `marionetta`, `frostfang`, `tempesto`, `graviton`, `cosmomecha`, `astralis`, `donut_king`, `infernus`).
+   - Line 1937–1958: Projectile iteration, movement, player collision circle check (`Math.hypot < (p.r + 14)`), and mode-specific damage routing.
+   - Line 1961–1985: Player stomp hitbox detection: `const stompHit = (player.vy > 0 && player.y + player.h < this.y + 32) || player.isGroundPounding;`.
+   - Line 1988–2018: `takeDamage(game)`: decrements `this.hp`, triggers `invincTimer = 85`, `stunTimer = 40`, camera shake `16`, and upon `hp <= 0` triggers `this.state = 'defeated'`, score `+3500`, star dust `+15`, camera shake `24`, and victory fanfare.
+   - Line 2021–2179: `draw(ctx, cam, now)`: renders projectiles, aura glows, scale transformations, sprite via `getBossImage(this.bossKey)`, or procedural Canvas fallback (e.g. `donut_king` lines 2106–2170).
+   - Line 2181–2224: `drawHUD(ctx, now)`: renders boss name, title, and 3-heart indicator.
 
-2. **Game Loop & State Control**:
-   - `index.html:2232-2321`: `PlatformerGame` constructor initializes states (`MENU`, `WORLD_MAP`, `PLAYING`, `PAUSED`, `LEVEL_COMPLETE`).
-   - `index.html:2674-2701`: `startSelectedLevel()` sets `state = 'PLAYING'`, builds level via `buildLevel(cfg)`, and starts background music.
-   - `index.html:2945-2951`: In normal level play, `this.currentBoss = new WorldBoss(...)` is spawned at $x=3520$, requiring the player to traverse the entire 3800px level to engage.
-   - `index.html:2173-2174`: `FlagPole` only activates when `currentBoss.state === 'defeated'`, calling `completeLevel()` after 2800ms.
+2. **SoundFX Class & Procedural Synthesizer**:
+   - Location: `index.html` lines 426–768.
+   - Line 449–465: `initNoiseBuffers()` creates procedural white noise buffers for `snareBuffer` and `hihatBuffer`.
+   - Line 481–518: `playTone()` and `playNote()` synthesize waveforms (`square`, `sawtooth`, `triangle`, `sine`) with gain envelope ramping.
+   - Line 520–564: `playDrum()` synthesizes pitch-drop kick oscillators and noise buffer snares/hihats.
+   - Line 690–761: `startBGM()` runs a 16th-note procedural sequencer via `setInterval` at 115ms interval (130 BPM), switching `lead`, `bass`, and `oscType` based on `this.currentTrack`.
 
-3. **Current Automated Test Suite**:
-   - `test_mechanics.js:176-565`: Evaluates the game script extracted from `index.html` in a Node.js VM context.
-   - Executing `node test_mechanics.js` yields **153 passed tests | 0 failed**.
-   - Suite 6 specifically tests 3-phase HP transitions on all 9 bosses (36 assertions).
+3. **Boss Rush Mode Structure & Compatibility**:
+   - Location: `index.html` lines 1024–1034, 3531–3665, and 4351–4368.
+   - `BOSS_RUSH_ROSTER` defines 9 canonical world bosses: `acornus`, `octobeard`, `tutankobra`, `marionetta`, `frostfang`, `tempesto`, `graviton`, `cosmomecha`, `infernus`.
+   - `test_mechanics.js` lines 659–660 explicitly assert that `BOSS_RUSH_ROSTER` matches this canonical 9-boss sequence.
+   - `test_e2e_systems.js` Tier 4 Scenario 4 validates the 9-stage sequence, health carryover, and ranking calculations.
+
+4. **Automated Test Suite Baseline Execution**:
+   - `node test_mechanics.js`: 300 tests executed, **300 PASSED, 0 FAILED**.
+   - `node test_e2e_systems.js`: 212 tests executed, **212 PASSED, 0 FAILED**.
+   - `node test_adversarial_tier5.js`: 13 tests executed, **13 PASSED, 0 FAILED**.
+   - Total current test coverage: **525 assertions passing with 100% success rate**.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Direct Arena Spawning vs. Full Level Traversal**:
-   - *Premise*: In campaign mode, bosses are positioned at $x=3520$ at the end of 3800px stages (`index.html:2945`).
-   - *Inference*: Boss Rush requires instantaneous combat without running through 3800px stages. A specialized `loadBossRushStage(bossIdx)` must construct a compact arena ($x \in [100, 500]$) with camera pinned directly to the combat zone.
-
-2. **Health Carryover & Difficulty Balance**:
-   - *Premise*: R2 explicitly requires "surviving health" across sequential boss fights.
-   - *Inference*: A dedicated Boss Rush health model (`bossRushPlayerHp = 3`) must persist between stages. Defeating a boss must retain surviving HP into the next stage, with an optional +1 Heart rest pickup to reward endurance while retaining hardcore roguelike tension.
-
-3. **Timer Precision & HUD Integration**:
-   - *Premise*: Acceptance criteria mandates a live completion timer tracking minutes, seconds, and milliseconds.
-   - *Inference*: `bossRushStartTime` and delta time tracking must format to `MM:SS.mmm` and render cleanly in `renderHUD` without clipping on mobile screens.
-
-4. **Gauntlet Progression & Victory Persistence**:
-   - *Premise*: Defeating Infernus Rex (Boss 9) represents complete gauntlet victory.
-   - *Inference*: When `bossRushIdx === 8` and Infernus is defeated, the game transitions to `'BOSS_RUSH_VICTORY'`, calculates rank (S/A/B/C), and stores best time to `localStorage.setItem('srpw_bossrush_record', ...)`.
+1. **Premise 1**: The new expansion introduces 3 world bosses: "Cyber-Dr. Glitch" (World 12), "Rex Tyrannus" (World 13), and "Chronos" (World 14).
+2. **Premise 2**: Each boss requires a 3-phase escalating combat state machine adhering to the established `WorldBoss` protocol:
+   - Phase 1 (HP 3, speed 1.1x): Characteristic signature attack & entry mobility.
+   - Phase 2 (HP 2, speed 1.6x): Environmental or area-of-effect disruption attack (EMP shockwave for W12, earthquake stomp for W13, time dilation stasis for W14).
+   - Phase 3 (HP 1, speed 2.2–2.4x): Climax ability (hologram decoy clones for W12, 3-way magma jet barrage for W13, orbiting chrono scythes for W14).
+3. **Premise 3**: Boss sprites must be registered in `BOSS_ASSETS`, preloaded in `bossImages`, and backed by rich procedural Canvas 2D fallback rendering routines to ensure visual perfection under any asset load timing or offline conditions.
+4. **Premise 4**: Audio experience requires 3 new procedural Web Audio BGM sequencer patterns in `SoundFX.startBGM()`:
+   - `cyber`: 16th rolling arpeggiated bassline, neon sawtooth lead, four-on-the-floor kick, snappy snare, rapid hihats.
+   - `volcano`: Subterranean 55Hz sub-bass, primal woodwind/horn melody, polyrhythmic double kicks and syncopated tribal toms.
+   - `clockwork`: D harmonic minor pipe organ chords, church pedal bass, dual-tone mechanical metronome ticks on alternating steps.
+5. **Premise 5**: Boss Rush mode relies on `BOSS_RUSH_ROSTER` strictly matching the 9 canonical campaign bosses for existing test suite compliance, while dynamic UI string formatting (`(${idx + 1}/${BOSS_RUSH_ROSTER.length})`) ensures modular extensibility without regressions.
 
 ---
 
 ## 3. Caveats
 
-- **No Caveats on Boss Data**: All 9 bosses and their AI parameters are completely mapped and verified.
-- **Audio Context on Transitions**: When switching rapidly between 9 boss themes, `audio.stopBGM()` must be invoked to ensure oscillator nodes are garbage-collected cleanly.
-- **Single Source of Truth**: The definitive game runtime is bundled in `index.html`, which is tested directly by `test_mechanics.js`.
+- **No Source Modifications Made**: As an Explorer agent, no modifications were made to `index.html` or game source code.
+- **Visual Asset Availability**: The generated boss PNG sprites (`boss_cyber_glitch.png`, `boss_rex_tyrannus.png`, `boss_chronos.png`) will be integrated by the Implementer; full procedural Canvas 2D fallback code is completely provided in `analysis.md`.
+- **Boss Rush Gauntlet Scope**: `BOSS_RUSH_ROSTER` must retain its 9 canonical bosses to satisfy existing test assertions in `test_mechanics.js` and `test_e2e_systems.js`. World 12, 13, and 14 bosses are directly fightable in their respective levels and fully compatible with all `WorldBoss` mechanics.
 
 ---
 
 ## 4. Conclusion
 
-The technical roadmap for Boss Rush Arena Mode is fully formulated and validated:
-1. **Entry Points**: Add "⚔️ BOSS RUSH ARENA" button to Main Menu modal and Pause modal.
-2. **Gauntlet Engine**: Implement `startBossRush(charId)`, `loadBossRushStage(idx)`, `nextBossRushStage()`, and `handleBossRushDefeat()`.
-3. **Health System**: Implement persistent 3-heart system with post-fight heal pickups.
-4. **Live HUD**: Add top-right live timer (`MM:SS.mmm`), boss counter (`X/9 JEFES`), and player heart indicators.
-5. **End States**: Implement `BOSS_RUSH_GAMEOVER` on player death and `BOSS_RUSH_VICTORY` with S/A/B/C ranking and `localStorage` record saving.
-6. **Testing**: Add Suite 9 to `test_mechanics.js` verifying all Boss Rush systems while maintaining 100% pass rate on all 153 existing tests.
+The boss and audio architectures in `index.html` are highly modular, performant, and completely ready for the 3-World Expansion Pack integration. Full technical specifications, mathematical parameters, projectile structures, canvas fallback drawing routines, and synthesizer note matrices have been drafted and validated in `analysis.md`.
 
 ---
 
 ## 5. Verification Method
 
-1. **Automated Unit & Integration Test Verification**:
-   ```powershell
+To verify the investigation findings and test suite stability:
+
+1. **Run Full Mechanics Test Suite**:
+   ```bash
    node test_mechanics.js
    ```
-   *Expected Result*: 153 existing tests pass + all new Boss Rush test suite assertions pass with 0 failures.
+   *Expected Result*: 300 passed, 0 failed.
 
-2. **File Inspection**:
-   - Survey Report: `c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_2\survey_report.md`
-   - Code Locations: `index.html` (lines 785–819, 1348–1750, 2232–3650), `test_mechanics.js` (lines 508–525).
+2. **Run E2E Systems Test Suite**:
+   ```bash
+   node test_e2e_systems.js
+   ```
+   *Expected Result*: 212 passed, 0 failed.
 
-3. **Invalidation Conditions**:
-   - Any failure in `node test_mechanics.js`.
-   - Any omission of the 9 canonical bosses or incorrect sequence order.
-   - Any failure of HP carryover between sequential encounters.
+3. **Run Tier 5 Adversarial Hardening Suite**:
+   ```bash
+   node test_adversarial_tier5.js
+   ```
+   *Expected Result*: 13 passed, 0 failed.
+
+4. **Inspect Generated Technical Analysis**:
+   - Path: `c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_2\analysis.md`
+   - Path: `c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_2\handoff.md`
+
+5. **Invalidation Conditions**:
+   - Any syntax error when evaluating `WorldBoss` or `SoundFX` in Node.js VM.
+   - Any deviation from the 3-phase escalating state machine contract.
+   - Failure of the existing 525 automated test assertions.

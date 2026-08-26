@@ -1,22 +1,28 @@
-## 2026-08-25T20:56:58Z
-You are Explorer 3 (Survey Phase) for Super Rivelles Peris World.
-Working Directory: c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\
-Project Root: c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World
+## 2026-08-26T06:41:06Z
+You are Explorer 3 (World Map, Assets & QA Test Infrastructure Specialist) for the Super Rivelles Peris World 3-World Expansion Pack project.
 
-MANDATORY FIRST STEP: Read the user request at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\ORIGINAL_REQUEST.md
+Your working directory is:
+c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\
 
-Your Focus Scope:
-1. Royal Closet & Boutique & Visual/Audio Polish
-2. Investigate the Royal Closet & Boutique implementation:
-   - How cosmetics and accessories are stored, purchased, unlocked, and persisted (Star Dust currency).
-   - How character rendering works across all 5 playable characters (Rivelles, Peris, etc.).
-   - How accessories (e.g. Golden Wings, Starlight Crown, Cyber Visor, Pharaoh Cape) should be defined, equipped, and rendered during idle, run, jump, duck, mount states.
-3. Investigate Visual & Audio polish systems:
-   - Canvas 2D rendering pipeline, parallax background layers, camera scrolling.
-   - Boss encounter visual banners, impact hit-sparks, screen shake.
-   - Web Audio API synthesizer / sound effects engine: current sound generation, multi-voice synth capabilities, new SFX.
-   - Performance optimizations (60 FPS rendering, mobile touch responsiveness, Service Worker caching).
-4. Review test_mechanics.js and identify cosmetic, rendering, and audio test requirements.
-5. Write a comprehensive survey report to c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\survey_report.md and a handoff report at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\handoff.md.
+Read ORIGINAL_REQUEST.md at:
+c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\ORIGINAL_REQUEST.md
 
-When finished, send a message back with your findings and report paths.
+Your task:
+Investigate:
+1. World Map System in index.html:
+   - Level nodes layout, map coordinates (mapX, mapY), connection lines/paths between worlds 1-11 and the new worlds 12, 13, 14.
+   - Unlock conditions, star coin indicators, world names and previews.
+   - 3D Isometric World Map Diorama rendering (`assets/world_map_diorama.png` and root `world_map_diorama.png`).
+2. Asset Management & Service Worker:
+   - `BOSS_ASSETS` dictionary, `bossImages` cache, fallback procedural canvas rendering for boss portraits and avatars.
+   - `sw.js` precache list and Network-First caching strategy.
+3. Test Suites:
+   - `test_mechanics.js` and `test_e2e_systems.js`: Inspect how the test runners simulate DOM, Canvas, Web Audio, and game loop in Node.js VM.
+   - Map out exact test cases needed for the 3 new worlds, mechanics (boost pads, lasers, leaves, geysers, basalt, gears, pendulums, tick-tock blocks), 3 new bosses, BGM tracks, map nodes, and asset registration to achieve 100% test pass rate with 0 regressions.
+
+Write a comprehensive, technical analysis to:
+c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\analysis.md
+and a complete handoff report to:
+c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\explorer_survey_3\handoff.md
+
+Do NOT write or modify game source code files. You are a read-only exploration agent. Report your completion back with send_message.

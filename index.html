@@ -359,7 +359,7 @@
         <img src="assets/master_trophy.png" alt="Trofeo Maestro" style="width:58px; height:58px; object-fit:contain;" onerror="this.src='master_trophy.png'">
         <div>
           <div style="font-weight:900; font-size:13px; color:#FFD700;">🏆 GRAN COPA FAMILIAR DE CAMPEONES</div>
-          <div style="font-size:10px; color:#FFFFFF; margin-top:2px;">Derrota a los 9 Titanes Finales y recolecta las 27 Monedas Estrella para coronarte como Maestro del Reino.</div>
+          <div style="font-size:10px; color:#FFFFFF; margin-top:2px;">Derrota a los 14 Titanes Finales y recolecta las 42 Monedas Estrella para coronarte como Maestro Supremo del Reino.</div>
         </div>
       </div>
 
@@ -673,6 +673,31 @@ class SoundFX {
       this.playTone(987.77, 'square', 0.07, 0.18, 1318.51);
     }catch(e){}
   }
+  cyberLaser(){
+    try { this.playTone(1200, 'sawtooth', 0.08, 0.22, 200); }catch(e){}
+  }
+  empBlast(){
+    try {
+      this.playTone(80, 'sawtooth', 0.35, 0.45, 20);
+      setTimeout(() => { try { this.playTone(440, 'triangle', 0.15, 0.25, 880); }catch(e){} }, 40);
+    }catch(e){}
+  }
+  earthquakeRumble(){
+    try { this.playTone(65, 'sawtooth', 0.45, 0.5, 25); }catch(e){}
+  }
+  fireBreath(){
+    try { this.playTone(320, 'sawtooth', 0.25, 0.35, 110); }catch(e){}
+  }
+  timeSlow(){
+    try {
+      [880, 660, 440, 220].forEach((f, i) => {
+        setTimeout(() => { try { this.playTone(f, 'sine', 0.15, 0.2, f * 0.7); }catch(e){} }, i * 50);
+      });
+    }catch(e){}
+  }
+  clockTick(){
+    try { this.playTone(1800, 'sine', 0.02, 0.08, 1200); }catch(e){}
+  }
   playSFX(sfxName){
     if(this.muted) return;
     try {
@@ -683,6 +708,12 @@ class SoundFX {
       else if(sfxName === 'hitSpark') this.hitSpark();
       else if(sfxName === 'stomp') this.stomp();
       else if(sfxName === 'coin') this.coin();
+      else if(sfxName === 'cyberLaser') this.cyberLaser();
+      else if(sfxName === 'empBlast') this.empBlast();
+      else if(sfxName === 'earthquakeRumble') this.earthquakeRumble();
+      else if(sfxName === 'fireBreath') this.fireBreath();
+      else if(sfxName === 'timeSlow') this.timeSlow();
+      else if(sfxName === 'clockTick') this.clockTick();
       else if(typeof this[sfxName] === 'function') this[sfxName]();
     }catch(e){}
   }
@@ -728,6 +759,18 @@ class SoundFX {
     const bossRushLead = [880, 0, 784, 880, 1046, 0, 880, 0, 1174, 0, 1046, 1174, 1318, 1174, 1046, 784];
     const bossRushBass = [110, 110, 220, 110, 130, 130, 260, 130, 146, 146, 293, 146, 164, 164, 329, 164];
 
+    // Synthwave / Cyberpunk Sequencer (World 12)
+    const cyberLead = [587, 0, 784, 880, 1174, 1046, 880, 0, 1174, 1318, 1568, 1318, 1174, 1046, 880, 784];
+    const cyberBass = [146, 146, 293, 146, 174, 174, 349, 174, 196, 196, 392, 196, 220, 220, 440, 220];
+
+    // Volcanic Tribal Sequencer (World 13)
+    const volcanoLead = [220, 261, 293, 329, 392, 329, 293, 261, 329, 392, 440, 523, 440, 392, 329, 220];
+    const volcanoBass = [55, 55, 73, 55, 65, 65, 87, 65, 73, 73, 98, 73, 55, 73, 87, 55];
+
+    // Gothic Clockwork Organ Sequencer (World 14)
+    const clockworkLead = [587, 698, 880, 1174, 1046, 880, 830, 880, 1174, 1396, 1760, 1396, 1174, 880, 830, 784];
+    const clockworkBass = [73, 0, 110, 0, 87, 0, 130, 0, 98, 0, 146, 0, 110, 0, 164, 0];
+
     this.bgmTimer = setInterval(() => {
       if(this.muted || !this.ctx) return;
       let lead = overLead, bass = overBass;
@@ -744,6 +787,9 @@ class SoundFX {
       else if(this.currentTrack === 'cosmic' || this.currentTrack === 'special_star'){ lead = cosmicLead; bass = cosmicBass; oscType = 'sine'; }
       else if(this.currentTrack === 'candy'){ lead = candyLead; bass = candyBass; oscType = 'triangle'; }
       else if(this.currentTrack === 'bossrush'){ lead = bossRushLead; bass = bossRushBass; oscType = 'sawtooth'; }
+      else if(this.currentTrack === 'cyber' || this.currentTrack === 'cyberpunk'){ lead = cyberLead; bass = cyberBass; oscType = 'sawtooth'; }
+      else if(this.currentTrack === 'volcano' || this.currentTrack === 'volcano_jungle'){ lead = volcanoLead; bass = volcanoBass; oscType = 'triangle'; }
+      else if(this.currentTrack === 'clockwork' || this.currentTrack === 'clocktower'){ lead = clockworkLead; bass = clockworkBass; oscType = 'sawtooth'; }
 
       const step = this.bgmStep;
       const lNote = lead[step % lead.length];
@@ -752,9 +798,23 @@ class SoundFX {
       if(lNote > 0) this.playNote(lNote, oscType, 0.12, 0.14);
       if(bNote > 0) this.playNote(bNote, 'triangle', 0.16, 0.18);
 
-      if(step % 8 === 0) this.playDrum('kick', 0.16);
-      else if(step % 8 === 4) this.playDrum('snare', 0.14);
-      else if(step % 2 === 0) this.playDrum('hihat', 0.06);
+      if(this.currentTrack === 'clockwork' || this.currentTrack === 'clocktower'){
+        // Metronome mechanical tick-tock cadence
+        if(step % 2 === 0){
+          try { this.playTone(1800, 'sine', 0.02, 0.06, 1200); }catch(e){}
+        } else {
+          try { this.playTone(1200, 'sine', 0.02, 0.06, 800); }catch(e){}
+        }
+      } else if(this.currentTrack === 'volcano' || this.currentTrack === 'volcano_jungle'){
+        // Tribal double-kicks & polyrhythm toms
+        if(step % 8 === 0 || step % 8 === 3) this.playDrum('kick', 0.18);
+        else if(step % 8 === 4) this.playDrum('snare', 0.15);
+        else if(step % 2 === 0) this.playDrum('hihat', 0.07);
+      } else {
+        if(step % 8 === 0) this.playDrum('kick', 0.16);
+        else if(step % 8 === 4) this.playDrum('snare', 0.14);
+        else if(step % 2 === 0) this.playDrum('hihat', 0.06);
+      }
 
       this.bgmStep++;
     }, 115);
@@ -979,19 +1039,22 @@ const worldMapDioramaImg = new Image();
 worldMapDioramaImg.src = 'world_map_diorama.png';
 worldMapDioramaImg.onerror = () => { worldMapDioramaImg.src = 'assets/world_map_diorama.png'; };
 
-// HD 2.5D World Final Boss Assets (10 Bosses)
+// HD 2.5D World Final Boss Assets (14 Bosses)
 const BOSS_ASSETS = {
-  acornus: 'boss_acornus.png',
-  octobeard: 'boss_octobeard.png',
-  tutankobra: 'boss_tutankobra.png',
-  marionetta: 'boss_marionetta.png',
-  frostfang: 'boss_frostfang.png',
-  tempesto: 'boss_tempesto.png',
-  graviton: 'boss_graviton.png',
-  cosmomecha: 'boss_cosmomecha.png',
-  infernus: 'boss_infernus.png',
-  astralis: 'boss_astralis.png',
-  donut_king: 'boss_donut_king.png'
+  acornus:      'boss_acornus.png',
+  octobeard:    'boss_octobeard.png',
+  tutankobra:   'boss_tutankobra.png',
+  marionetta:   'boss_marionetta.png',
+  frostfang:    'boss_frostfang.png',
+  tempesto:     'boss_tempesto.png',
+  graviton:     'boss_graviton.png',
+  cosmomecha:   'boss_cosmomecha.png',
+  infernus:     'boss_infernus.png',
+  astralis:     'boss_astralis.png',
+  donut_king:   'boss_donut_king.png',
+  cyber_glitch: 'boss_cyber_glitch.png',
+  rex_tyrannus: 'boss_rex_tyrannus.png',
+  chronos:      'boss_chronos.png'
 };
 const bossImages = {};
 function getBossImage(bossKey){
@@ -1005,19 +1068,22 @@ function getBossImage(bossKey){
   return bossImages[bossKey];
 }
 
-// 11 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES & FINAL BOSSES (INCLUDING SECRET WORLDS)
+// 14 EXPANSIVE WORLDS WITH 2.5D NSMBWII MAP COORDINATES & FINAL BOSSES (INCLUDING SECRET WORLDS)
 const LEVEL_CONFIGS = [
-  { id: 1, name: "1-1: Colinas Bellota",     theme: "garden", bossKey: "acornus", bossName: "GRAN BELLOTÓN", bossTitle: "Titán del Roble Dorado", sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 42,  mapY: 195, color: "#2E7D32" },
-  { id: 2, name: "1-2: Océano de Coral",     theme: "marine", bossKey: "octobeard", bossName: "CAPITÁN PULPARRO", bossTitle: "Pirata de las Profundidades", sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 92,  mapY: 220, color: "#0288D1" },
-  { id: 3, name: "1-3: Pirámides de Egipto", theme: "egypt", bossKey: "tutankobra", bossName: "FARAÓN COBRATÓN", bossTitle: "La Serpiente Esfinge", sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 148, mapY: 185, color: "#F57C00" },
-  { id: 4, name: "1-4: Castillo Disney",     theme: "disney", bossKey: "marionetta", bossName: "MADAME MARIONETTA", bossTitle: "Hechicera de Naipes", sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
-  { id: 5, name: "1-5: Glaciares Frozen",    theme: "frozen", bossKey: "frostfang", bossName: "YETI BLIZZARDO", bossTitle: "Monarca Glacial", sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
-  { id: 6, name: "1-6: Reino del Cielo",     theme: "sky", bossKey: "tempesto", bossName: "BARÓN TEMPESTO", bossTitle: "Galeón de las Cumbres", sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
-  { id: 7, name: "1-7: Cavernas Zero-G",     theme: "cave", bossKey: "graviton", bossName: "GIGA GRAVITÓN", bossTitle: "Geoda de Masa Oscura", sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
-  { id: 8, name: "1-8: Mario Galaxy",        theme: "galaxy", bossKey: "cosmomecha", bossName: "COSMO-MECHA", bossTitle: "Coloso Planetario Estelar", sky: ["#050014","#1a0836","#00e5ff"], track: "galaxy",    mapX: 420, mapY: 220, color: "#00E5FF" },
-  { id: 9, name: "1-9: Castillo de Lava",    theme: "castle", bossKey: "infernus", bossName: "LORD INFERNUS REX", bossTitle: "Soberano del Núcleo Magmático", sky: ["#bf360c","#ff5722","#ffab91"], track: "castle",    mapX: 450, mapY: 175, color: "#D50000" },
-  { id: 10, name: "S-1: Vía Láctea Secreta", theme: "special_star", bossKey: "astralis", bossName: "GUARDIÁN ASTRAL", bossTitle: "Soberano del Cosmos Primordial", sky: ["#020010","#12002b","#28004d"], track: "cosmic", mapX: 475, mapY: 85, color: "#FFD700" },
-  { id: 11, name: "S-2: Valle Dulzón",      theme: "candy", bossKey: "donut_king", bossName: "REY DULZÓN", bossTitle: "Monarca del Reino de Caramelo", sky: ["#FF80AB","#F48FB1","#80DEEA"], track: "candy", mapX: 485, mapY: 135, color: "#FF4081" }
+  { id: 1,  name: "1-1: Colinas Bellota",         theme: "garden",         bossKey: "acornus",      bossName: "GRAN BELLOTÓN",     bossTitle: "Titán del Roble Dorado",       sky: ["#2172f3","#6bb2f8","#cce7ff"], track: "overworld", mapX: 42,  mapY: 195, color: "#2E7D32" },
+  { id: 2,  name: "1-2: Océano de Coral",         theme: "marine",         bossKey: "octobeard",    bossName: "CAPITÁN PULPARRO",  bossTitle: "Pirata de las Profundidades",  sky: ["#01579B","#0288D1","#4FC3F7"], track: "marine",    mapX: 92,  mapY: 220, color: "#0288D1" },
+  { id: 3,  name: "1-3: Pirámides de Egipto",     theme: "egypt",          bossKey: "tutankobra",   bossName: "FARAÓN COBRATÓN",   bossTitle: "La Serpiente Esfinge",         sky: ["#E65100","#FF9800","#FFF59D"], track: "egypt",     mapX: 148, mapY: 185, color: "#F57C00" },
+  { id: 4,  name: "1-4: Castillo Disney",         theme: "disney",         bossKey: "marionetta",   bossName: "MADAME MARIONETTA", bossTitle: "Hechicera de Naipes",         sky: ["#4A148C","#8E24AA","#E1BEE7"], track: "disney",    mapX: 205, mapY: 140, color: "#AB47BC" },
+  { id: 5,  name: "1-5: Glaciares Frozen",        theme: "frozen",         bossKey: "frostfang",    bossName: "YETI BLIZZARDO",    bossTitle: "Monarca Glacial",              sky: ["#006064","#00ACC1","#E0F7FA"], track: "frozen",    mapX: 265, mapY: 115, color: "#26C6DA" },
+  { id: 6,  name: "1-6: Reino del Cielo",         theme: "sky",            bossKey: "tempesto",     bossName: "BARÓN TEMPESTO",    bossTitle: "Galeón de las Cumbres",        sky: ["#1565C0","#42A5F5","#E1F5FE"], track: "sky",       mapX: 322, mapY: 145, color: "#FBC02D" },
+  { id: 7,  name: "1-7: Cavernas Zero-G",         theme: "cave",           bossKey: "graviton",     bossName: "GIGA GRAVITÓN",     bossTitle: "Geoda de Masa Oscura",         sky: ["#120422","#2e0e4c","#5c1a8a"], track: "cave",      mapX: 376, mapY: 190, color: "#8E24AA" },
+  { id: 8,  name: "1-8: Mario Galaxy",            theme: "galaxy",         bossKey: "cosmomecha",   bossName: "COSMO-MECHA",       bossTitle: "Coloso Planetario Estelar",    sky: ["#050014","#1a0836","#00e5ff"], track: "galaxy",    mapX: 420, mapY: 220, color: "#00E5FF" },
+  { id: 9,  name: "1-9: Castillo de Lava",        theme: "castle",         bossKey: "infernus",     bossName: "LORD INFERNUS REX", bossTitle: "Soberano del Núcleo Magmático", sky: ["#bf360c","#ff5722","#ffab91"], track: "castle",    mapX: 450, mapY: 175, color: "#D50000" },
+  { id: 10, name: "S-1: Vía Láctea Secreta",     theme: "special_star",   bossKey: "astralis",     bossName: "GUARDIÁN ASTRAL",   bossTitle: "Soberano del Cosmos Primordial", sky: ["#020010","#12002b","#28004d"], track: "cosmic",    mapX: 475, mapY: 85,  color: "#FFD700" },
+  { id: 11, name: "S-2: Valle Dulzón",          theme: "candy",          bossKey: "donut_king",   bossName: "REY DULZÓN",        bossTitle: "Monarca del Reino de Caramelo", sky: ["#FF80AB","#F48FB1","#80DEEA"], track: "candy",     mapX: 485, mapY: 135, color: "#FF4081" },
+  { id: 12, name: "S-3: Metrópolis Neón",        theme: "cyberpunk",      bossKey: "cyber_glitch", bossName: "CYBER-DR. GLITCH",  bossTitle: "Arquitecto del Caos Digital",  sky: ["#0a0017","#1f003b","#3d0066"], track: "cyber",     mapX: 415, mapY: 70,  color: "#00F0FF" },
+  { id: 13, name: "S-4: Selva de Magma",          theme: "volcano_jungle", bossKey: "rex_tyrannus", bossName: "REX TYRANNUS",    bossTitle: "T-Rex Mecánico del Cráter",   sky: ["#1a0500","#3d0c00","#6e1a00"], track: "volcano",   mapX: 350, mapY: 70,  color: "#FF5722" },
+  { id: 14, name: "S-5: Torre del Reloj Crono",  theme: "clocktower",     bossKey: "chronos",      bossName: "CHRONOS",           bossTitle: "Señor Supremo de los Relojes", sky: ["#0d0b14","#201a30","#382d54"], track: "clockwork", mapX: 285, mapY: 75,  color: "#AB47BC" }
 ];
 
 // 9 CANONICAL WORLD BOSSES FOR BOSS RUSH ARENA GAUNTLET
@@ -1585,10 +1651,10 @@ class WorldBoss {
     this.baseY = this.y;
     
     // Boss physical dimensions tailored per character
-    const isLarge = (this.bossKey === 'infernus' || this.bossKey === 'cosmomecha' || this.bossKey === 'astralis' || this.bossKey === 'donut_king');
-    const isMedium = (this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'octobeard');
-    this.w = isLarge ? 80 : (isMedium ? 70 : 62);
-    this.h = isLarge ? 86 : (isMedium ? 76 : 68);
+    const isLarge = (this.bossKey === 'infernus' || this.bossKey === 'cosmomecha' || this.bossKey === 'astralis' || this.bossKey === 'donut_king' || this.bossKey === 'rex_tyrannus');
+    const isMedium = (this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'octobeard' || this.bossKey === 'cyber_glitch' || this.bossKey === 'chronos');
+    this.w = isLarge ? 86 : (isMedium ? 72 : 62);
+    this.h = isLarge ? 88 : (isMedium ? 76 : 68);
     
     this.hp = 3;
     this.maxHp = 3;
@@ -1890,6 +1956,140 @@ class WorldBoss {
           }
           break;
 
+        case 'cyber_glitch':
+          this.x += (this.facingRight ? 2.6 : -2.6) * speedMult;
+          if(this.phase >= 2){
+            this.y = this.baseY - 18 + Math.sin(this.floatAngle * 1.5) * 12;
+          } else {
+            this.y = this.baseY;
+          }
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+
+          if(this.attackTimer > (this.phase === 3 ? 45 : (this.phase === 2 ? 68 : 85))){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            if(this.phase === 1){
+              this.projectiles.push({
+                type: 'cyber_laser', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 28,
+                vx: dir * 6.2, vy: (player.y - (this.y + 28)) * 0.02, r: 7, color: '#00E5FF', life: 110
+              });
+              if(audio && audio.cyberLaser) audio.cyberLaser();
+              else if(audio && audio.shellShoot) audio.shellShoot();
+            } else if(this.phase === 2){
+              // Dual expanding EMP shockwave
+              this.projectiles.push(
+                { type: 'emp_wave', x: this.x + this.w/2, y: this.baseY + this.h - 10, vx: -4.8, vy: 0, r: 12, color: '#00FFFF', life: 95 },
+                { type: 'emp_wave', x: this.x + this.w/2, y: this.baseY + this.h - 10, vx: 4.8, vy: 0, r: 12, color: '#00FFFF', life: 95 }
+              );
+              if(audio && audio.empBlast) audio.empBlast();
+              if(game && game.camera) game.camera.shake(8);
+            } else {
+              // Phase 3: Hologram Clone Decoy Barrage / Cyber Sparks
+              for(let i = -1; i <= 1; i++){
+                this.projectiles.push({
+                  type: 'cyber_spark', x: this.x + this.w/2, y: this.y + 25 + i * 10,
+                  vx: (dir * 5.4) + (i * 0.6), vy: i * 1.5, r: 8, color: '#FF007F', life: 120
+                });
+              }
+              if(Math.random() < 0.65){
+                if(game && game.camera) game.camera.shake(6);
+                this.projectiles.push({
+                  type: 'cyber_spark', x: player.x + (Math.random() - 0.5) * 120, y: -20,
+                  vx: (Math.random() - 0.5) * 1.5, vy: 5.0, r: 8, color: '#00E5FF', life: 110
+                });
+              }
+              if(audio && audio.cyberLaser) audio.cyberLaser();
+            }
+          }
+          break;
+
+        case 'rex_tyrannus':
+          this.x += (this.facingRight ? 2.0 : -2.0) * speedMult;
+          if(this.x < this.arenaLeft){ this.x = this.arenaLeft; this.facingRight = true; }
+          if(this.x > this.arenaRight - this.w){ this.x = this.arenaRight - this.w; this.facingRight = false; }
+
+          if(this.attackTimer > (this.phase === 3 ? 48 : (this.phase === 2 ? 75 : 90))){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            if(this.phase === 1){
+              this.projectiles.push({
+                type: 'magma_spike', x: this.x + (this.facingRight ? 0 : this.w), y: this.y + 35,
+                vx: (this.facingRight ? -4.0 : 4.0), vy: -2.5, r: 9, color: '#FF5722', life: 110
+              });
+              if(audio && audio.thwomp) audio.thwomp();
+            } else if(this.phase === 2){
+              // Seismic Stomp Leap
+              this.vy = -8.5;
+              for(let i = 0; i < 3; i++){
+                this.projectiles.push({
+                  type: 'falling_rock', x: player.x + (Math.random() - 0.5) * 150, y: -20 - i * 15,
+                  vx: (Math.random() - 0.5) * 1.2, vy: 4.8, r: 10, color: '#4E342E', life: 110
+                });
+              }
+              if(audio && audio.earthquakeRumble) audio.earthquakeRumble();
+              if(game && game.camera) game.camera.shake(12);
+            } else {
+              // 3-Way Magma Jet Breath
+              const angles = [-0.28, 0, 0.28];
+              for(let i = 0; i < angles.length; i++){
+                this.projectiles.push({
+                  type: 'magma_jet', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 32,
+                  vx: dir * 5.4, vy: angles[i] * 4.0, r: 11, color: '#FF1744', life: 120
+                });
+              }
+              if(Math.random() < 0.65){
+                if(game && game.camera) game.camera.shake(8);
+                this.projectiles.push({
+                  type: 'falling_rock', x: player.x + (Math.random() - 0.5) * 120, y: -20,
+                  vx: (Math.random() - 0.5) * 1.5, vy: 5.0, r: 10, color: '#FF5722', life: 110
+                });
+              }
+              if(audio && audio.fireBreath) audio.fireBreath();
+            }
+          }
+          break;
+
+        case 'chronos':
+          this.x = (this.arenaLeft + this.arenaRight)/2 - this.w/2 + Math.cos(this.floatAngle * 0.8) * 80;
+          this.y = this.baseY - 26 + Math.sin(this.floatAngle * 1.4) * 20;
+
+          if(this.attackTimer > (this.phase === 3 ? 50 : (this.phase === 2 ? 72 : 85))){
+            this.attackTimer = 0;
+            const dir = this.facingRight ? 1 : -1;
+            if(this.phase === 1){
+              this.projectiles.push({
+                type: 'temporal_gear', x: this.x + (this.facingRight ? this.w : 0), y: this.y + 28,
+                vx: dir * 4.4, vy: Math.sin(this.frame * 0.12) * 2.4, r: 9, color: '#FFD700', life: 130
+              });
+              if(audio && audio.magicPower) audio.magicPower();
+            } else if(this.phase === 2){
+              // Time Dilation Slowdown Spell
+              if(player){
+                player.vx *= 0.55;
+                player.vy *= 0.55;
+                if(game) game.addFloatingText('⏳ ¡DILATACIÓN TEMPORAL! ⏳', player.x, player.y - 20, '#FFD700');
+              }
+              this.projectiles.push(
+                { type: 'temporal_gear', x: this.x + this.w/2, y: this.y + 20, vx: -4.0, vy: -1.5, r: 9, color: '#FFD700', life: 120 },
+                { type: 'temporal_gear', x: this.x + this.w/2, y: this.y + 20, vx: 4.0, vy: -1.5, r: 9, color: '#FFD700', life: 120 }
+              );
+              if(audio && audio.timeSlow) audio.timeSlow();
+              if(game && game.camera) game.camera.shake(6);
+            } else {
+              // 4 Orbiting Clock Blades / Chrono Blades
+              for(let i = -1; i <= 1; i++){
+                this.projectiles.push({
+                  type: 'chrono_blade', x: this.x + this.w/2, y: this.y + 25 + i * 12,
+                  vx: (dir * 5.6) + (i * 0.7), vy: i * 1.8, r: 10, color: '#FFD700', life: 120
+                });
+              }
+              if(audio && audio.clockTick) audio.clockTick();
+              if(audio && audio.hazardScatter) audio.hazardScatter();
+            }
+          }
+          break;
+
         case 'infernus':
         default:
           this.x += (this.facingRight ? 1.6 : -1.6) * speedMult;
@@ -1918,7 +2118,7 @@ class WorldBoss {
       }
 
       // Vertical physics for jumping/stomping bosses
-      if(this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'cosmomecha'){
+      if(this.bossKey === 'acornus' || this.bossKey === 'frostfang' || this.bossKey === 'cosmomecha' || this.bossKey === 'rex_tyrannus'){
         this.y += this.vy;
         this.vy += 0.38;
         if(this.y > this.baseY){
@@ -2064,6 +2264,84 @@ class WorldBoss {
         ctx.strokeStyle = '#FFD700';
         ctx.lineWidth = 2;
         ctx.stroke();
+      } else if(p.type === 'cyber_laser'){
+        ctx.fillStyle = '#00E5FF';
+        ctx.shadowColor = '#00E5FF';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.roundRect(ps.x - p.r, ps.y - 3, p.r * 2, 6, [3]);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(ps.x - p.r + 2, ps.y - 1, p.r * 2 - 4, 2);
+      } else if(p.type === 'emp_wave'){
+        ctx.strokeStyle = '#00FFFF';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#00E5FF';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(ps.x, ps.y, p.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(ps.x, ps.y, p.r * 0.6, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if(p.type === 'cyber_spark'){
+        ctx.fillStyle = p.color || '#FF007F';
+        ctx.shadowColor = p.color || '#FF007F';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(ps.x, ps.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(ps.x - 2, ps.y - 2, 4, 4);
+      } else if(p.type === 'magma_spike'){
+        ctx.fillStyle = '#FF5722';
+        ctx.shadowColor = '#FF3D00';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(ps.x, ps.y - p.r);
+        ctx.lineTo(ps.x + p.r, ps.y + p.r);
+        ctx.lineTo(ps.x - p.r, ps.y + p.r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#FFE600'; ctx.lineWidth = 1.5; ctx.stroke();
+      } else if(p.type === 'falling_rock'){
+        ctx.fillStyle = '#4E342E';
+        ctx.beginPath();
+        ctx.arc(ps.x, ps.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FF5722'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#FF9100';
+        ctx.beginPath(); ctx.arc(ps.x - 2, ps.y - 2, 3, 0, Math.PI * 2); ctx.fill();
+      } else if(p.type === 'magma_jet'){
+        const mgGrad = ctx.createRadialGradient(ps.x, ps.y, 2, ps.x, ps.y, p.r);
+        mgGrad.addColorStop(0, '#FFFFFF'); mgGrad.addColorStop(0.4, '#FFE600'); mgGrad.addColorStop(1, '#FF1744');
+        ctx.fillStyle = mgGrad;
+        ctx.shadowColor = '#FF1744'; ctx.shadowBlur = 12;
+        ctx.beginPath(); ctx.arc(ps.x, ps.y, p.r, 0, Math.PI * 2); ctx.fill();
+      } else if(p.type === 'temporal_gear'){
+        ctx.save();
+        ctx.translate(ps.x, ps.y);
+        ctx.rotate((now || 0) * 0.008);
+        ctx.fillStyle = '#FFD700'; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.arc(0, 0, p.r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 2; ctx.stroke();
+        for(let g = 0; g < 4; g++){
+          ctx.rotate(Math.PI / 2);
+          ctx.fillRect(p.r - 2, -2, 5, 4);
+        }
+        ctx.restore();
+      } else if(p.type === 'chrono_blade'){
+        ctx.save();
+        ctx.translate(ps.x, ps.y);
+        ctx.rotate((now || 0) * 0.01);
+        ctx.fillStyle = '#FFD700'; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(0, -p.r); ctx.lineTo(p.r * 0.4, 0); ctx.lineTo(0, p.r); ctx.lineTo(-p.r * 0.4, 0);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.restore();
       } else {
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
@@ -2167,6 +2445,151 @@ class WorldBoss {
       ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(0, -this.h/2 - 11, 2.5, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(-16, -this.h/2 - 9, 2, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#00E5FF'; ctx.beginPath(); ctx.arc(16, -this.h/2 - 9, 2, 0, Math.PI*2); ctx.fill();
+    } else if(this.bossKey === 'cyber_glitch'){
+      // Dr. Glitch Cyberpunk AI Procedural Fallback
+      const jitterX = (Math.random() < 0.2) ? (Math.random() - 0.5) * 4 : 0;
+      const jitterY = (Math.random() < 0.2) ? (Math.random() - 0.5) * 3 : 0;
+      ctx.translate(jitterX, jitterY);
+
+      // Hologram Cyber Armor Chassis
+      ctx.fillStyle = (this.phase === 3 ? '#1A0033' : '#050C1E');
+      ctx.beginPath();
+      ctx.roundRect(-this.w/2 + 6, -this.h/2 + 6, this.w - 12, this.h - 12, [8]);
+      ctx.fill();
+      ctx.strokeStyle = (this.phase === 3 ? '#FF0055' : '#00E5FF');
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Cyber Visor / Glowing LED Scanner
+      const eyeScan = Math.sin(now * 0.01) * (this.w * 0.25);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(-this.w * 0.35, -this.h * 0.25, this.w * 0.7, 12);
+      ctx.fillStyle = (this.phase === 3 ? '#FF1744' : '#00E5FF');
+      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10;
+      ctx.fillRect(eyeScan - 5, -this.h * 0.25 + 2, 10, 8);
+      ctx.shadowBlur = 0;
+
+      // Circuit Grid Lines
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.45)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-this.w * 0.3, 0); ctx.lineTo(0, 8); ctx.lineTo(this.w * 0.3, 0);
+      ctx.moveTo(0, 8); ctx.lineTo(0, this.h * 0.3);
+      ctx.stroke();
+
+      // Floating Matrix Data Cubes (Phase 2 & 3)
+      if(this.phase >= 2){
+        for(let d = 0; d < 4; d++){
+          const dAngle = this.floatAngle + d * (Math.PI / 2);
+          const dx = Math.cos(dAngle) * (this.w * 0.55);
+          const dy = Math.sin(dAngle) * (this.h * 0.55);
+          ctx.fillStyle = (d % 2 === 0 ? '#00E5FF' : '#FF007F');
+          ctx.fillRect(dx - 3, dy - 3, 6, 6);
+        }
+      }
+    } else if(this.bossKey === 'rex_tyrannus'){
+      // Rex Tyrannus Biomechanical Dinosaur Fallback
+      ctx.fillStyle = '#37474F';
+      ctx.beginPath();
+      ctx.ellipse(0, 8, this.w * 0.44, this.h * 0.40, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#263238'; ctx.lineWidth = 3; ctx.stroke();
+
+      // Biomechanical Skull & Jaw
+      ctx.fillStyle = '#455A64';
+      ctx.beginPath();
+      ctx.roundRect(-this.w * 0.48, -this.h * 0.42, this.w * 0.55, this.h * 0.42, [8, 4, 4, 8]);
+      ctx.fill();
+      ctx.strokeStyle = '#212121'; ctx.lineWidth = 2; ctx.stroke();
+
+      // Razor Teeth
+      ctx.fillStyle = '#ECEFF1';
+      for(let t = 0; t < 5; t++){
+        ctx.beginPath();
+        ctx.moveTo(-this.w * 0.45 + t * 9, -this.h * 0.02);
+        ctx.lineTo(-this.w * 0.41 + t * 9, -this.h * 0.02 + 8);
+        ctx.lineTo(-this.w * 0.37 + t * 9, -this.h * 0.02);
+        ctx.fill();
+      }
+
+      // Glowing Magma Eye
+      ctx.fillStyle = (this.phase === 3 ? '#FF1744' : '#FF9100');
+      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(-this.w * 0.28, -this.h * 0.22, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Magma Fissures on Plates
+      ctx.strokeStyle = (this.phase === 3 ? '#FF1744' : '#FF6D00');
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-this.w * 0.1, -this.h * 0.1); ctx.lineTo(this.w * 0.2, 0); ctx.lineTo(this.w * 0.35, -this.h * 0.15);
+      ctx.moveTo(0, 12); ctx.lineTo(this.w * 0.25, 20);
+      ctx.stroke();
+
+      // Volcanic Steam Exhaust Vents
+      ctx.fillStyle = '#263238';
+      ctx.fillRect(this.w * 0.15, -this.h * 0.40, 10, 14);
+      if(Math.floor((now || 0)/60) % 2 === 0){
+        ctx.fillStyle = 'rgba(255, 87, 34, 0.6)';
+        ctx.beginPath();
+        ctx.arc(this.w * 0.20, -this.h * 0.46, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if(this.bossKey === 'chronos'){
+      // Chronos Gothic Clockwork Lord Fallback
+      ctx.fillStyle = '#3E2723';
+      ctx.beginPath();
+      ctx.roundRect(-this.w * 0.38, -this.h * 0.45, this.w * 0.76, this.h * 0.9, [10]);
+      ctx.fill();
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3; ctx.stroke();
+
+      // Clock Dial Face
+      ctx.fillStyle = '#FFF8E1';
+      ctx.beginPath();
+      ctx.arc(0, -6, this.w * 0.26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#B78103'; ctx.lineWidth = 2; ctx.stroke();
+
+      // Roman Numerals Ticks (12, 3, 6, 9)
+      ctx.fillStyle = '#212121';
+      ctx.fillRect(-1.5, -6 - this.w * 0.22, 3, 5); // XII
+      ctx.fillRect(-1.5, -6 + this.w * 0.22 - 5, 3, 5); // VI
+      ctx.fillRect(-this.w * 0.22, -7.5, 5, 3); // IX
+      ctx.fillRect(this.w * 0.22 - 5, -7.5, 5, 3); // III
+
+      // Rotating Clock Hands
+      const minuteAngle = (now || 0) * 0.005;
+      const hourAngle = (now || 0) * 0.0008;
+      ctx.strokeStyle = '#D50000'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(Math.cos(minuteAngle)*14, -6 + Math.sin(minuteAngle)*14); ctx.stroke();
+      ctx.strokeStyle = '#212121'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(Math.cos(hourAngle)*9, -6 + Math.sin(hourAngle)*9); ctx.stroke();
+
+      // Swinging Pendulum
+      const pendAngle = Math.sin((now || 0) * 0.004) * 0.45;
+      const px = Math.sin(pendAngle) * 22;
+      const py = 14 + Math.cos(pendAngle) * 22;
+      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(px, py); ctx.stroke();
+      ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
+
+      // Orbiting Clock Blades (Phase 3)
+      if(this.phase === 3){
+        for(let b = 0; b < 4; b++){
+          const bAng = ((now || 0) * 0.008) + b * (Math.PI / 2);
+          const bx = Math.cos(bAng) * (this.w * 0.65);
+          const by = Math.sin(bAng) * (this.h * 0.65);
+          ctx.fillStyle = '#FFD700';
+          ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.moveTo(bx, by - 8); ctx.lineTo(bx + 4, by); ctx.lineTo(bx, by + 8); ctx.lineTo(bx - 4, by);
+          ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
     } else {
       ctx.fillStyle = (this.phase === 3 ? '#FF1744' : (this.phase === 2 ? '#FF9800' : '#424242'));
       ctx.beginPath();
@@ -2433,6 +2856,615 @@ class GelatinPlatform {
     ctx.beginPath();
     ctx.ellipse(s.x + this.w * 0.35, s.y + wobbleOff + 4, this.w * 0.25, 2.5, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// WORLD 12: HOLOGRAPHIC BOOST PADS & ELECTRIC LASER BARRIERS
+// ════════════════════════════════════════════════════════════
+// WORLD 12: HOLOGRAPHIC BOOST PADS & LASER BARRIERS
+// ════════════════════════════════════════════════════════════
+class HolographicBoostPad {
+  constructor(x, y, w = 64, h = 14, dir = 1, boostSpeed = 9.5){
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.dir = (dir !== undefined) ? dir : 1; // 1: right, -1: left
+    this.boostSpeed = (typeof boostSpeed === 'number') ? boostSpeed : 9.5;
+    this.boostVx = this.boostSpeed;
+    this.isBoostPad = true;
+    this.solid = true;
+    this.animTimer = 0;
+    this.pulseTimer = 0;
+  }
+  update(now){
+    this.animTimer = (this.animTimer + 1) % 60;
+  }
+  applyBoost(player){
+    if(!player) return;
+    const boostDirection = (this.dir !== undefined) ? this.dir : (player.facingRight ? 1 : 1);
+    player.vx = boostDirection * this.boostSpeed;
+    player.isBoosted = true;
+    player.superSpeedTimer = 45;
+  }
+  check(player, game){
+    if(!player) return;
+    if(player.x + player.w > this.x && player.x < this.x + this.w &&
+       player.y + player.h >= this.y - 6 && player.y + player.h <= this.y + this.h + 8){
+      this.applyBoost(player);
+      player.invincibleTimer = Math.max(player.invincibleTimer || 0, 15);
+      if(typeof audio !== 'undefined' && audio.dash) audio.dash();
+      if(game && game.camera) game.camera.shake(4);
+      if(game){
+        game.addParticles(player.x + player.w/2, this.y + 4, 10, ['#00F0FF', '#FF007F', '#FFFFFF', '#FFE600'], 3.2);
+        game.addFloatingText('⚡ ¡TURBO BOOST! ⚡', player.x, player.y - 20, '#00F0FF');
+      }
+    }
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.x - 10, this.y - 10, this.w + 20, this.h + 20)) return;
+    const s = cam.toScreen(this.x, this.y);
+    ctx.save();
+    // Glowing neon holographic base
+    const bgGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + this.h);
+    bgGrad.addColorStop(0, 'rgba(0, 240, 255, 0.85)');
+    bgGrad.addColorStop(1, 'rgba(255, 0, 127, 0.65)');
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [4]); ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Animated holographic chevrons (>>>)
+    ctx.strokeStyle = '#FFE600'; ctx.lineWidth = 2.0;
+    const animOff = (now * 0.05) % 20;
+    for(let cx = -10 + animOff; cx < this.w; cx += 18){
+      if(cx >= 4 && cx <= this.w - 12){
+        ctx.beginPath();
+        ctx.moveTo(s.x + cx, s.y + 2);
+        ctx.lineTo(s.x + cx + 6, s.y + this.h/2);
+        ctx.lineTo(s.x + cx, s.y + this.h - 2);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
+const BoostPad = HolographicBoostPad;
+
+class LaserBarrier {
+  constructor(x, y, w = 16, h = 96, period = 180, activeFrames = 90, offset = 0){
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.period = period || 180;
+    this.cycleTime = this.period;
+    this.activeFrames = activeFrames || 90;
+    this.activeTime = this.activeFrames;
+    this.offset = offset || 0;
+    this.isLaserBarrier = true;
+    this.active = true;
+    this.state = 'idle';
+    this.timer = 0;
+  }
+  isActiveAt(t){
+    return ((t + (this.offset || 0)) % this.period) < this.activeFrames;
+  }
+  isActive(){
+    return this.isActiveAt(this.timer);
+  }
+  update(frame = 0){
+    if(typeof frame === 'number') this.timer = frame;
+    else this.timer = (this.timer + 1) % this.period;
+    const t = (this.timer + this.offset) % this.period;
+    this.active = this.isActiveAt(this.timer);
+    if(!this.active){
+      this.state = (t >= this.period - 30) ? 'warning' : 'idle';
+    } else {
+      this.state = 'active';
+    }
+  }
+  checkDamage(player){
+    if(!this.isActive()) return false;
+    if(!player || (player.invincibleTimer && player.invincibleTimer > 0)) return false;
+    const overlap = player.x + 2 < this.x + this.w && player.x + player.w - 2 > this.x &&
+                    player.y < this.y + this.h && player.y + player.h > this.y;
+    return overlap;
+  }
+  check(player, game){
+    if(!this.isActive()) return;
+    if(!player || (player.invincibleTimer && player.invincibleTimer > 0)) return;
+    if(this.checkDamage(player)){
+      player.invincibleTimer = 90;
+      player.vy = -6.5;
+      player.vx = (player.x + player.w/2 < this.x + this.w/2) ? -5.5 : 5.5;
+      if(typeof audio !== 'undefined' && audio.hazardScatter) audio.hazardScatter();
+      if(game && game.camera) game.camera.shake(8);
+      if(game){
+        game.addParticles(player.x + player.w/2, player.y + player.h/2, 16, ['#00F0FF', '#FF007F', '#FFFFFF'], 3.8);
+        game.addFloatingText('⚡ ¡DESCARGA LÁSER! ⚡', player.x, player.y - 20, '#FF1744');
+      }
+    }
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.x - 20, this.y - 10, this.w + 40, this.h + 20)) return;
+    const s = cam.toScreen(this.x, this.y);
+    ctx.save();
+    // Emitter nodes top and bottom
+    ctx.fillStyle = '#212121';
+    ctx.fillRect(s.x - 4, s.y - 6, this.w + 8, 8);
+    ctx.fillRect(s.x - 4, s.y + this.h - 2, this.w + 8, 8);
+    ctx.fillStyle = this.active ? '#00F0FF' : '#FF5252';
+    ctx.fillRect(s.x + this.w/2 - 3, s.y - 4, 6, 4);
+    ctx.fillRect(s.x + this.w/2 - 3, s.y + this.h, 6, 4);
+
+    if(this.active){
+      const pulse = Math.sin(now * 0.02) * 2;
+      // Outer neon aura
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.45)';
+      ctx.fillRect(s.x - pulse, s.y, this.w + pulse*2, this.h);
+      // Inner white-hot high-voltage core
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(s.x + 3, s.y, this.w - 6, this.h);
+      // Electric spark arcs
+      ctx.strokeStyle = '#FF007F'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for(let py = s.y; py <= s.y + this.h; py += 12){
+        const jx = s.x + this.w/2 + (Math.sin(now * 0.05 + py) * 6);
+        py === s.y ? ctx.moveTo(jx, py) : ctx.lineTo(jx, py);
+      }
+      ctx.stroke();
+    } else {
+      // Charging guide laser
+      ctx.strokeStyle = 'rgba(255, 0, 127, 0.25)'; ctx.lineWidth = 1.0; ctx.setLineDash([4, 6]);
+      ctx.beginPath(); ctx.moveTo(s.x + this.w/2, s.y); ctx.lineTo(s.x + this.w/2, s.y + this.h); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// WORLD 13: BOUNCY PALM LEAVES, LAVA GEYSERS & BASALT BLOCKS
+// ════════════════════════════════════════════════════════════
+class BouncyPalmLeaf {
+  constructor(x, y, w = 64, h = 20, bounceImpulse = -15.5){
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.bounceImpulse = (typeof bounceImpulse === 'number') ? bounceImpulse : -15.5;
+    this.bounceForce = this.bounceImpulse;
+    this.isBouncyLeaf = true;
+    this.isPalmLeaf = true;
+    this.solid = true;
+    this.flex = 0;
+    this.flexPhase = 0;
+    this.swayTimer = 0;
+  }
+  update(now){
+    if(this.swayTimer > 0.05) this.swayTimer *= 0.90;
+    else this.swayTimer = 0;
+
+    if(this.flex > 0.05){
+      this.flex *= 0.85;
+      this.flexPhase += 0.45;
+    } else {
+      this.flex = 0;
+      this.flexPhase = 0;
+    }
+  }
+  triggerBounce(){
+    this.flex = 1.0;
+    this.flexPhase = 0;
+    this.swayTimer = 1.0;
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.x - 15, this.y - 15, this.w + 30, this.h + 30)) return;
+    const s = cam.toScreen(this.x, this.y);
+    ctx.save();
+    const flexOff = Math.sin(this.flexPhase) * (this.flex * 8);
+    // Tropical palm frond leaf gradient
+    const leafGrad = ctx.createLinearGradient(s.x, s.y, s.x + this.w, s.y + this.h);
+    leafGrad.addColorStop(0, '#2E7D32');
+    leafGrad.addColorStop(0.5, '#4CAF50');
+    leafGrad.addColorStop(1, '#76FF03');
+    ctx.fillStyle = leafGrad;
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y + flexOff);
+    ctx.quadraticCurveTo(s.x + this.w/2, s.y - 6 + flexOff, s.x + this.w, s.y + 4 + flexOff);
+    ctx.quadraticCurveTo(s.x + this.w/2, s.y + this.h + flexOff, s.x, s.y + flexOff);
+    ctx.fill();
+    ctx.strokeStyle = '#CCFF90'; ctx.lineWidth = 2.0; ctx.stroke();
+    // Frond veins
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 1.2;
+    for(let vx = 16; vx < this.w - 10; vx += 16){
+      ctx.beginPath();
+      ctx.moveTo(s.x + vx, s.y + flexOff);
+      ctx.lineTo(s.x + vx + 8, s.y + this.h/2 + flexOff);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+const PalmLeaf = BouncyPalmLeaf;
+
+class LavaGeyser {
+  constructor(x, y = 256, w = 32, maxH = 120, period = 240, eruptDuration = 60, offset = 0){
+    this.baseX = x; this.baseY = y;
+    this.x = x; this.y = y; this.w = w; this.maxH = maxH; this.h = 0;
+    this.period = period || 240;
+    this.eruptDuration = eruptDuration || 60;
+    this.offset = offset || 0;
+    this.currentH = 0;
+    this.state = 'idle'; // 'idle', 'warning', 'erupt', 'receding'
+    this.timer = 0;
+    this.isLavaGeyser = true;
+  }
+  update(frame){
+    if(typeof frame === 'number') this.timer = frame % this.period;
+    const t = (this.timer + this.offset) % this.period;
+    if(t < this.period - 90){
+      this.state = 'idle';
+      this.h = 0;
+    } else if(t < this.period - 60){
+      this.state = 'warning';
+      this.h = 10;
+    } else if(t < this.period - 10){
+      this.state = 'erupt';
+      this.h = this.maxH;
+    } else {
+      this.state = 'receding';
+      this.h = this.maxH * 0.3;
+    }
+    this.currentH = this.h;
+    this.y = this.baseY - this.h;
+  }
+  checkDamage(player){
+    if(this.state !== 'erupt' && this.state !== 'erupting') return false;
+    const overlap = player.x < this.x + this.w && player.x + player.w > this.x &&
+                    player.y < this.baseY && player.y + player.h > this.baseY - this.h;
+    return overlap;
+  }
+  check(player, game){
+    if(!this.checkDamage(player)) return;
+    if(!player || (player.invincibleTimer && player.invincibleTimer > 0)) return;
+    player.invincibleTimer = 90;
+    player.vy = -9.0;
+    player.vx = (player.x + player.w/2 < this.x + this.w/2) ? -4.5 : 4.5;
+    if(typeof audio !== 'undefined' && audio.hazardScatter) audio.hazardScatter();
+    if(game && game.camera) game.camera.shake(10);
+    if(game){
+      game.addParticles(player.x + player.w/2, player.y + player.h/2, 20, ['#FF3D00', '#FF9100', '#FFE600'], 4.5);
+      game.addFloatingText('🔥 ¡GÉISER DE LAVA! 🔥', player.x, player.y - 20, '#FF3D00');
+    }
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.x - 20, this.baseY - this.maxH - 20, this.w + 40, this.maxH + 40)) return;
+    const s = cam.toScreen(this.x, this.baseY - this.h);
+    ctx.save();
+    if(this.state === 'warning'){
+      // Pre-eruption bubbling smoke and steam
+      ctx.fillStyle = 'rgba(255, 87, 34, 0.5)';
+      for(let bi = 0; bi < 4; bi++){
+        const bx = s.x + 8 + bi * 10, by = s.y + this.h - (bi * 6);
+        ctx.beginPath(); ctx.arc(bx, by, 4 + bi, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if(this.h > 4){
+      // Roaring vertical lava pillar
+      const lGrad = ctx.createLinearGradient(s.x, s.y, s.x + this.w, s.y);
+      lGrad.addColorStop(0, '#BF360C');
+      lGrad.addColorStop(0.3, '#FF3D00');
+      lGrad.addColorStop(0.5, '#FFF9C4');
+      lGrad.addColorStop(0.7, '#FF3D00');
+      lGrad.addColorStop(1, '#BF360C');
+      ctx.fillStyle = lGrad;
+      ctx.beginPath();
+      ctx.roundRect(s.x, s.y, this.w, this.h, [16, 16, 0, 0]);
+      ctx.fill();
+      // Fiery crest sparks
+      ctx.fillStyle = '#FFE600';
+      for(let si = 0; si < 5; si++){
+        const sx = s.x + 4 + si * 9, sy = s.y + (Math.sin(now * 0.02 + si) * 6);
+        ctx.beginPath(); ctx.arc(sx, sy, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+}
+
+class CrumblingBasaltBlock {
+  constructor(x, y, w = 32, h = 32, maxStand = 45, respawnDelay = 180){
+    this.baseX = x; this.baseY = y;
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.maxStand = maxStand || 45;
+    this.collapseDelay = this.maxStand;
+    this.respawnDelay = respawnDelay || 180;
+    this.standTimer = 0;
+    this.respawnTimer = 0;
+    this.vy = 0;
+    this.fallVy = 0;
+    this.fallen = false;
+    this.state = 'solid'; // 'solid', 'shaking', 'falling', 'respawning'
+    this.solid = true;
+    this.isBasalt = true;
+    this.isCrumblingBasalt = true;
+  }
+  stepOn(){
+    if(this.state === 'solid'){
+      this.standTimer++;
+      if(this.standTimer >= this.maxStand){
+        this.state = 'falling';
+        this.solid = false;
+        this.vy = 2.0;
+        this.fallVy = 2.0;
+      } else {
+        this.state = 'shaking';
+      }
+    }
+  }
+  update(player, game){
+    if(this.standTimer >= this.maxStand && this.state !== 'falling' && this.state !== 'respawning'){
+      this.state = 'falling';
+      this.solid = false;
+      this.vy = 2.0;
+      this.fallVy = 2.0;
+    }
+
+    if(this.state === 'shaking'){
+      this.standTimer++;
+      this.x = this.baseX + (Math.sin(this.standTimer * 0.9) * (this.standTimer / 12));
+      if(this.standTimer >= this.maxStand){
+        this.state = 'falling';
+        this.solid = false;
+        this.vy = 2.0;
+        this.fallVy = 2.0;
+      }
+    } else if(this.state === 'falling'){
+      this.vy += 0.4;
+      this.fallVy = this.vy;
+      this.y += this.vy;
+      this.respawnTimer++;
+      if(this.respawnTimer >= this.respawnDelay){
+        this.state = 'solid';
+        this.solid = true;
+        this.x = this.baseX;
+        this.y = this.baseY;
+        this.vy = 0;
+        this.fallVy = 0;
+        this.standTimer = 0;
+        this.respawnTimer = 0;
+        this.fallen = false;
+        if(game) game.addParticles(this.x + this.w/2, this.y + this.h/2, 8, ['#424242', '#FF5722'], 2.0);
+      }
+    } else if(player && typeof player.x === 'number'){
+      const standing = player.onGround && player.x + player.w > this.x + 2 && player.x < this.x + this.w - 2 &&
+                        Math.abs((player.y + player.h) - this.y) <= 4;
+      if(standing){
+        this.stepOn();
+      } else if(this.standTimer > 0 && this.standTimer < this.maxStand){
+        this.state = 'solid';
+        this.standTimer = Math.max(0, this.standTimer - 0.5);
+        this.x = this.baseX;
+      }
+    }
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(this.state === 'falling' && this.y > this.baseY + 400) return;
+    if(!cam.isVisible(this.x - 10, this.y - 10, this.w + 20, this.h + 20)) return;
+    const s = cam.toScreen(this.x, this.y);
+    ctx.save();
+    // Volcanic dark basalt rock
+    const bGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + this.h);
+    bGrad.addColorStop(0, '#424242');
+    bGrad.addColorStop(0.6, '#212121');
+    bGrad.addColorStop(1, '#000000');
+    ctx.fillStyle = bGrad;
+    ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [3]); ctx.fill();
+    ctx.strokeStyle = '#616161'; ctx.lineWidth = 1.2; ctx.stroke();
+    // Molten orange cracks & fissures
+    ctx.strokeStyle = (this.standTimer > 20) ? '#FF3D00' : '#FF9100';
+    ctx.lineWidth = (this.standTimer > 20) ? 2.0 : 1.0;
+    ctx.beginPath();
+    ctx.moveTo(s.x + 6, s.y + 4); ctx.lineTo(s.x + 16, s.y + 14); ctx.lineTo(s.x + 24, s.y + 26);
+    ctx.moveTo(s.x + 18, s.y + 8); ctx.lineTo(s.x + 12, s.y + 22);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+const BasaltBlock = CrumblingBasaltBlock;
+
+// ════════════════════════════════════════════════════════════
+// WORLD 14: ROTATING GEAR PLATFORMS, PENDULUMS & TICK-TOCK BLOCKS
+// ════════════════════════════════════════════════════════════
+class RotatingGearPlatform {
+  constructor(x, y, radius = 48, teeth = 8, speed = 0.02, dir = 1){
+    this.x = x; this.y = y;
+    this.cx = x; this.cy = y;
+    this.radius = radius || 48;
+    this.teeth = teeth || 8;
+    this.numTeeth = this.teeth;
+    this.speed = (typeof speed === 'number') ? speed : 0.02;
+    this.rotSpeed = this.speed;
+    this.dir = (dir !== undefined) ? dir : 1;
+    this.angle = 0;
+    this.isGear = true;
+    this.isGearPlatform = true;
+    this.solid = true;
+    this.w = this.radius * 2; this.h = 16;
+  }
+  update(now){
+    this.angle += this.speed * this.dir;
+  }
+  getRiderVelocity(){
+    return this.dir * this.speed * this.radius * 2.5;
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.cx - this.radius - 20, this.cy - this.radius - 20, this.radius*2 + 40, this.radius*2 + 40)) return;
+    const s = cam.toScreen(this.cx, this.cy);
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(this.angle);
+    // Outer Gear Wheel Rim
+    ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 6.0;
+    ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.stroke();
+    // Brass spokes
+    ctx.strokeStyle = '#DAA520'; ctx.lineWidth = 3.0;
+    for(let i = 0; i < 4; i++){
+      const a = (i * Math.PI) / 2;
+      ctx.beginPath(); ctx.moveTo(-Math.cos(a)*this.radius, -Math.sin(a)*this.radius); ctx.lineTo(Math.cos(a)*this.radius, Math.sin(a)*this.radius); ctx.stroke();
+    }
+    // Gear Teeth
+    ctx.fillStyle = '#FFD700';
+    for(let i = 0; i < this.teeth; i++){
+      const ta = (i * Math.PI * 2) / this.teeth;
+      ctx.save();
+      ctx.rotate(ta);
+      ctx.fillRect(this.radius - 4, -6, 12, 12);
+      ctx.restore();
+    }
+    // Central Brass Axle Hub
+    ctx.fillStyle = '#8B4513'; ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.restore();
+  }
+}
+const GearPlatform = RotatingGearPlatform;
+
+class PendulumSwing {
+  constructor(anchorX, anchorY, length = 96, maxAngle = Math.PI / 3, speed = 0.04, bladeRadius = 20, offset = 0){
+    this.anchorX = anchorX; this.anchorY = anchorY;
+    this.pivotX = anchorX; this.pivotY = anchorY;
+    this.length = length || 96;
+    this.maxAngle = maxAngle || Math.PI / 3;
+    this.speed = (typeof speed === 'number') ? speed : 0.04;
+    this.bladeRadius = bladeRadius || 20;
+    this.bobRadius = this.bladeRadius;
+    this.offset = offset || 0;
+    this.angle = 0;
+    this.currentAngle = 0;
+    this.isPendulum = true;
+  }
+  update(now = 0){
+    if(typeof now === 'number' && now > 500) this.angle = Math.sin(now * this.speed) * this.maxAngle;
+    else this.angle = Math.sin((now + this.offset) * this.speed) * this.maxAngle;
+    this.currentAngle = this.angle;
+  }
+  getBladePos(){
+    return {
+      x: this.anchorX + Math.sin(this.angle) * this.length,
+      y: this.anchorY + Math.cos(this.angle) * this.length
+    };
+  }
+  checkDamage(player){
+    const b = this.getBladePos();
+    const px = player.x + player.w / 2;
+    const py = player.y + player.h / 2;
+    return Math.hypot(px - b.x, py - b.y) < (this.bladeRadius + player.w / 2);
+  }
+  check(player, game){
+    if(!player || (player.invincibleTimer && player.invincibleTimer > 0)) return;
+    if(this.checkDamage(player)){
+      const b = this.getBladePos();
+      player.invincibleTimer = 90;
+      player.vy = -7.0;
+      player.vx = (Math.cos(this.angle) >= 0 ? 6.0 : -6.0);
+      if(typeof audio !== 'undefined' && audio.hazardScatter) audio.hazardScatter();
+      if(game && game.camera) game.camera.shake(9);
+      if(game){
+        game.addParticles(b.x, b.y, 18, ['#FFD700', '#B8860B', '#FFFFFF'], 4.0);
+        game.addFloatingText('⏱️ ¡PÉNDULO AFILADO! ⏱️', b.x - 30, b.y - 20, '#FFD700');
+      }
+    }
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    const b = this.getBladePos();
+    if(!cam.isVisible(Math.min(this.anchorX, b.x) - 30, this.anchorY - 10, Math.abs(b.x - this.anchorX) + 60, this.length + 40)) return;
+    const sPivot = cam.toScreen(this.anchorX, this.anchorY);
+    const sBob = cam.toScreen(b.x, b.y);
+    ctx.save();
+    // Brass ceiling mount
+    ctx.fillStyle = '#DAA520';
+    ctx.beginPath(); ctx.arc(sPivot.x, sPivot.y, 8, 0, Math.PI * 2); ctx.fill();
+    // Linked steel/brass pendulum rod
+    ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(sPivot.x, sPivot.y); ctx.lineTo(sBob.x, sBob.y); ctx.stroke();
+    // Heavy Clock Blade Bob
+    ctx.save();
+    ctx.translate(sBob.x, sBob.y);
+    ctx.rotate(this.angle);
+    const bGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, this.bladeRadius);
+    bGrad.addColorStop(0, '#FFFFFF');
+    bGrad.addColorStop(0.4, '#FFD700');
+    bGrad.addColorStop(1, '#8B4513');
+    ctx.fillStyle = bGrad;
+    ctx.beginPath(); ctx.arc(0, 0, this.bladeRadius, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.0; ctx.stroke();
+    // Roman numerals on blade face
+    ctx.fillStyle = '#3E2723'; ctx.font = 'bold 11px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('XII', 0, 0);
+    ctx.restore();
+    ctx.restore();
+  }
+}
+const ClockPendulum = PendulumSwing;
+
+class TickTockBlock {
+  constructor(x, y, w = 32, h = 32, arg5 = 120, arg6 = 0){
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    let cycle = 120;
+    let phase = 0;
+
+    if(typeof arg5 === 'string'){
+      phase = (arg5 === 'tick') ? 0 : 1;
+      cycle = (typeof arg6 === 'number' && arg6 > 0) ? arg6 : 120;
+    } else if(typeof arg5 === 'number' && (arg5 === 0 || arg5 === 1) && typeof arg6 === 'number' && arg6 > 1){
+      phase = arg5;
+      cycle = arg6;
+    } else if(typeof arg5 === 'number' && arg5 > 1){
+      cycle = arg5;
+      phase = (arg6 === 1 || arg6 === 'tock') ? 1 : 0;
+    } else {
+      phase = (arg6 === 1) ? 1 : (arg5 === 1 ? 1 : 0);
+      cycle = 120;
+    }
+
+    this.cycle = cycle;
+    this.switchInterval = cycle;
+    this.phase = phase;
+    this.group = (phase === 0) ? 'tick' : 'tock';
+    this.timer = 0;
+    this.isTickTock = true;
+    this.isSolid = (phase === 0);
+    this.solid = this.isSolid;
+  }
+  isSolidAt(t){
+    const interval = this.switchInterval || this.cycle || 120;
+    const p = Math.floor(t / interval) % 2;
+    const targetPhase = (this.group === 'tick') ? 0 : ((this.group === 'tock') ? 1 : (this.phase || 0));
+    return p === targetPhase;
+  }
+  update(frame){
+    if(typeof frame === 'number') this.timer = frame;
+    else this.timer = (this.timer + 1) % ((this.switchInterval || this.cycle || 120) * 2);
+    this.isSolid = this.isSolidAt(this.timer);
+    this.solid = this.isSolid;
+  }
+  draw(ctx, cam, now = (typeof performance !== 'undefined' ? performance.now() : Date.now())){
+    if(!cam.isVisible(this.x - 10, this.y - 10, this.w + 20, this.h + 20)) return;
+    const s = cam.toScreen(this.x, this.y);
+    ctx.save();
+    const isTick = (this.phase === 0);
+    const primaryCol = isTick ? '#00E5FF' : '#FFD700';
+    const secondaryCol = isTick ? '#00838F' : '#E65100';
+
+    if(this.isSolid){
+      // Solid, collidable state
+      const sGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + this.h);
+      sGrad.addColorStop(0, primaryCol);
+      sGrad.addColorStop(1, secondaryCol);
+      ctx.fillStyle = sGrad;
+      ctx.beginPath(); ctx.roundRect(s.x, s.y, this.w, this.h, [4]); ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#FFFFFF'; ctx.font = '900 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(isTick ? 'I' : 'II', s.x + this.w/2, s.y + this.h/2);
+    } else {
+      // Translucent ghost state
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = primaryCol; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+      ctx.strokeRect(s.x, s.y, this.w, this.h);
+      ctx.fillStyle = primaryCol; ctx.fillRect(s.x + 2, s.y + 2, this.w - 4, this.h - 4);
+    }
     ctx.restore();
   }
 }
@@ -2834,20 +3866,20 @@ class PlatformerGame {
         this.starDust = 0;
         this.unlockedHats = ['crown', 'none'];
       } else if(data && typeof data === 'object'){
-        this.unlockedLevels = data.unlocked || [true,false,false,false,false,false,false,false,false,false];
+        this.unlockedLevels = data.unlocked || [true,false,false,false,false,false,false,false,false,false,false,false,false,false];
         this.starCoinsPerLevel = data.starCoins || {};
         this.highScore = data.highScore || 0;
         this.starDust = 0;
         this.unlockedHats = Array.isArray(data.unlockedHats) ? data.unlockedHats : null;
       } else {
-        this.unlockedLevels = [true,false,false,false,false,false,false,false,false,false];
+        this.unlockedLevels = [true,false,false,false,false,false,false,false,false,false,false,false,false,false];
         this.starCoinsPerLevel = {};
         this.highScore = 0;
         this.starDust = 0;
         this.unlockedHats = null;
       }
     } catch(e){
-      this.unlockedLevels = [true,false,false,false,false,false,false,false,false,false,false];
+      this.unlockedLevels = [true,false,false,false,false,false,false,false,false,false,false,false,false,false];
       this.starCoinsPerLevel = {};
       this.highScore = 0;
       this.starDust = 0;
@@ -2855,6 +3887,9 @@ class PlatformerGame {
     }
     if(this.isStarWorldUnlocked()) this.unlockedLevels[9] = true;
     if(this.isCandyWorldUnlocked()) this.unlockedLevels[10] = true;
+    if(this.isCyberWorldUnlocked()) this.unlockedLevels[11] = true;
+    if(this.isVolcanoWorldUnlocked()) this.unlockedLevels[12] = true;
+    if(this.isClockWorldUnlocked()) this.unlockedLevels[13] = true;
     
     this.state='MENU';
 
@@ -3260,9 +4295,29 @@ class PlatformerGame {
     return totalStarCoins >= 24 || Boolean(this.unlockedLevels && (this.unlockedLevels[9] || this.unlockedLevels[8]));
   }
 
+  isCyberWorldUnlocked(){
+    const totalStarCoins = Object.values(this.starCoinsPerLevel || {}).reduce((a, b) => a + Number(b || 0), 0);
+    return totalStarCoins >= 28 || Boolean(this.unlockedLevels && (this.unlockedLevels[10] || this.unlockedLevels[9] || this.unlockedLevels[8]));
+  }
+  isCyberpunkWorldUnlocked(){ return this.isCyberWorldUnlocked(); }
+
+  isVolcanoWorldUnlocked(){
+    const totalStarCoins = Object.values(this.starCoinsPerLevel || {}).reduce((a, b) => a + Number(b || 0), 0);
+    return totalStarCoins >= 32 || Boolean(this.unlockedLevels && (this.unlockedLevels[11] || this.unlockedLevels[10] || this.unlockedLevels[8]));
+  }
+
+  isClockWorldUnlocked(){
+    const totalStarCoins = Object.values(this.starCoinsPerLevel || {}).reduce((a, b) => a + Number(b || 0), 0);
+    return totalStarCoins >= 36 || Boolean(this.unlockedLevels && (this.unlockedLevels[12] || this.unlockedLevels[11] || this.unlockedLevels[8]));
+  }
+  isClocktowerWorldUnlocked(){ return this.isClockWorldUnlocked(); }
+
   isLevelUnlocked(idx){
     if(idx === 9) return Boolean(this.unlockedLevels[9] || this.isStarWorldUnlocked());
     if(idx === 10) return Boolean(this.unlockedLevels[10] || this.isCandyWorldUnlocked());
+    if(idx === 11) return Boolean(this.unlockedLevels[11] || this.isCyberWorldUnlocked());
+    if(idx === 12) return Boolean(this.unlockedLevels[12] || this.isVolcanoWorldUnlocked());
+    if(idx === 13) return Boolean(this.unlockedLevels[13] || this.isClockWorldUnlocked());
     return Boolean(this.unlockedLevels[idx]);
   }
 
@@ -3481,13 +4536,17 @@ class PlatformerGame {
       } else {
         audio.bump();
         const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
-        const msg = (this.currentLevelIdx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
+        const msg = (this.currentLevelIdx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' :
+                    (this.currentLevelIdx === 10) ? '¡DESBLOQUEA CON 24 MONEDAS O MUNDO S-1! ⭐🔒' :
+                    (this.currentLevelIdx === 11) ? '¡DESBLOQUEA CON 28 MONEDAS O MUNDO S-2! ⭐🔒' :
+                    (this.currentLevelIdx === 12) ? '¡DESBLOQUEA CON 32 MONEDAS O MUNDO S-3! ⭐🔒' :
+                    (this.currentLevelIdx === 13) ? '¡DESBLOQUEA CON 36 MONEDAS O MUNDO S-4! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
         this.addFloatingText(msg, cfg.mapX, cfg.mapY - 20, '#FFD700');
       }
       return;
     }
 
-    // Clicking any of the 10 World Nodes
+    // Clicking any of the World Nodes
     let clickedNode = false;
     LEVEL_CONFIGS.forEach((cfg, idx) => {
       const dist = Math.hypot(cx - cfg.mapX, cy - cfg.mapY);
@@ -3499,7 +4558,11 @@ class PlatformerGame {
             this.startSelectedLevel();
           } else {
             audio.bump();
-            const msg = (idx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
+            const msg = (idx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' :
+                        (idx === 10) ? '¡DESBLOQUEA CON 24 MONEDAS O MUNDO S-1! ⭐🔒' :
+                        (idx === 11) ? '¡DESBLOQUEA CON 28 MONEDAS O MUNDO S-2! ⭐🔒' :
+                        (idx === 12) ? '¡DESBLOQUEA CON 32 MONEDAS O MUNDO S-3! ⭐🔒' :
+                        (idx === 13) ? '¡DESBLOQUEA CON 36 MONEDAS O MUNDO S-4! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
             this.addFloatingText(msg, cfg.mapX, cfg.mapY - 20, '#FFD700');
           }
         } else {
@@ -3521,7 +4584,11 @@ class PlatformerGame {
         } else {
           audio.bump();
           const cfg = LEVEL_CONFIGS[this.currentLevelIdx];
-          const msg = (this.currentLevelIdx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
+          const msg = (this.currentLevelIdx === 9) ? '¡DESBLOQUEA CON 20 MONEDAS O MUNDO 1-9! ⭐🔒' :
+                      (this.currentLevelIdx === 10) ? '¡DESBLOQUEA CON 24 MONEDAS O MUNDO S-1! ⭐🔒' :
+                      (this.currentLevelIdx === 11) ? '¡DESBLOQUEA CON 28 MONEDAS O MUNDO S-2! ⭐🔒' :
+                      (this.currentLevelIdx === 12) ? '¡DESBLOQUEA CON 32 MONEDAS O MUNDO S-3! ⭐🔒' :
+                      (this.currentLevelIdx === 13) ? '¡DESBLOQUEA CON 36 MONEDAS O MUNDO S-4! ⭐🔒' : '¡MUNDO BLOQUEADO! 🔒';
           this.addFloatingText(msg, cfg.mapX, cfg.mapY - 20, '#FFD700');
         }
       }
@@ -3747,12 +4814,21 @@ class PlatformerGame {
   }
 
   buildLevel(cfg){
-    const lw = (cfg.theme === 'special_star' || cfg.theme === 'candy') ? 4200 : 3800;
+    const isSpecialTheme = (cfg.theme === 'special_star' || cfg.theme === 'candy' || cfg.theme === 'cyberpunk' || cfg.theme === 'volcano_jungle' || cfg.theme === 'clocktower');
+    const lw = isSpecialTheme ? 4200 : 3800;
     this.levelWidth = lw;
     this.staticPlatforms = [];
     this.crystalPlatforms = [];
     this.gelatinPlatforms = [];
     this.chocolatePools = [];
+    this.boostPads = [];
+    this.laserBarriers = [];
+    this.bouncyLeaves = [];
+    this.lavaGeysers = [];
+    this.crumblingBlocks = [];
+    this.gearPlatforms = [];
+    this.pendulums = [];
+    this.tickTockBlocks = [];
     this.spawnedPlatforms = [];
     this.destructibleBlocks = [];
     this.questionBlocks = [];
@@ -3867,6 +4943,33 @@ class PlatformerGame {
         {x:920,y:180,w:85,h:14},{x:1100,y:135,w:85,h:14},{x:1280,y:180,w:85,h:14},{x:1480,y:130,w:85,h:14},
         {x:1680,y:185,w:85,h:14},{x:1880,y:140,w:85,h:14},{x:2080,y:95,w:85,h:14},{x:2280,y:145,w:85,h:14},
         {x:2500,y:115,w:85,h:14},{x:2700,y:175,w:85,h:14},{x:2920,y:135,w:85,h:14},{x:3140,y:90,w:85,h:14}
+      ],
+      cyberpunk:[
+        {x:0,y:256,w:360,h:24},{x:440,y:240,w:240,h:20},{x:780,y:256,w:340,h:24},{x:1200,y:230,w:250,h:20},
+        {x:1560,y:256,w:320,h:24},{x:1980,y:220,w:300,h:20},{x:2380,y:256,w:320,h:24},{x:2800,y:230,w:280,h:20},
+        {x:3180,y:256,w:320,h:24},{x:3600,y:256,w:600,h:32},
+        {x:180,y:190,w:85,h:14},{x:360,y:145,w:85,h:14},{x:540,y:185,w:85,h:14},{x:720,y:140,w:85,h:14},
+        {x:920,y:180,w:85,h:14},{x:1100,y:135,w:85,h:14},{x:1280,y:180,w:85,h:14},{x:1480,y:130,w:85,h:14},
+        {x:1680,y:185,w:85,h:14},{x:1880,y:140,w:85,h:14},{x:2080,y:95,w:85,h:14},{x:2280,y:145,w:85,h:14},
+        {x:2500,y:115,w:85,h:14},{x:2700,y:175,w:85,h:14},{x:2920,y:135,w:85,h:14},{x:3140,y:90,w:85,h:14}
+      ],
+      volcano_jungle:[
+        {x:0,y:256,w:360,h:24},{x:440,y:240,w:260,h:20},{x:800,y:256,w:320,h:24},{x:1220,y:230,w:260,h:20},
+        {x:1580,y:256,w:320,h:24},{x:2000,y:220,w:300,h:20},{x:2400,y:256,w:320,h:24},{x:2820,y:230,w:280,h:20},
+        {x:3200,y:256,w:320,h:24},{x:3620,y:256,w:580,h:32},
+        {x:180,y:195,w:85,h:14},{x:360,y:150,w:85,h:14},{x:540,y:190,w:85,h:14},{x:720,y:145,w:85,h:14},
+        {x:920,y:185,w:85,h:14},{x:1100,y:140,w:85,h:14},{x:1280,y:185,w:85,h:14},{x:1480,y:135,w:85,h:14},
+        {x:1680,y:190,w:85,h:14},{x:1880,y:145,w:85,h:14},{x:2080,y:100,w:85,h:14},{x:2280,y:150,w:85,h:14},
+        {x:2500,y:120,w:85,h:14},{x:2700,y:180,w:85,h:14},{x:2920,y:140,w:85,h:14},{x:3140,y:95,w:85,h:14}
+      ],
+      clocktower:[
+        {x:0,y:256,w:360,h:24},{x:440,y:240,w:260,h:20},{x:800,y:256,w:320,h:24},{x:1220,y:230,w:260,h:20},
+        {x:1580,y:256,w:320,h:24},{x:2000,y:220,w:300,h:20},{x:2400,y:256,w:320,h:24},{x:2820,y:230,w:280,h:20},
+        {x:3200,y:256,w:320,h:24},{x:3620,y:256,w:580,h:32},
+        {x:180,y:190,w:85,h:14},{x:360,y:145,w:85,h:14},{x:540,y:185,w:85,h:14},{x:720,y:140,w:85,h:14},
+        {x:920,y:180,w:85,h:14},{x:1100,y:135,w:85,h:14},{x:1280,y:180,w:85,h:14},{x:1480,y:130,w:85,h:14},
+        {x:1680,y:185,w:85,h:14},{x:1880,y:140,w:85,h:14},{x:2080,y:95,w:85,h:14},{x:2280,y:145,w:85,h:14},
+        {x:2500,y:115,w:85,h:14},{x:2700,y:175,w:85,h:14},{x:2920,y:135,w:85,h:14},{x:3140,y:90,w:85,h:14}
       ]
     };
     const basePlats = (_tbl[cfg.theme] || _tbl.garden).map(function(p){ return Object.assign({},p); });
@@ -3884,6 +4987,24 @@ class PlatformerGame {
         new StarCoin(1950, 55, 2),
         new StarCoin(3120, 65, 3)
       ];
+    } else if(cfg.theme === 'cyberpunk'){
+      this.starCoins = [
+        new StarCoin(480, 65, 1),
+        new StarCoin(1960, 55, 2),
+        new StarCoin(3350, 60, 3)
+      ];
+    } else if(cfg.theme === 'volcano_jungle'){
+      this.starCoins = [
+        new StarCoin(520, 70, 1),
+        new StarCoin(1980, 55, 2),
+        new StarCoin(3380, 65, 3)
+      ];
+    } else if(cfg.theme === 'clocktower'){
+      this.starCoins = [
+        new StarCoin(500, 65, 1),
+        new StarCoin(1940, 50, 2),
+        new StarCoin(3360, 60, 3)
+      ];
     } else {
       this.starCoins = [
         new StarCoin(460, 85, 1),
@@ -3896,12 +5017,12 @@ class PlatformerGame {
     const mType = {
       garden: 'unicorn', marine: 'dolphin', egypt: 'camel', disney: 'disney_steed',
       frozen: 'sven', sky: 'pegasus', cave: 'crystal_orb', galaxy: 'cosmic_dragon', castle: 'phoenix',
-      special_star: 'cosmic_dragon', candy: 'unicorn'
+      special_star: 'cosmic_dragon', candy: 'unicorn', cyberpunk: 'cosmic_dragon', volcano_jungle: 'phoenix', clocktower: 'pegasus'
     }[cfg.theme] || 'unicorn';
 
     this.mounts = [
       new RideableMount(mType, 180, 226),
-      new RideableMount((cfg.theme === 'special_star' ? 'pegasus' : mType), 1850, 120)
+      new RideableMount((cfg.theme === 'special_star' || cfg.theme === 'cyberpunk' ? 'pegasus' : mType), 1850, 120)
     ];
     this.currentMount = this.mounts[0];
 
@@ -3935,6 +5056,103 @@ class PlatformerGame {
         new QuestionBlock(1480, 125, 'wing'),
         new QuestionBlock(2200, 125, 'mushroom'),
         new QuestionBlock(2900, 110, 'princess')
+      ];
+    } else if(cfg.theme === 'cyberpunk'){
+      this.boostPads = [
+        new HolographicBoostPad(380, 242, 64, 14, 1, 9.5),
+        new HolographicBoostPad(1150, 216, 64, 14, 1, 9.5),
+        new HolographicBoostPad(1900, 206, 64, 14, 1, 9.5),
+        new HolographicBoostPad(2720, 216, 64, 14, 1, 9.5),
+        new HolographicBoostPad(3240, 242, 64, 14, 1, 9.5)
+      ];
+      this.laserBarriers = [
+        new LaserBarrier(680, 150, 14, 90, 180, 90, 0),
+        new LaserBarrier(1480, 140, 14, 90, 180, 90, 60),
+        new LaserBarrier(2280, 130, 14, 90, 180, 90, 120),
+        new LaserBarrier(3050, 150, 14, 90, 180, 90, 0)
+      ];
+      this.enemies = pos.map((x, i) => {
+        const type = (i % 3 === 0) ? 'octo_alien' : (i % 2 === 0 ? 'paratroopa' : 'koopa');
+        const y = (type === 'paratroopa') ? (115 + (i % 4) * 25) : 224;
+        return new Enemy(type, x, y, x - 90, x + 90);
+      });
+      this.questionBlocks = [
+        new QuestionBlock(240, 135, 'galaxy_astronaut'),
+        new QuestionBlock(860, 130, 'superstar'),
+        new QuestionBlock(1480, 125, 'wing'),
+        new QuestionBlock(2200, 125, 'superstar'),
+        new QuestionBlock(2900, 110, 'galaxy_astronaut')
+      ];
+    } else if(cfg.theme === 'volcano_jungle'){
+      this.bouncyLeaves = [
+        new BouncyPalmLeaf(420, 195, 90, 18, -15.5),
+        new BouncyPalmLeaf(1200, 185, 90, 18, -15.5),
+        new BouncyPalmLeaf(1960, 175, 90, 18, -16.0),
+        new BouncyPalmLeaf(2740, 185, 90, 18, -15.5),
+        new BouncyPalmLeaf(3300, 195, 90, 18, -15.5)
+      ];
+      this.lavaGeysers = [
+        new LavaGeyser(660, 256, 48, 140, 200, 0),
+        new LavaGeyser(1440, 256, 48, 140, 200, 60),
+        new LavaGeyser(2240, 256, 48, 140, 200, 120),
+        new LavaGeyser(3040, 256, 48, 140, 200, 40)
+      ];
+      this.crumblingBlocks = [
+        new CrumblingBasaltBlock(740, 160, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(772, 160, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(1520, 150, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(1552, 150, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(2320, 140, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(2352, 140, 32, 32, 45, 240),
+        new CrumblingBasaltBlock(3100, 150, 32, 32, 45, 240)
+      ];
+      this.enemies = pos.map((x, i) => {
+        const type = (i % 3 === 0) ? 'pokey' : (i % 2 === 0 ? 'koopa' : 'goomba');
+        const y = (type === 'pokey') ? 218 : 224;
+        return new Enemy(type, x, y, x - 85, x + 85);
+      });
+      this.questionBlocks = [
+        new QuestionBlock(240, 135, 'fireflower'),
+        new QuestionBlock(860, 130, 'superstar'),
+        new QuestionBlock(1480, 125, 'fireflower'),
+        new QuestionBlock(2200, 125, 'mushroom'),
+        new QuestionBlock(2900, 110, 'fireflower')
+      ];
+    } else if(cfg.theme === 'clocktower'){
+      this.gearPlatforms = [
+        new RotatingGearPlatform(450, 180, 55, 8, 0.02, 1),
+        new RotatingGearPlatform(1250, 160, 55, 8, -0.02, -1),
+        new RotatingGearPlatform(2050, 150, 60, 8, 0.02, 1),
+        new RotatingGearPlatform(2850, 160, 55, 8, -0.02, -1),
+        new RotatingGearPlatform(3350, 175, 55, 8, 0.02, 1)
+      ];
+      this.pendulums = [
+        new PendulumSwing(700, 40, 130, 0.85, 180, 0),
+        new PendulumSwing(1500, 40, 130, 0.85, 180, 60),
+        new PendulumSwing(2300, 40, 130, 0.85, 180, 120),
+        new PendulumSwing(3080, 40, 130, 0.85, 180, 45)
+      ];
+      this.tickTockBlocks = [
+        new TickTockBlock(560, 170, 32, 32, 'tick', 120),
+        new TickTockBlock(592, 170, 32, 32, 'tock', 120),
+        new TickTockBlock(1360, 150, 32, 32, 'tick', 120),
+        new TickTockBlock(1392, 150, 32, 32, 'tock', 120),
+        new TickTockBlock(2160, 140, 32, 32, 'tick', 120),
+        new TickTockBlock(2192, 140, 32, 32, 'tock', 120),
+        new TickTockBlock(2960, 150, 32, 32, 'tick', 120),
+        new TickTockBlock(2992, 150, 32, 32, 'tock', 120)
+      ];
+      this.enemies = pos.map((x, i) => {
+        const type = (i % 3 === 0) ? 'dry_bones' : (i % 2 === 0 ? 'boo' : 'koopa');
+        const y = (type === 'boo') ? 125 : 224;
+        return new Enemy(type, x, y, x - 85, x + 85);
+      });
+      this.questionBlocks = [
+        new QuestionBlock(240, 135, 'wing'),
+        new QuestionBlock(860, 130, 'superstar'),
+        new QuestionBlock(1480, 125, 'wing'),
+        new QuestionBlock(2200, 125, 'star'),
+        new QuestionBlock(2900, 110, 'wing')
       ];
     } else if(cfg.theme === 'special_star'){
       this.crystalPlatforms = [
@@ -4082,10 +5300,10 @@ class PlatformerGame {
       cfg.bossKey || 'acornus',
       cfg.bossName || 'GRAN BELLOTÓN',
       cfg.bossTitle || 'Titán del Nivel',
-      (cfg.theme === 'special_star' || cfg.theme === 'candy' ? 3650 : 3520),
-      (cfg.theme === 'sky' || cfg.theme === 'disney' || cfg.theme === 'cave' || cfg.theme === 'special_star' || cfg.theme === 'candy') ? 150 : 185
+      (isSpecialTheme ? 3650 : 3520),
+      (cfg.theme === 'sky' || cfg.theme === 'disney' || cfg.theme === 'cave' || isSpecialTheme) ? 150 : 185
     );
-    if(cfg.theme === 'special_star' || cfg.theme === 'candy'){
+    if(isSpecialTheme){
       this.currentBoss.arenaLeft = 3420;
       this.currentBoss.arenaRight = 3920;
     }
@@ -4122,11 +5340,13 @@ class PlatformerGame {
       this.launchStars.push(new LaunchStar(1250, 195, 1750, 110), new LaunchStar(2450, 195, 2950, 105));
     } else if(cfg.theme === 'candy'){
       this.launchStars.push(new LaunchStar(1180, 195, 1650, 110));
+    } else if(cfg.theme === 'cyberpunk'){
+      this.launchStars.push(new LaunchStar(1220, 195, 1720, 110));
     } else if(cfg.theme === 'castle'){
       this.seeSaws.push(new SeeSawPlatform(1500, 190, 120));
     }
 
-    this.flagPole = new FlagPole((cfg.theme === 'special_star' || cfg.theme === 'candy' ? 4050 : 3720), lw);
+    this.flagPole = new FlagPole((isSpecialTheme ? 4050 : 3720), lw);
   }
 
   collectStarDust(x, y){
@@ -4156,6 +5376,16 @@ class PlatformerGame {
   completeLevel(){
     if(this.currentLevelIdx < 8){
       this.unlockedLevels[this.currentLevelIdx + 1] = true;
+    } else if(this.currentLevelIdx === 8){
+      this.unlockedLevels[9] = true;
+    } else if(this.currentLevelIdx === 9){
+      this.unlockedLevels[10] = true;
+    } else if(this.currentLevelIdx === 10){
+      this.unlockedLevels[11] = true;
+    } else if(this.currentLevelIdx === 11){
+      this.unlockedLevels[12] = true;
+    } else if(this.currentLevelIdx === 12){
+      this.unlockedLevels[13] = true;
     }
     this.starCoinsPerLevel[this.currentLevelIdx] = Math.max(this.starCoinsPerLevel[this.currentLevelIdx] || 0, this.starCoinsCollected);
     if(this.isStarWorldUnlocked()){
@@ -4163,6 +5393,15 @@ class PlatformerGame {
     }
     if(this.isCandyWorldUnlocked()){
       this.unlockedLevels[10] = true;
+    }
+    if(this.isCyberWorldUnlocked()){
+      this.unlockedLevels[11] = true;
+    }
+    if(this.isVolcanoWorldUnlocked()){
+      this.unlockedLevels[12] = true;
+    }
+    if(this.isClockWorldUnlocked()){
+      this.unlockedLevels[13] = true;
     }
     this.highScore = Math.max(this.highScore || 0, this.score);
     try {
@@ -4205,6 +5444,22 @@ class PlatformerGame {
     }
     if(this.gelatinPlatforms){
       for(let i=0; i<this.gelatinPlatforms.length; i++) list.push(this.gelatinPlatforms[i]);
+    }
+    if(this.bouncyLeaves){
+      for(let i=0; i<this.bouncyLeaves.length; i++) list.push(this.bouncyLeaves[i]);
+    }
+    if(this.crumblingBlocks){
+      for(let i=0; i<this.crumblingBlocks.length; i++){
+        if(!this.crumblingBlocks[i].fallen) list.push(this.crumblingBlocks[i]);
+      }
+    }
+    if(this.gearPlatforms){
+      for(let i=0; i<this.gearPlatforms.length; i++) list.push(this.gearPlatforms[i]);
+    }
+    if(this.tickTockBlocks){
+      for(let i=0; i<this.tickTockBlocks.length; i++){
+        if(this.tickTockBlocks[i].isSolid) list.push(this.tickTockBlocks[i]);
+      }
     }
     if(this.spawnedPlatforms){
       for(let i=0; i<this.spawnedPlatforms.length; i++) list.push(this.spawnedPlatforms[i]);
@@ -4656,6 +5911,15 @@ class PlatformerGame {
             this.addParticles(p.x + p.w/2, pl.y, 10, ['#FF80AB', '#00E5FF', '#FFF', '#FFD700'], 3.2);
             this.addFloatingText('🍬 ¡SÚPER REBOTE! 🍬', p.x, p.y - 18, '#FF4081');
           }
+          else if(pl.isBouncyLeaf){
+            p.vy = pl.bounceForce || -15.5;
+            if(typeof pl.triggerBounce === 'function') pl.triggerBounce();
+            audio.jump();
+            if(typeof audio.springBounce === 'function') audio.springBounce();
+            this.camera.shake(6);
+            this.addParticles(p.x + p.w/2, pl.y, 12, ['#76FF03', '#4CAF50', '#FFFFFF'], 3.5);
+            this.addFloatingText('🍃 ¡REBOTE SELVÁTICO! 🍃', p.x, p.y - 18, '#76FF03');
+          }
           else if(pl.isSpring){ p.vy = -12.0; audio.jump(); this.camera.shake(4); }
           else { p.vy = 0; p.onGround = true; p.jumpCount = 0; }
           if(p.isGroundPounding){
@@ -4688,6 +5952,30 @@ class PlatformerGame {
     }
     if(this.gelatinPlatforms){
       for(const gp of this.gelatinPlatforms) gp.update(now);
+    }
+    if(this.boostPads){
+      for(const bp of this.boostPads) bp.check(p, this);
+    }
+    if(this.laserBarriers){
+      for(const lb of this.laserBarriers) { lb.update(this.frameCount); lb.check(p, this); }
+    }
+    if(this.bouncyLeaves){
+      for(const bl of this.bouncyLeaves) bl.update();
+    }
+    if(this.lavaGeysers){
+      for(const lg of this.lavaGeysers) { lg.update(this.frameCount); lg.check(p, this); }
+    }
+    if(this.crumblingBlocks){
+      for(const cb of this.crumblingBlocks) cb.update(p, this);
+    }
+    if(this.gearPlatforms){
+      for(const gp of this.gearPlatforms) gp.update();
+    }
+    if(this.pendulums){
+      for(const pend of this.pendulums) { pend.update(this.frameCount); pend.check(p, this); }
+    }
+    if(this.tickTockBlocks){
+      for(const tb of this.tickTockBlocks) tb.update(this.frameCount);
     }
     if(p.portalCooldown > 0) p.portalCooldown--;
 
@@ -4981,38 +6269,54 @@ class PlatformerGame {
     ctx.stroke();
     ctx.restore();
 
-    // 2b. Celestial Starlight Rainbow / Nebula Beam to Secret Worlds (Nodes 10 & 11)
+    // 2b. Celestial Starlight Rainbow / Nebula Beam to Secret Worlds (Nodes 10-14)
     ctx.save();
-    const starUnlocked = this.isLevelUnlocked(9);
-    const candyUnlocked = this.isLevelUnlocked(10);
     const beamPulse = Math.sin(now * 0.006) * 0.3 + 0.7;
-    ctx.globalAlpha = (starUnlocked || candyUnlocked) ? beamPulse : 0.45;
-    ctx.lineWidth = (starUnlocked || candyUnlocked) ? 3.5 : 2.0;
-    ctx.setLineDash((starUnlocked || candyUnlocked) ? [4, 4] : [2, 6]);
+    ctx.globalAlpha = beamPulse;
+    ctx.lineWidth = 3.5;
+    ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#00E5FF';
     ctx.shadowColor = '#E040FB';
-    ctx.shadowBlur = (starUnlocked || candyUnlocked) ? 12 : 4;
+    ctx.shadowBlur = 12;
+
+    // Path W8/W9 -> S-1
     ctx.beginPath();
     ctx.moveTo(LEVEL_CONFIGS[7].mapX, LEVEL_CONFIGS[7].mapY);
     ctx.quadraticCurveTo(435, 130, LEVEL_CONFIGS[9].mapX, LEVEL_CONFIGS[9].mapY);
+    ctx.lineTo(LEVEL_CONFIGS[8].mapX, LEVEL_CONFIGS[8].mapY);
     ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(LEVEL_CONFIGS[8].mapX, LEVEL_CONFIGS[8].mapY);
-    ctx.lineTo(LEVEL_CONFIGS[9].mapX, LEVEL_CONFIGS[9].mapY);
-    ctx.stroke();
+
+    // Path S-1 -> S-2
     if(LEVEL_CONFIGS.length > 10){
       ctx.beginPath();
       ctx.moveTo(LEVEL_CONFIGS[9].mapX, LEVEL_CONFIGS[9].mapY);
       ctx.quadraticCurveTo(500, 105, LEVEL_CONFIGS[10].mapX, LEVEL_CONFIGS[10].mapY);
       ctx.stroke();
+    }
+    // Path S-2 -> S-3
+    if(LEVEL_CONFIGS.length > 11){
       ctx.beginPath();
-      ctx.moveTo(LEVEL_CONFIGS[8].mapX, LEVEL_CONFIGS[8].mapY);
-      ctx.lineTo(LEVEL_CONFIGS[10].mapX, LEVEL_CONFIGS[10].mapY);
+      ctx.moveTo(LEVEL_CONFIGS[10].mapX, LEVEL_CONFIGS[10].mapY);
+      ctx.quadraticCurveTo(390, 75, LEVEL_CONFIGS[11].mapX, LEVEL_CONFIGS[11].mapY);
+      ctx.stroke();
+    }
+    // Path S-3 -> S-4
+    if(LEVEL_CONFIGS.length > 12){
+      ctx.beginPath();
+      ctx.moveTo(LEVEL_CONFIGS[11].mapX, LEVEL_CONFIGS[11].mapY);
+      ctx.quadraticCurveTo(270, 70, LEVEL_CONFIGS[12].mapX, LEVEL_CONFIGS[12].mapY);
+      ctx.stroke();
+    }
+    // Path S-4 -> S-5
+    if(LEVEL_CONFIGS.length > 13){
+      ctx.beginPath();
+      ctx.moveTo(LEVEL_CONFIGS[12].mapX, LEVEL_CONFIGS[12].mapY);
+      ctx.quadraticCurveTo(155, 65, LEVEL_CONFIGS[13].mapX, LEVEL_CONFIGS[13].mapY);
       ctx.stroke();
     }
     ctx.restore();
 
-    // 3. 11 Themed Level Nodes with Dynamic Highlights
+    // 3. 14 Themed Level Nodes with Dynamic Highlights
     LEVEL_CONFIGS.forEach((cfg, idx) => {
       const selected = (this.currentLevelIdx === idx);
       ctx.save();
@@ -5029,54 +6333,35 @@ class PlatformerGame {
 
       // 3D Spherical Node
       const isUnlocked = this.isLevelUnlocked(idx);
-      if(idx === 9){
-        // Special Celestial Constellation Node (S-1)
-        const sGlow = Math.sin(now * 0.007) * 4;
+      if(idx >= 9 && idx <= 13){
+        // Secret Worlds S-1 through S-5
+        const secretColors = [
+          { glow: '#00E5FF', stops: ['#FFFFFF', '#FFD700', '#E040FB', '#00E5FF'], label: 'S-1' }, // S-1
+          { glow: '#FF4081', stops: ['#FFFFFF', '#FF80AB', '#FF4081', '#00E5FF'], label: 'S-2' }, // S-2
+          { glow: '#00F0FF', stops: ['#FFFFFF', '#00F0FF', '#FF007F', '#1A0033'], label: 'S-3' }, // S-3
+          { glow: '#FF3D00', stops: ['#FFFFFF', '#FFE600', '#FF3D00', '#261C14'], label: 'S-4' }, // S-4
+          { glow: '#FFD700', stops: ['#FFFFFF', '#FFD700', '#B8860B', '#1A120B'], label: 'S-5' }  // S-5
+        ];
+        const sDef = secretColors[idx - 9];
+        const sGlow = Math.sin(now * 0.007 + idx) * 4;
         ctx.save();
-        ctx.shadowColor = '#00E5FF';
+        ctx.shadowColor = sDef.glow;
         ctx.shadowBlur = isUnlocked ? 14 : 6;
         const sGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, 14);
-        sGrad.addColorStop(0, '#FFFFFF');
-        sGrad.addColorStop(0.4, '#FFD700');
-        sGrad.addColorStop(0.8, '#E040FB');
-        sGrad.addColorStop(1, '#00E5FF');
+        sGrad.addColorStop(0, sDef.stops[0]);
+        sGrad.addColorStop(0.35, sDef.stops[1]);
+        sGrad.addColorStop(0.7, sDef.stops[2]);
+        sGrad.addColorStop(1, sDef.stops[3]);
         ctx.fillStyle = sGrad;
         ctx.beginPath(); ctx.arc(0, 0, 13 + (isUnlocked ? sGlow * 0.3 : 0), 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.stroke();
         ctx.restore();
 
         if(isUnlocked){
-          ctx.fillStyle = '#FFFFFF'; ctx.font = '900 11px "Fredoka", sans-serif';
+          ctx.fillStyle = '#FFFFFF'; ctx.font = '900 10.5px "Fredoka", sans-serif';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 4;
-          ctx.fillText('S-1', 0, 1);
-        } else {
-          ctx.fillStyle = 'rgba(10, 10, 20, 0.70)'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#FFD700'; ctx.font = '900 11px sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('⭐🔒', 0, 0);
-        }
-      } else if(idx === 10){
-        // Special Candy Kingdom Node (S-2)
-        const sGlow = Math.sin(now * 0.007) * 4;
-        ctx.save();
-        ctx.shadowColor = '#FF4081';
-        ctx.shadowBlur = isUnlocked ? 14 : 6;
-        const sGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, 14);
-        sGrad.addColorStop(0, '#FFFFFF');
-        sGrad.addColorStop(0.35, '#FF80AB');
-        sGrad.addColorStop(0.7, '#FF4081');
-        sGrad.addColorStop(1, '#00E5FF');
-        ctx.fillStyle = sGrad;
-        ctx.beginPath(); ctx.arc(0, 0, 13 + (isUnlocked ? sGlow * 0.3 : 0), 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2.5; ctx.stroke();
-        ctx.restore();
-
-        if(isUnlocked){
-          ctx.fillStyle = '#FFFFFF'; ctx.font = '900 11px "Fredoka", sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 4;
-          ctx.fillText('S-2', 0, 1);
+          ctx.fillText(sDef.label, 0, 1);
         } else {
           ctx.fillStyle = 'rgba(10, 10, 20, 0.70)'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#FFD700'; ctx.font = '900 11px sans-serif';
@@ -5124,16 +6409,26 @@ class PlatformerGame {
     ctx.beginPath(); ctx.roundRect(8, 8, 260, 38, [18]); ctx.fill();
     ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.0; ctx.stroke();
     
-    ctx.fillStyle = '#FFD700'; ctx.font = '900 11px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFD700'; ctx.font = '900 10.5px "Fredoka", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     if(this.currentLevelIdx === 9){
-      ctx.fillText('★ MUNDO SECRETO S-1: Vía Láctea Secreta', 16, 20);
+      ctx.fillText('★ MUNDO SECRETO S-1: Vía Láctea', 16, 20);
     } else if(this.currentLevelIdx === 10){
       ctx.fillText('★ MUNDO SECRETO S-2: Valle Dulzón', 16, 20);
+    } else if(this.currentLevelIdx === 11){
+      ctx.fillText('★ MUNDO SECRETO S-3: Metrópolis Neón', 16, 20);
+    } else if(this.currentLevelIdx === 12){
+      ctx.fillText('★ MUNDO SECRETO S-4: Selva de Magma', 16, 20);
+    } else if(this.currentLevelIdx === 13){
+      ctx.fillText('★ MUNDO SECRETO S-5: Torre Crono', 16, 20);
     } else {
       ctx.fillText('★ MUNDO 1-' + (this.currentLevelIdx + 1) + ': ' + (LEVEL_CONFIGS[this.currentLevelIdx].name.split(':')[1] || ''), 16, 20);
     }
     
-    const mountNames = ['🦄 Unicornio Yoshi', '🐬 Delfín Cristal', '🐪 Camello Real', '🦄👑 Corcel Disney', '🦌 Sven Reno', '🪽 Pegaso', '🔮 Orbe Cuarzo', '🚀🌟 Dragón Cósmico', '🦅🔥 Fénix', '🚀🌟 Dragón Astral', '🦄🍬 Unicornio Caramelo'];
+    const mountNames = [
+      '🦄 Unicornio Yoshi', '🐬 Delfín Cristal', '🐪 Camello Real', '🦄👑 Corcel Disney',
+      '🦌 Sven Reno', '🪽 Pegaso', '🔮 Orbe Cuarzo', '🚀🌟 Dragón Cósmico', '🦅🔥 Fénix',
+      '🚀🌟 Dragón Astral', '🦄🍬 Unicornio Caramelo', '🚀⚡ Ciber Dragón', '🦅🔥 Fénix Magma', '🪽⏱️ Pegaso Crono'
+    ];
     ctx.fillStyle = '#80DEEA'; ctx.font = '800 8.5px "Fredoka", sans-serif';
     ctx.fillText('Montura: ' + (mountNames[this.currentLevelIdx] || 'Ninguna'), 16, 33);
 
@@ -5173,13 +6468,13 @@ class PlatformerGame {
     ctx.beginPath(); ctx.roundRect(VIRT_W/2 - 135, VIRT_H - 42, 270, 34, [17]); ctx.fill();
     ctx.strokeStyle = isUnlocked ? '#FFFFFF' : '#757575'; ctx.lineWidth = 2.0; ctx.stroke();
 
-    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px "Fredoka", sans-serif';
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 11px "Fredoka", sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if(isUnlocked){
-      const lvlLabel = (this.currentLevelIdx === 9) ? 'S-1 VÍA LÁCTEA' : (this.currentLevelIdx === 10 ? 'S-2 VALLE DULZÓN' : `MUNDO 1-${this.currentLevelIdx + 1}`);
+      const lvlLabel = (this.currentLevelIdx === 9) ? 'S-1 VÍA LÁCTEA' : (this.currentLevelIdx === 10 ? 'S-2 VALLE DULZÓN' : (this.currentLevelIdx === 11 ? 'S-3 METRÓPOLIS NEÓN' : (this.currentLevelIdx === 12 ? 'S-4 SELVA DE MAGMA' : (this.currentLevelIdx === 13 ? 'S-5 TORRE DEL RELOJ' : `MUNDO 1-${this.currentLevelIdx + 1}`))));
       ctx.fillText(`▶️ JUGAR ${lvlLabel} (TOCA O PULSA ESPACIO)`, VIRT_W/2, VIRT_H - 25);
     } else {
-      const lockLabel = (this.currentLevelIdx === 9) ? '🔒 20 MONEDAS O MUNDO 1-9 REQUERIDO' : (this.currentLevelIdx === 10 ? '🔒 24 MONEDAS O MUNDO S-1 REQUERIDO' : '🔒 MUNDO BLOQUEADO (COMPLETA EL ANTERIOR)');
+      const lockLabel = (this.currentLevelIdx === 9) ? '🔒 20 MONEDAS O MUNDO 1-9 REQUERIDO' : (this.currentLevelIdx === 10 ? '🔒 24 MONEDAS O MUNDO S-1 REQUERIDO' : (this.currentLevelIdx === 11 ? '🔒 28 MONEDAS O MUNDO S-2 REQUERIDO' : (this.currentLevelIdx === 12 ? '🔒 32 MONEDAS O MUNDO S-3 REQUERIDO' : (this.currentLevelIdx === 13 ? '🔒 36 MONEDAS O MUNDO S-4 REQUERIDO' : '🔒 MUNDO BLOQUEADO (COMPLETA EL ANTERIOR)'))));
       ctx.fillText(lockLabel, VIRT_W/2, VIRT_H - 25);
     }
     ctx.restore();
@@ -5580,6 +6875,132 @@ class PlatformerGame {
         x===0 ? ctx.moveTo(0,h) : ctx.lineTo(x,h);
       }
       ctx.lineTo(VIRT_W, VIRT_H); ctx.closePath(); ctx.fill();
+
+    } else if(th==='cyberpunk'){
+      // 1. Digital Matrix Cyber Rain & Starfield
+      for(let i=0; i<45; i++){
+        const sx = ((i*33 - cx*0.02 + 1500) % (VIRT_W + 40)), sy2 = (i*47 + (t*45*(0.8 + (i%3)*0.4))) % VIRT_H;
+        const sa = Math.sin(t*3.0 + i)*0.4 + 0.6;
+        ctx.fillStyle = (i % 3 === 0) ? '#00E5FF' : ((i % 2 === 0) ? '#FF007F' : '#76FF03');
+        ctx.globalAlpha = sa * 0.75;
+        ctx.fillRect(sx, sy2, 2.0, 5.5);
+        ctx.globalAlpha = 1;
+      }
+
+      // 2. Glowing Holographic Futuristic City Skyline
+      for(let i=0; i<8; i++){
+        const bX = ((i*160 - cx*0.06 + 1400) % (VIRT_W + 280)) - 80, bW = 55 + (i%3)*20, bH = 80 + (i%4)*28;
+        ctx.fillStyle = '#050C1E';
+        ctx.fillRect(bX, 185 - bH, bW, bH);
+        ctx.strokeStyle = (i % 2 === 0 ? 'rgba(0, 240, 255, 0.45)' : 'rgba(255, 0, 127, 0.45)');
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(bX, 185 - bH, bW, bH);
+
+        // Animated neon windows & beacon aerials
+        ctx.fillStyle = (i % 2 === 0 ? 'rgba(0, 229, 255, 0.75)' : 'rgba(255, 64, 129, 0.75)');
+        for(let wy = 185 - bH + 8; wy < 180; wy += 14){
+          for(let wx = bX + 6; wx < bX + bW - 6; wx += 10){
+            if((wx + wy) % 3 === 0) ctx.fillRect(wx, wy, 4, 6);
+          }
+        }
+        // Rooftop antenna beacon
+        ctx.strokeStyle = '#00F0FF'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(bX + bW/2, 185 - bH); ctx.lineTo(bX + bW/2, 185 - bH - 14); ctx.stroke();
+        ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(bX + bW/2, 185 - bH - 14, 2.5, 0, PI2); ctx.fill();
+      }
+
+      // 3. Neon Grid Horizon Ground & Perspective Lines
+      ctx.fillStyle = '#0a051b';
+      ctx.fillRect(0, 210, VIRT_W, VIRT_H - 210);
+      ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)'; ctx.lineWidth = 1.2;
+      for(let gy = 210; gy < VIRT_H; gy += 14){
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(VIRT_W, gy); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
+      for(let gx = -100; gx < VIRT_W + 100; gx += 36){
+        const gOff = ((gx - (cx * 0.25) % 36 + VIRT_W + 100) % (VIRT_W + 100)) - 50;
+        ctx.beginPath(); ctx.moveTo(VIRT_W/2 + (gOff - VIRT_W/2)*0.2, 210); ctx.lineTo(gOff, VIRT_H); ctx.stroke();
+      }
+
+    } else if(th==='volcano_jungle'){
+      // 1. Fiery Magma Sky Glow & Ash Drift
+      const vg = ctx.createLinearGradient(0, 0, 0, VIRT_H);
+      vg.addColorStop(0, 'rgba(255, 23, 68, 0.25)'); vg.addColorStop(0.5, 'rgba(255, 109, 0, 0.18)'); vg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, VIRT_W, VIRT_H);
+
+      // 2. Distant Erupting Prehistoric Volcano Calderas
+      for(let i=0; i<4; i++){
+        const vx = ((i*280 - cx*0.05 + 1200) % (VIRT_W + 300)) - 100, vh = 75 + (i%2)*30;
+        ctx.fillStyle = '#261C14';
+        ctx.beginPath(); ctx.moveTo(vx, 185); ctx.lineTo(vx - vh*0.8, 185); ctx.lineTo(vx - 18, 185 - vh); ctx.lineTo(vx + 18, 185 - vh); ctx.lineTo(vx + vh*0.8, 185); ctx.fill();
+        // Glowing caldera crater mouth
+        ctx.fillStyle = '#FF3D00';
+        ctx.beginPath(); ctx.ellipse(vx, 185 - vh, 18, 5, 0, 0, PI2); ctx.fill();
+        // Lava plume
+        ctx.fillStyle = 'rgba(255, 87, 34, 0.65)';
+        ctx.beginPath(); ctx.arc(vx + Math.sin(t*2 + i)*4, 185 - vh - 10, 8, 0, PI2); ctx.fill();
+      }
+
+      // 3. Dense Prehistoric Tropical Palm Frond Silhouette Ridge
+      ctx.fillStyle = '#1B5E20';
+      ctx.beginPath(); ctx.moveTo(0, VIRT_H);
+      for(let x=0; x<=VIRT_W; x+=4){
+        const h = 210 + Math.sin((x + cx*0.18)*0.016)*22 + Math.sin((x + cx*0.18)*0.04)*10;
+        x===0 ? ctx.moveTo(0,h) : ctx.lineTo(x,h);
+      }
+      ctx.lineTo(VIRT_W, VIRT_H); ctx.closePath(); ctx.fill();
+
+      // 4. Rising Lava Sparks & Embers
+      for(let i=0; i<20; i++){
+        const sx = ((i*32 - cx*0.06 + 800) % (VIRT_W + 50)) - 10, sy = ((VIRT_H - t*40*(0.8 + (i%3)*0.3) + i*35) % VIRT_H);
+        const sa = Math.sin(t*3.5 + i)*0.4 + 0.6;
+        ctx.fillStyle = (i % 2 === 0 ? 'rgba(255, 61, 0,' + sa.toFixed(2) + ')' : 'rgba(255, 230, 0,' + sa.toFixed(2) + ')');
+        ctx.beginPath(); ctx.arc(sx, sy, 2.0, 0, PI2); ctx.fill();
+      }
+
+    } else if(th==='clocktower'){
+      // 1. Gothic Nocturnal Mist & Clock Face Dials
+      for(let i=0; i<4; i++){
+        const ckX = ((i*290 - cx*0.04 + 1400) % (VIRT_W + 350)) - 100, ckY = 55 + (i%2)*35, ckR = 34 + (i%3)*10;
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+        ctx.beginPath(); ctx.arc(ckX, ckY, ckR, 0, PI2); ctx.fill();
+        ctx.strokeStyle = 'rgba(218, 165, 32, 0.35)'; ctx.lineWidth = 2.0; ctx.stroke();
+        // Clock hands
+        const ca = t * (i % 2 === 0 ? 0.4 : -0.4) + i;
+        ctx.beginPath(); ctx.moveTo(ckX, ckY); ctx.lineTo(ckX + Math.cos(ca)*ckR*0.75, ckY + Math.sin(ca)*ckR*0.75); ctx.stroke();
+      }
+
+      // 2. Colossal Background Brass Rotating Gears
+      for(let i=0; i<5; i++){
+        const gx = ((i*240 - cx*0.07 + 1200) % (VIRT_W + 280)) - 80, gy = 110 + (i%3)*28, gR = 38 + (i%3)*12;
+        ctx.save();
+        ctx.translate(gx, gy);
+        ctx.rotate(t * (i % 2 === 0 ? 0.35 : -0.35) + i);
+        ctx.strokeStyle = 'rgba(184, 134, 11, 0.45)'; ctx.lineWidth = 4.0;
+        ctx.beginPath(); ctx.arc(0, 0, gR, 0, PI2); ctx.stroke();
+        for(let g=0; g<6; g++){
+          const a = (g * Math.PI) / 3;
+          ctx.beginPath(); ctx.moveTo(-Math.cos(a)*gR, -Math.sin(a)*gR); ctx.lineTo(Math.cos(a)*gR, Math.sin(a)*gR); ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 3. Gothic Tower Spires & Buttresses Silhouette
+      ctx.fillStyle = '#1A120B';
+      ctx.beginPath(); ctx.moveTo(0, VIRT_H);
+      for(let x=0; x<=VIRT_W; x+=4){
+        const h = 218 + Math.sin((x + cx*0.2)*0.022)*18 + Math.sin((x + cx*0.2)*0.05)*8;
+        x===0 ? ctx.moveTo(0,h) : ctx.lineTo(x,h);
+      }
+      ctx.lineTo(VIRT_W, VIRT_H); ctx.closePath(); ctx.fill();
+
+      // 4. Golden Clockwork Dust & Ticking Sparks
+      for(let i=0; i<18; i++){
+        const sx = ((i*38 - cx*0.03 + 900) % (VIRT_W + 40)), sy = (i*49 + t*15) % VIRT_H;
+        const sa = Math.sin(t*2.5 + i)*0.4 + 0.6;
+        ctx.fillStyle = 'rgba(255, 215, 0,' + (sa * 0.7).toFixed(2) + ')';
+        ctx.beginPath(); ctx.arc(sx, sy, 1.8, 0, PI2); ctx.fill();
+      }
     }
   }
 
@@ -5685,6 +7106,24 @@ class PlatformerGame {
         fg.addColorStop(0, '#FFFFFF'); fg.addColorStop(1, 'rgba(255, 235, 238, 0.9)');
         ctx.fillStyle = fg; ctx.beginPath(); ctx.roundRect(s.x, s.y, pl.w, 4, [3, 3, 0, 0]); ctx.fill();
         ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.2; ctx.stroke();
+      } else if(th==='cyberpunk'){
+        const cyGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + pl.h);
+        cyGrad.addColorStop(0, '#0a192f'); cyGrad.addColorStop(0.5, '#050C1E'); cyGrad.addColorStop(1, '#000000');
+        ctx.fillStyle = cyGrad; ctx.beginPath(); ctx.roundRect(s.x, s.y, pl.w, pl.h, [3]); ctx.fill();
+        ctx.strokeStyle = '#00F0FF'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#FF007F'; ctx.fillRect(s.x, s.y, pl.w, 2.5);
+      } else if(th==='volcano_jungle'){
+        const vjGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + pl.h);
+        vjGrad.addColorStop(0, '#4E342E'); vjGrad.addColorStop(0.5, '#261C14'); vjGrad.addColorStop(1, '#1A0E08');
+        ctx.fillStyle = vjGrad; ctx.beginPath(); ctx.roundRect(s.x, s.y, pl.w, pl.h, [3]); ctx.fill();
+        ctx.strokeStyle = '#FF5722'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#4CAF50'; ctx.fillRect(s.x, s.y, pl.w, 3.0);
+      } else if(th==='clocktower'){
+        const ctGrad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + pl.h);
+        ctGrad.addColorStop(0, '#3E2723'); ctGrad.addColorStop(0.5, '#271814'); ctGrad.addColorStop(1, '#150B07');
+        ctx.fillStyle = ctGrad; ctx.beginPath(); ctx.roundRect(s.x, s.y, pl.w, pl.h, [3]); ctx.fill();
+        ctx.strokeStyle = '#DAA520'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#FFD700'; ctx.fillRect(s.x, s.y, pl.w, 2.5);
       } else {
         ctx.fillStyle='#5D4037'; ctx.beginPath(); ctx.roundRect(s.x,s.y+5,pl.w,pl.h-5,[0,0,3,3]); ctx.fill();
         const grg=ctx.createLinearGradient(s.x,s.y,s.x,s.y+8);
@@ -5704,6 +7143,30 @@ class PlatformerGame {
     }
     if(this.gelatinPlatforms){
       for(const gp of this.gelatinPlatforms) gp.draw(ctx, cam, now);
+    }
+    if(this.boostPads){
+      for(const bp of this.boostPads) bp.draw(ctx, cam, now);
+    }
+    if(this.laserBarriers){
+      for(const lb of this.laserBarriers) lb.draw(ctx, cam, now);
+    }
+    if(this.bouncyLeaves){
+      for(const bl of this.bouncyLeaves) bl.draw(ctx, cam, now);
+    }
+    if(this.lavaGeysers){
+      for(const lg of this.lavaGeysers) lg.draw(ctx, cam, now);
+    }
+    if(this.crumblingBlocks){
+      for(const cb of this.crumblingBlocks) cb.draw(ctx, cam, now);
+    }
+    if(this.gearPlatforms){
+      for(const gp of this.gearPlatforms) gp.draw(ctx, cam, now);
+    }
+    if(this.pendulums){
+      for(const pend of this.pendulums) pend.draw(ctx, cam, now);
+    }
+    if(this.tickTockBlocks){
+      for(const tb of this.tickTockBlocks) tb.draw(ctx, cam, now);
     }
 
     // Render Water Currents (Bubbles rising)

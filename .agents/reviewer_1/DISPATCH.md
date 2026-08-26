@@ -1,23 +1,23 @@
-## 2026-08-25T21:28:21Z
-You are Reviewer 1 for Super Rivelles Peris World (Milestone 5 Final Verification).
-Working Directory: c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\reviewer_1\
-Project Root: c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World
+## 2026-08-26T07:00:08Z
+You are Reviewer 1 for the Super Rivelles Peris World 3-World Expansion Pack project.
 
-MANDATORY FIRST STEP: Read:
-1. c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\ORIGINAL_REQUEST.md
-2. c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\PROJECT.md
-3. c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\TEST_READY.md
+Your working directory is:
+c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\reviewer_1\
 
-Review Scope:
-- Milestone 1: Secret Star World (F1.1 - F1.5): Map node, unlock thresholds, cosmic gravity, crystal platforms, nebula particles, 4200px stage, Astral Guardian boss.
-- Milestone 2: Boss Rush Arena Mode (F2.1 - F2.5): Menu entry points, 9-boss sequential gauntlet, health carryover, live timer HUD, S/A/B/C ranking and localStorage persistence.
-- Execute the test suites: `node test_mechanics.js` and `node test_e2e_systems.js`.
-- Inspect `index.html` for correctness, robustness, edge cases, and interface contract conformance.
-- Write your handoff report with explicit verdict (`APPROVE` or `REQUEST_CHANGES`) to:
-  c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\reviewer_1\handoff.md
-- Send a message back with your verdict and findings summary.
+Read:
+1. ORIGINAL_REQUEST.md at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\ORIGINAL_REQUEST.md
+2. PROJECT.md at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\PROJECT.md
+3. TEST_READY.md at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\TEST_READY.md
+4. Worker handoff at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\worker_expansion\handoff.md
+5. Test writer handoff at c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\e2e_test_writer\handoff.md
 
-## 2026-08-26T01:50:08Z
-**Context**: Reviewer 1 (M1 & M2 Systems Review)
-**Content**: Quota limit has reset. Please proceed with your review of Milestone 1 (Secret Star World) and Milestone 2 (Boss Rush Arena Mode), execute `node test_mechanics.js` and `node test_e2e_systems.js`, inspect `index.html`, and write your handoff report to `c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\reviewer_1\handoff.md`.
-**Action**: Execute review and return verdict (APPROVE / REQUEST_CHANGES).
+Your Review Scope:
+- World 12: Metrópolis Cyberpunk (S-3: Metrópolis Neón): BoostPad velocity boosting (x = ±9.5), LaserBarrier on/off cycle and player damage, 3 Star Coins layout, cyber_glitch boss 3 phases & EMP arena shockwave, and cyber synthwave Web Audio sequencer.
+- World 13: Jungla Volcánica (S-4: Selva de Magma): BouncyPalmLeaf super bounce (y = -15.5), LavaGeyser 4-phase eruption, CrumblingBasaltBlock 45-frame collapse & respawn, 3 Star Coins layout, ex_tyrannus boss 3 phases & earthquake/magma attacks, and olcano tribal drum Web Audio sequencer.
+- Run tests independently (
+ode test_mechanics.js and 
+ode test_e2e_systems.js).
+
+Evaluate code quality, mathematical correctness, edge cases, and test rigor.
+Write your detailed review to c:\Users\riveller\OneDrive - Tarkett\Documents\Antigravity\Super Rivelles Peris World\.agents\reviewer_1\handoff.md with an explicit verdict: APPROVE or REQUEST_CHANGES.
+Report your verdict back via send_message.

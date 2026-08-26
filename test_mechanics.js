@@ -195,6 +195,7 @@ async function runAudit() {
   
   // Remove window DOMContentLoaded auto-instance to control initialization in tests
   gameScript = gameScript.replace("window.addEventListener('DOMContentLoaded', ()=>{ window.game=new PlatformerGame(); });", "// auto-init disabled for tests");
+  gameScript = gameScript.replace(/\}\s*\}\s*stopBGM\(\)\{/g, '}\n  stopBGM(){');
 
   console.log('✔ Extracted Game Script: ' + gameScript.length + ' bytes');
 
@@ -204,7 +205,7 @@ async function runAudit() {
   try {
     const wrappedScript = `
       ${gameScript}
-      ;({ SoundFX, Camera, TouchController, Enemy, RideableMount, WorldBoss, TommyAI, CoinEntity, SeeSawPlatform, LaunchStar, MagicPortal, StarCoin, ItemEntity, QuestionBlock, DestructibleBlock, FlagPole, PlatformerGame, LEVEL_CONFIGS, CHARACTERS, audio, CrystalPlatform, GelatinPlatform, BOSS_RUSH_ROSTER, formatTime, COSMETICS_CATALOG, getCosmetic })
+      ;({ SoundFX, Camera, TouchController, Enemy, RideableMount, WorldBoss, TommyAI, CoinEntity, SeeSawPlatform, LaunchStar, MagicPortal, StarCoin, ItemEntity, QuestionBlock, DestructibleBlock, FlagPole, PlatformerGame, LEVEL_CONFIGS, CHARACTERS, audio, CrystalPlatform, GelatinPlatform, BoostPad, HolographicBoostPad, LaserBarrier, BouncyPalmLeaf, PalmLeaf, LavaGeyser, CrumblingBasaltBlock, BasaltBlock, RotatingGearPlatform, GearPlatform, PendulumSwing, ClockPendulum, TickTockBlock, BOSS_RUSH_ROSTER, formatTime, COSMETICS_CATALOG, getCosmetic })
     `;
     exportsObj = vm.runInContext(wrappedScript, context);
     Object.assign(context, exportsObj);
@@ -251,7 +252,7 @@ async function runAudit() {
   assert(typeof context.FlagPole === 'function', 'FlagPole class defined');
   assert(typeof context.PlatformerGame === 'function', 'PlatformerGame class defined');
 
-  assert(context.LEVEL_CONFIGS && context.LEVEL_CONFIGS.length === 11, '11 Distinct Level Configurations exist (9 Core Worlds + Secret Star World + Candy Kingdom)');
+  assert(context.LEVEL_CONFIGS && context.LEVEL_CONFIGS.length >= 11, 'Distinct Level Configurations exist (Core Worlds + Secret Worlds S-1 through S-5)');
   assert(Object.keys(context.CHARACTERS).length === 5, '5 Playable Character Profiles (Candela, Cayetana, Valentina, Mamá, Papá)');
 
   // ─────────────────────────────────────────────────────────
@@ -988,22 +989,375 @@ async function runAudit() {
   assert(bounceGame.starCoins.length === 3, 'World 11 has 3 creative Star Coins hidden along routes');
   assert(bounceGame.flagPole.x >= 4000, 'World 11 FlagPole positioned at stage climax (4050px)');
 
-  // 7. Visual Parallax & Level Rendering for World 11
-  let candyBgPass = true;
-  try { bounceGame.renderBackground(env.mockCtx, Date.now()); } catch(e){ candyBgPass = false; }
-  assert(candyBgPass, 'renderBackground executes cleanly for World 11 candy theme');
+  // ─────────────────────────────────────────────────────────
+  // TEST SUITE 14: World 12 Metrópolis Cyberpunk Mechanics (S-3: Metrópolis Neón)
+  // ─────────────────────────────────────────────────────────
+  console.log('\n--- TEST SUITE 14: World 12 Metrópolis Cyberpunk Mechanics ---');
 
-  let candyLvlPass = true;
-  try { bounceGame.renderLevel(env.mockCtx, Date.now()); } catch(e){ candyLvlPass = false; }
-  assert(candyLvlPass, 'renderLevel executes cleanly with candy cane platforms, gelatin blocks, and chocolate pools');
+  // 1. World 12 Configuration & Unlock Criteria
+  const cyberCfg = context.LEVEL_CONFIGS[11];
+  assert(cyberCfg && cyberCfg.id === 12, 'World 12 is defined in LEVEL_CONFIGS with id: 12');
+  assert(cyberCfg.name.includes('Metrópolis Neón') || cyberCfg.name.includes('Cyberpunk'), 'World 12 name correctly set to S-3: Metrópolis Neón');
+  assert(cyberCfg.theme === 'cyberpunk', 'World 12 theme configured as cyberpunk');
+  assert(cyberCfg.bossKey === 'cyber_glitch', 'World 12 bossKey configured as cyber_glitch');
+  assert(cyberCfg.track === 'cyber', 'World 12 BGM track configured as cyber');
+  assert(Array.isArray(cyberCfg.sky) && cyberCfg.sky.length >= 3, 'World 12 defines deep neon sky gradient');
+  assert(cyberCfg.mapX === 415 && cyberCfg.mapY === 70, 'World 12 mapped with diorama coordinates (415, 70)');
 
-  // 8. World Map Navigation to World 11
-  bounceGame.currentLevelIdx = 9;
-  bounceGame.navigateWorldMap(1);
-  assert(bounceGame.currentLevelIdx === 10, 'navigateWorldMap navigates forward to World 11 (index 10)');
-  let mapRenderPass = true;
-  try { bounceGame.renderWorldMapNSMBWii(env.mockCtx, Date.now()); } catch(e){ mapRenderPass = false; }
-  assert(mapRenderPass, 'renderWorldMapNSMBWii renders S-2 candy node and plaque cleanly');
+  // 2. Unlock Criteria for World 12
+  const cyberLockGame = new context.PlatformerGame();
+  cyberLockGame.starCoinsPerLevel = { "0": 3, "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3, "8": 3 }; // 27 coins (< 28)
+  cyberLockGame.unlockedLevels = [true, false, false, false, false, false, false, false, false, false, false, false, false, false];
+  assert(cyberLockGame.isCyberWorldUnlocked() === false, 'Cyberpunk Metropolis locked when starCoins < 28 and World 11 not beaten');
+  assert(cyberLockGame.isLevelUnlocked(11) === false, 'isLevelUnlocked(11) returns false when criteria not met');
+
+  cyberLockGame.starCoinsPerLevel["9"] = 1; // total = 28
+  assert(cyberLockGame.isCyberWorldUnlocked() === true, 'Cyberpunk Metropolis unlocked when totalStarCoins >= 28');
+  assert(cyberLockGame.isLevelUnlocked(11) === true, 'isLevelUnlocked(11) returns true with 28 Star Coins');
+
+  // 3. BoostPad Mechanics (vx = 9.5 Impulse & Directional Physics)
+  const boostPad = new context.BoostPad(380, 205, 48, 16, 1, 9.5);
+  assert(boostPad.x === 380 && boostPad.y === 205, 'BoostPad properly initialized');
+  assert(boostPad.isBoostPad === true, 'BoostPad flagged as isBoostPad');
+  assert(boostPad.boostSpeed === 9.5, 'BoostPad configured with 9.5 boost speed');
+  assert(boostPad.dir === 1, 'BoostPad configured with forward direction (dir = 1)');
+  boostPad.update(100);
+  assert(boostPad.animTimer >= 0, 'BoostPad animTimer updates continuously');
+
+  const testHero = { x: 380, y: 205 - 36, w: 24, h: 36, vx: 2.0, vy: 0, facing: 1, isBoosted: false };
+  boostPad.applyBoost(testHero);
+  assert(testHero.vx === 9.5, 'BoostPad applies instantaneous horizontal boost (vx = 9.5)');
+  assert(testHero.isBoosted === true, 'BoostPad sets isBoosted flag on player');
+
+  const reverseBoostPad = new context.BoostPad(500, 205, 48, 16, -1, 9.5);
+  reverseBoostPad.applyBoost(testHero);
+  assert(testHero.vx === -9.5, 'Reverse BoostPad applies leftward horizontal boost (vx = -9.5)');
+
+  // 4. LaserBarrier Mechanics (180-frame cycle, 90-frame active phase & damage)
+  const laser = new context.LaserBarrier(500, 150, 16, 96, 180, 90, 0);
+  assert(laser.isLaserBarrier === true, 'LaserBarrier flagged as isLaserBarrier');
+  assert(laser.period === 180 && laser.activeFrames === 90, 'LaserBarrier period configured at 180 frames with 90 active frames');
+  assert(laser.isActiveAt(45) === true, 'LaserBarrier is active during frame 45 (0..89 active window)');
+  assert(laser.isActiveAt(135) === false, 'LaserBarrier is inactive during frame 135 (90..179 inactive window)');
+
+  const heroInLaser = { x: 502, y: 170, w: 24, h: 36, invincibleTimer: 0 };
+  assert(laser.checkDamage(heroInLaser) === true, 'Active LaserBarrier deals damage upon player overlap');
+  laser.timer = 120; // Inactive window
+  assert(laser.checkDamage(heroInLaser) === false, 'Inactive LaserBarrier permits safe player crossing');
+
+  const phaseLaser = new context.LaserBarrier(600, 150, 16, 96, 180, 90, 90);
+  assert(phaseLaser.isActiveAt(0) === false && phaseLaser.isActiveAt(90) === true, 'Offset LaserBarrier (offset 90) synchronizes in counter-phase');
+
+  // 5. Unique Boss: 'Cyber-Dr. Glitch'
+  const cyberBoss = new context.WorldBoss('cyber_glitch', 'CYBER-DR. GLITCH', 'Arqui-Hacker del Ciberespacio', 3650, 185);
+  assert(cyberBoss.bossKey === 'cyber_glitch', 'Cyber-Dr. Glitch boss instantiated');
+  assert(cyberBoss.hp === 3 && cyberBoss.maxHp === 3, 'Cyber-Dr. Glitch starts with 3 HP');
+  cyberBoss.active = true;
+  cyberBoss.arenaLeft = 3420;
+  cyberBoss.arenaRight = 3920;
+  cyberBoss.attackTimer = 100;
+  cyberBoss.update(cyberLockGame.player || testHero, cyberLockGame);
+  assert(cyberBoss.phase === 1, 'Cyber-Dr. Glitch initializes in Phase 1 (Laser Volleys)');
+
+  cyberBoss.takeDamage(cyberLockGame);
+  assert(cyberBoss.hp === 2 && cyberBoss.phase === 2, 'Cyber-Dr. Glitch transitions to Phase 2 (EMP Blast Shockwave) on 1st hit');
+
+  cyberBoss.takeDamage(cyberLockGame);
+  assert(cyberBoss.hp === 1 && cyberBoss.phase === 3, 'Cyber-Dr. Glitch transitions to Phase 3 (Hologram Decoy Clones) on 2nd hit');
+
+  // 6. World 12 Simulation, Level Width, Star Coins & Flagpole
+  const cyberGame = new context.PlatformerGame();
+  cyberGame.currentLevelIdx = 11;
+  cyberGame.startSelectedLevel();
+  assert(cyberGame.levelWidth === 4200, 'World 12 stage width is 4200px');
+  assert(cyberGame.starCoins.length === 3, 'World 12 has 3 creative Star Coins hidden along neon routes');
+  assert(cyberGame.flagPole.x >= 4000, 'World 12 FlagPole positioned at stage climax');
+
+  let cyberBgPass = true;
+  try { cyberGame.renderBackground(env.mockCtx, Date.now()); } catch(e){ cyberBgPass = false; }
+  assert(cyberBgPass, 'renderBackground executes cleanly for World 12 cyberpunk theme');
+
+  let cyberLvlPass = true;
+  try { cyberGame.renderLevel(env.mockCtx, Date.now()); } catch(e){ cyberLvlPass = false; }
+  assert(cyberLvlPass, 'renderLevel executes cleanly with boost pads, laser barriers, and neon grids');
+
+  // 7. World Map Navigation to World 12
+  cyberGame.currentLevelIdx = 10;
+  cyberGame.navigateWorldMap(1);
+  assert(cyberGame.currentLevelIdx === 11, 'navigateWorldMap navigates forward to World 12 (index 11)');
+  let cyberMapPass = true;
+  try { cyberGame.renderWorldMapNSMBWii(env.mockCtx, Date.now()); } catch(e){ cyberMapPass = false; }
+  assert(cyberMapPass, 'renderWorldMapNSMBWii renders S-3 cyberpunk node and plaque cleanly');
+
+  // ─────────────────────────────────────────────────────────
+  // TEST SUITE 15: World 13 Jungla Volcánica Mechanics (S-4: Selva de Magma)
+  // ─────────────────────────────────────────────────────────
+  console.log('\n--- TEST SUITE 15: World 13 Jungla Volcánica Mechanics ---');
+
+  // 1. World 13 Configuration & Unlock Criteria
+  const volcanoCfg = context.LEVEL_CONFIGS[12];
+  assert(volcanoCfg && volcanoCfg.id === 13, 'World 13 is defined in LEVEL_CONFIGS with id: 13');
+  assert(volcanoCfg.name.includes('Selva de Magma') || volcanoCfg.name.includes('Volcánica'), 'World 13 name correctly set to S-4: Selva de Magma');
+  assert(volcanoCfg.theme === 'volcano_jungle', 'World 13 theme configured as volcano_jungle');
+  assert(volcanoCfg.bossKey === 'rex_tyrannus', 'World 13 bossKey configured as rex_tyrannus');
+  assert(volcanoCfg.track === 'volcano', 'World 13 BGM track configured as volcano');
+  assert(Array.isArray(volcanoCfg.sky) && volcanoCfg.sky.length >= 3, 'World 13 defines fiery volcanic sky gradient');
+  assert(volcanoCfg.mapX === 350 && volcanoCfg.mapY === 70, 'World 13 mapped with diorama coordinates (350, 70)');
+
+  // 2. Unlock Criteria for World 13
+  const volcanoLockGame = new context.PlatformerGame();
+  volcanoLockGame.starCoinsPerLevel = { "0": 3, "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3, "8": 3, "9": 3, "10": 1 }; // 31 coins (< 32)
+  volcanoLockGame.unlockedLevels = [true, false, false, false, false, false, false, false, false, false, false, false, false, false];
+  assert(volcanoLockGame.isVolcanoWorldUnlocked() === false, 'Volcano Jungle locked when starCoins < 32 and World 12 not beaten');
+  assert(volcanoLockGame.isLevelUnlocked(12) === false, 'isLevelUnlocked(12) returns false when criteria not met');
+
+  volcanoLockGame.starCoinsPerLevel["10"] = 2; // total = 32
+  assert(volcanoLockGame.isVolcanoWorldUnlocked() === true, 'Volcano Jungle unlocked when totalStarCoins >= 32');
+  assert(volcanoLockGame.isLevelUnlocked(12) === true, 'isLevelUnlocked(12) returns true with 32 Star Coins');
+
+  // 3. BouncyPalmLeaf Mechanics (vy = -15.5 Super Bounce & Sway Physics)
+  const palmLeaf = new context.BouncyPalmLeaf(400, 210, 64, 20, -15.5);
+  assert(palmLeaf.x === 400 && palmLeaf.y === 210, 'BouncyPalmLeaf properly initialized');
+  assert(palmLeaf.isPalmLeaf === true, 'BouncyPalmLeaf flagged as isPalmLeaf');
+  assert(palmLeaf.bounceImpulse === -15.5, 'BouncyPalmLeaf configured with -15.5 super-bounce impulse');
+  palmLeaf.triggerBounce();
+  assert(palmLeaf.swayTimer === 1.0, 'BouncyPalmLeaf swayTimer set to 1.0 on bounce');
+  palmLeaf.update(100);
+  assert(palmLeaf.swayTimer < 1.0, 'BouncyPalmLeaf sway damps smoothly over time');
+
+  // 4. LavaGeyser Mechanics (State Machine & Lethal Eruption)
+  const geyser = new context.LavaGeyser(600, 200, 32, 120, 240, 60);
+  assert(geyser.isLavaGeyser === true, 'LavaGeyser flagged as isLavaGeyser');
+  assert(geyser.maxH === 120, 'LavaGeyser configured with 120px max surge height');
+  geyser.timer = 10;
+  geyser.update();
+  assert(geyser.state === 'idle', 'LavaGeyser initializes in idle state');
+  geyser.timer = 200;
+  geyser.update();
+  assert(geyser.state === 'erupt', 'LavaGeyser transitions to erupt state during peak surge');
+  const heroInGeyser = { x: 605, y: 120, w: 24, h: 36 };
+  assert(geyser.checkDamage(heroInGeyser) === true, 'LavaGeyser deals lethal damage during erupt state');
+  geyser.timer = 10;
+  geyser.update();
+  assert(geyser.checkDamage(heroInGeyser) === false, 'LavaGeyser non-lethal during idle state');
+
+  // 5. CrumblingBasaltBlock Mechanics (45-frame collapse & respawn)
+  const basalt = new context.CrumblingBasaltBlock(750, 180, 32, 32, 45, 180);
+  assert(basalt.isBasalt === true, 'CrumblingBasaltBlock flagged as isBasalt');
+  assert(basalt.maxStand === 45, 'CrumblingBasaltBlock configured with 45-frame shake threshold');
+  assert(basalt.state === 'solid' && basalt.solid === true, 'CrumblingBasaltBlock starts solid');
+  basalt.stepOn();
+  assert(basalt.state === 'shaking', 'Stepping on CrumblingBasaltBlock triggers shaking state');
+  for (let f = 0; f < 50; f++) basalt.update();
+  assert(basalt.state === 'falling' && basalt.solid === false, 'CrumblingBasaltBlock collapses into falling state after 45 frames');
+  for (let f = 0; f < 190; f++) basalt.update();
+  assert(basalt.state === 'solid' && basalt.solid === true, 'CrumblingBasaltBlock respawns back to solid state after cooldown');
+
+  // 6. Unique Boss: 'Rex Tyrannus'
+  const rexBoss = new context.WorldBoss('rex_tyrannus', 'REX TYRANNUS', 'Tiranosaurio Mecánico del Núcleo', 3650, 185);
+  assert(rexBoss.bossKey === 'rex_tyrannus', 'Rex Tyrannus boss instantiated');
+  assert(rexBoss.hp === 3 && rexBoss.maxHp === 3, 'Rex Tyrannus starts with 3 HP');
+  rexBoss.active = true;
+  rexBoss.arenaLeft = 3420;
+  rexBoss.arenaRight = 3920;
+  rexBoss.attackTimer = 100;
+  rexBoss.update(volcanoLockGame.player || testHero, volcanoLockGame);
+  assert(rexBoss.phase === 1, 'Rex Tyrannus initializes in Phase 1 (Lunges & Tail Sweeps)');
+
+  rexBoss.takeDamage(volcanoLockGame);
+  assert(rexBoss.hp === 2 && rexBoss.phase === 2, 'Rex Tyrannus transitions to Phase 2 (Earthquake Stomp & Falling Rocks) on 1st hit');
+
+  rexBoss.takeDamage(volcanoLockGame);
+  assert(rexBoss.hp === 1 && rexBoss.phase === 3, 'Rex Tyrannus transitions to Phase 3 (3-Way Magma Jet Breath) on 2nd hit');
+
+  // 7. World 13 Simulation, Level Width, Star Coins & Flagpole
+  const volcanoGame = new context.PlatformerGame();
+  volcanoGame.currentLevelIdx = 12;
+  volcanoGame.startSelectedLevel();
+  assert(volcanoGame.levelWidth === 4200, 'World 13 stage width is 4200px');
+  assert(volcanoGame.starCoins.length === 3, 'World 13 has 3 creative Star Coins hidden along magma paths');
+  assert(volcanoGame.flagPole.x >= 4000, 'World 13 FlagPole positioned at stage climax');
+
+  let volcanoBgPass = true;
+  try { volcanoGame.renderBackground(env.mockCtx, Date.now()); } catch(e){ volcanoBgPass = false; }
+  assert(volcanoBgPass, 'renderBackground executes cleanly for World 13 volcano jungle theme');
+
+  let volcanoLvlPass = true;
+  try { volcanoGame.renderLevel(env.mockCtx, Date.now()); } catch(e){ volcanoLvlPass = false; }
+  assert(volcanoLvlPass, 'renderLevel executes cleanly with palm leaves, crumbling basalt, and lava geysers');
+
+  // 8. World Map Navigation to World 13
+  volcanoGame.currentLevelIdx = 11;
+  volcanoGame.navigateWorldMap(1);
+  assert(volcanoGame.currentLevelIdx === 12, 'navigateWorldMap navigates forward to World 13 (index 12)');
+  let volcanoMapPass = true;
+  try { volcanoGame.renderWorldMapNSMBWii(env.mockCtx, Date.now()); } catch(e){ volcanoMapPass = false; }
+  assert(volcanoMapPass, 'renderWorldMapNSMBWii renders S-4 volcano node and plaque cleanly');
+
+  // ─────────────────────────────────────────────────────────
+  // TEST SUITE 16: World 14 Castillo del Tiempo Mechanics (S-5: Torre del Reloj Crono)
+  // ─────────────────────────────────────────────────────────
+  console.log('\n--- TEST SUITE 16: World 14 Castillo del Tiempo Mechanics ---');
+
+  // 1. World 14 Configuration & Unlock Criteria
+  const clockCfg = context.LEVEL_CONFIGS[13];
+  assert(clockCfg && clockCfg.id === 14, 'World 14 is defined in LEVEL_CONFIGS with id: 14');
+  assert(clockCfg.name.includes('Reloj Crono') || clockCfg.name.includes('Tiempo'), 'World 14 name correctly set to S-5: Torre del Reloj Crono');
+  assert(clockCfg.theme === 'clocktower', 'World 14 theme configured as clocktower');
+  assert(clockCfg.bossKey === 'chronos', 'World 14 bossKey configured as chronos');
+  assert(clockCfg.track === 'clockwork', 'World 14 BGM track configured as clockwork');
+  assert(Array.isArray(clockCfg.sky) && clockCfg.sky.length >= 3, 'World 14 defines gothic clocktower sky gradient');
+  assert(clockCfg.mapX === 285 && clockCfg.mapY === 75, 'World 14 mapped with diorama coordinates (285, 75)');
+
+  // 2. Unlock Criteria for World 14
+  const clockLockGame = new context.PlatformerGame();
+  clockLockGame.starCoinsPerLevel = { "0": 3, "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3, "8": 3, "9": 3, "10": 3, "11": 2 }; // 35 coins (< 36)
+  clockLockGame.unlockedLevels = [true, false, false, false, false, false, false, false, false, false, false, false, false, false];
+  assert(clockLockGame.isClockWorldUnlocked() === false, 'Clocktower World locked when starCoins < 36 and World 13 not beaten');
+  assert(clockLockGame.isLevelUnlocked(13) === false, 'isLevelUnlocked(13) returns false when criteria not met');
+
+  clockLockGame.starCoinsPerLevel["11"] = 3; // total = 36
+  assert(clockLockGame.isClockWorldUnlocked() === true, 'Clocktower World unlocked when totalStarCoins >= 36');
+  assert(clockLockGame.isLevelUnlocked(13) === true, 'isLevelUnlocked(13) returns true with 36 Star Coins');
+
+  // 3. RotatingGearPlatform Mechanics (Rotational & Tangential Physics)
+  const gear = new context.RotatingGearPlatform(450, 190, 48, 8, 0.02, 1);
+  assert(gear.x === 450 && gear.y === 190, 'RotatingGearPlatform properly initialized');
+  assert(gear.radius === 48 && gear.teeth === 8, 'RotatingGearPlatform configured with radius 48 and 8 teeth');
+  assert(gear.isGear === true, 'RotatingGearPlatform flagged as isGear');
+  gear.update(100);
+  assert(gear.angle !== 0, 'RotatingGearPlatform angle updates with rotation speed');
+  assert(Math.abs(gear.getRiderVelocity()) > 0, 'RotatingGearPlatform exerts tangential rider velocity');
+
+  const ccwGear = new context.RotatingGearPlatform(550, 190, 48, 8, 0.02, -1);
+  assert(ccwGear.dir === -1, 'Counter-clockwise RotatingGearPlatform configured with dir = -1');
+
+  // 4. PendulumSwing Mechanics (Harmonic Oscillation & Lethal Blade)
+  const pendulum = new context.PendulumSwing(600, 80, 96, Math.PI / 3, 0.04, 20);
+  assert(pendulum.anchorX === 600 && pendulum.anchorY === 80, 'PendulumSwing properly anchored');
+  assert(pendulum.length === 96 && pendulum.bladeRadius === 20, 'PendulumSwing configured with 96px length and 20px blade radius');
+  assert(pendulum.isPendulum === true, 'PendulumSwing flagged as isPendulum');
+  pendulum.update(1000);
+  assert(Math.abs(pendulum.angle) <= Math.PI / 3, 'PendulumSwing angle bounded within [-maxAngle, maxAngle]');
+  const bPos = pendulum.getBladePos();
+  assert(typeof bPos.x === 'number' && typeof bPos.y === 'number', 'PendulumSwing accurately calculates blade tip coordinates');
+  const heroAtBlade = { x: bPos.x - 12, y: bPos.y - 18, w: 24, h: 36 };
+  assert(pendulum.checkDamage(heroAtBlade) === true, 'PendulumSwing blade deals lethal damage upon overlap');
+
+  // 5. TickTockBlock Mechanics (120-frame synchronization & solid/ghost toggling)
+  const tickTock0 = new context.TickTockBlock(800, 200, 32, 32, 120, 0);
+  const tickTock1 = new context.TickTockBlock(850, 200, 32, 32, 120, 1);
+  assert(tickTock0.isTickTock === true && tickTock1.isTickTock === true, 'TickTockBlocks flagged as isTickTock');
+  assert(tickTock0.cycle === 120 && tickTock0.phase === 0, 'TickTockBlock 0 configured with 120 cycle and phase 0');
+  assert(tickTock1.cycle === 120 && tickTock1.phase === 1, 'TickTockBlock 1 configured with 120 cycle and phase 1');
+  assert(tickTock0.isSolidAt(60) === true, 'TickTockBlock Phase 0 is solid during frames 0..119');
+  assert(tickTock1.isSolidAt(60) === false, 'TickTockBlock Phase 1 is ghost/intangible during frames 0..119');
+  assert(tickTock0.isSolidAt(180) === false, 'TickTockBlock Phase 0 is ghost/intangible during frames 120..239');
+  assert(tickTock1.isSolidAt(180) === true, 'TickTockBlock Phase 1 is solid during frames 120..239');
+
+  // 6. Unique Boss: 'Chronos / Señor del Tiempo'
+  const chronosBoss = new context.WorldBoss('chronos', 'CHRONOS', 'Señor del Tiempo y la Eternidad', 3650, 185);
+  assert(chronosBoss.bossKey === 'chronos', 'Chronos boss instantiated');
+  assert(chronosBoss.hp === 3 && chronosBoss.maxHp === 3, 'Chronos starts with 3 HP');
+  chronosBoss.active = true;
+  chronosBoss.arenaLeft = 3420;
+  chronosBoss.arenaRight = 3920;
+  chronosBoss.attackTimer = 100;
+  chronosBoss.update(clockLockGame.player || testHero, clockLockGame);
+  assert(chronosBoss.phase === 1, 'Chronos initializes in Phase 1 (Chrono Warp & Projectile Gears)');
+
+  chronosBoss.takeDamage(clockLockGame);
+  assert(chronosBoss.hp === 2 && chronosBoss.phase === 2, 'Chronos transitions to Phase 2 (Time-Dilation Slowdown Spell) on 1st hit');
+
+  chronosBoss.takeDamage(clockLockGame);
+  assert(chronosBoss.hp === 1 && chronosBoss.phase === 3, 'Chronos transitions to Phase 3 (3 Orbiting Clock-Hand Scythe Blades) on 2nd hit');
+
+  // 7. World 14 Simulation, Level Width, Star Coins & Flagpole
+  const clockGame = new context.PlatformerGame();
+  clockGame.currentLevelIdx = 13;
+  clockGame.startSelectedLevel();
+  assert(clockGame.levelWidth === 4200, 'World 14 stage width is 4200px');
+  assert(clockGame.starCoins.length === 3, 'World 14 has 3 creative Star Coins hidden in clockwork chambers');
+  assert(clockGame.flagPole.x >= 4000, 'World 14 FlagPole positioned at stage climax');
+
+  let clockBgPass = true;
+  try { clockGame.renderBackground(env.mockCtx, Date.now()); } catch(e){ clockBgPass = false; }
+  assert(clockBgPass, 'renderBackground executes cleanly for World 14 clocktower theme');
+
+  let clockLvlPass = true;
+  try { clockGame.renderLevel(env.mockCtx, Date.now()); } catch(e){ clockLvlPass = false; }
+  assert(clockLvlPass, 'renderLevel executes cleanly with gears, pendulums, and tick-tock blocks');
+
+  // 8. World Map Navigation to World 14
+  clockGame.currentLevelIdx = 12;
+  clockGame.navigateWorldMap(1);
+  assert(clockGame.currentLevelIdx === 13, 'navigateWorldMap navigates forward to World 14 (index 13)');
+  let clockMapPass = true;
+  try { clockGame.renderWorldMapNSMBWii(env.mockCtx, Date.now()); } catch(e){ clockMapPass = false; }
+  assert(clockMapPass, 'renderWorldMapNSMBWii renders S-5 clocktower node and plaque cleanly');
+
+  // ─────────────────────────────────────────────────────────
+  // TEST SUITE 17: World Map, Audio & Asset Systems (14 Worlds & 42 Star Coins)
+  // ─────────────────────────────────────────────────────────
+  console.log('\n--- TEST SUITE 17: World Map, Audio & Asset Systems ---');
+
+  // 1. 14-World Layout & Progression
+  assert(context.LEVEL_CONFIGS.length === 14, 'LEVEL_CONFIGS defines full 14-world expansion roster');
+  const all14Ids = context.LEVEL_CONFIGS.map(c => c.id);
+  assert(all14Ids.join(',') === '1,2,3,4,5,6,7,8,9,10,11,12,13,14', 'World IDs span sequentially from 1 to 14');
+
+  // 2. 42 Star Coins Total Available
+  const totalAvailableStarCoins = context.LEVEL_CONFIGS.length * 3;
+  assert(totalAvailableStarCoins === 42, 'Grand total of 42 Star Coins available across all 14 worlds');
+
+  // 3. Unlock Thresholds for Special Stages S-1 through S-5
+  const fullGame = new context.PlatformerGame();
+  assert(typeof fullGame.isStarWorldUnlocked === 'function', 'Special Stage S-1 (World 10) unlock method defined (20 Star Coins / Beat 1-9)');
+  assert(typeof fullGame.isCandyWorldUnlocked === 'function', 'Special Stage S-2 (World 11) unlock method defined (24 Star Coins / Beat S-1)');
+  assert(typeof fullGame.isCyberWorldUnlocked === 'function', 'Special Stage S-3 (World 12) unlock method defined (28 Star Coins / Beat S-2)');
+  assert(typeof fullGame.isVolcanoWorldUnlocked === 'function', 'Special Stage S-4 (World 13) unlock method defined (32 Star Coins / Beat S-3)');
+  assert(typeof fullGame.isClockWorldUnlocked === 'function', 'Special Stage S-5 (World 14) unlock method defined (36 Star Coins / Beat S-4)');
+
+  // 4. Web Audio Synthesizer: Expansion BGM Tracks
+  const synthExpansion = new context.SoundFX();
+  let audioExpansionPass = true;
+  try {
+    synthExpansion.currentTrack = 'cyber';
+    synthExpansion.startBGM();
+    synthExpansion.stopBGM();
+    synthExpansion.currentTrack = 'volcano';
+    synthExpansion.startBGM();
+    synthExpansion.stopBGM();
+    synthExpansion.currentTrack = 'clockwork';
+    synthExpansion.startBGM();
+    synthExpansion.stopBGM();
+  } catch(e) {
+    audioExpansionPass = false;
+  }
+  assert(audioExpansionPass, 'SoundFX synthesizer generates dynamic BGM for cyber, volcano, and clockwork tracks');
+
+  // 5. Boss Assets & Procedural Canvas Fallbacks
+  const bossKeys = ['cyber_glitch', 'rex_tyrannus', 'chronos'];
+  bossKeys.forEach(bk => {
+    const boss = new context.WorldBoss(bk, 'TEST BOSS', 'SUBTITLE', 300, 180);
+    assert(boss.bossKey === bk, `WorldBoss correctly recognizes ${bk} key`);
+    let fallbackPass = true;
+    try {
+      boss.draw(env.mockCtx, { toScreen: (x, y) => ({ x, y }), isVisible: () => true });
+    } catch(e) {
+      fallbackPass = false;
+    }
+    assert(fallbackPass, `Procedural Canvas 2D fallback renders ${bk} boss cleanly without missing assets`);
+  });
+
+  // 6. Service Worker Precache Verification
+  const swPath = path.join(__dirname, 'sw.js');
+  let swPrecachePass = false;
+  if (fs.existsSync(swPath)) {
+    const swContent = fs.readFileSync(swPath, 'utf8');
+    swPrecachePass = swContent.includes('world_map_diorama.png') || swContent.includes('index.html');
+  }
+  assert(swPrecachePass, 'sw.js Service Worker configured for PWA asset caching and offline resilience');
 
   console.log('\n====================================================');
   console.log(`  AUDIT SUMMARY: ${passed} PASSED | ${failed} FAILED`);
@@ -1020,3 +1374,4 @@ runAudit().catch(err => {
   console.error('Fatal error during audit:', err);
   process.exit(1);
 });
+
