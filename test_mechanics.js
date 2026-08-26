@@ -79,6 +79,7 @@ function createMockBrowserEnv() {
     quadraticCurveTo: () => {},
     bezierCurveTo: () => {},
     roundRect: () => {},
+    clip: () => {},
     fill: () => {},
     stroke: () => {},
     fillRect: () => {},
@@ -203,7 +204,7 @@ async function runAudit() {
   try {
     const wrappedScript = `
       ${gameScript}
-      ;({ SoundFX, Camera, TouchController, Enemy, RideableMount, WorldBoss, TommyAI, CoinEntity, SeeSawPlatform, LaunchStar, MagicPortal, StarCoin, ItemEntity, QuestionBlock, DestructibleBlock, FlagPole, PlatformerGame, LEVEL_CONFIGS, CHARACTERS, audio, CrystalPlatform, BOSS_RUSH_ROSTER, formatTime, COSMETICS_CATALOG, getCosmetic })
+      ;({ SoundFX, Camera, TouchController, Enemy, RideableMount, WorldBoss, TommyAI, CoinEntity, SeeSawPlatform, LaunchStar, MagicPortal, StarCoin, ItemEntity, QuestionBlock, DestructibleBlock, FlagPole, PlatformerGame, LEVEL_CONFIGS, CHARACTERS, audio, CrystalPlatform, GelatinPlatform, BOSS_RUSH_ROSTER, formatTime, COSMETICS_CATALOG, getCosmetic })
     `;
     exportsObj = vm.runInContext(wrappedScript, context);
     Object.assign(context, exportsObj);
@@ -240,6 +241,7 @@ async function runAudit() {
   assert(typeof context.CoinEntity === 'function', 'CoinEntity class defined');
   assert(typeof context.SeeSawPlatform === 'function', 'SeeSawPlatform class defined');
   assert(typeof context.CrystalPlatform === 'function', 'CrystalPlatform class defined');
+  assert(typeof context.GelatinPlatform === 'function', 'GelatinPlatform class defined');
   assert(typeof context.LaunchStar === 'function', 'LaunchStar class defined');
   assert(typeof context.MagicPortal === 'function', 'MagicPortal class defined');
   assert(typeof context.StarCoin === 'function', 'StarCoin class defined');
@@ -249,7 +251,7 @@ async function runAudit() {
   assert(typeof context.FlagPole === 'function', 'FlagPole class defined');
   assert(typeof context.PlatformerGame === 'function', 'PlatformerGame class defined');
 
-  assert(context.LEVEL_CONFIGS && context.LEVEL_CONFIGS.length === 10, '10 Distinct Level Configurations exist (9 Core Worlds + Secret Star World)');
+  assert(context.LEVEL_CONFIGS && context.LEVEL_CONFIGS.length === 11, '11 Distinct Level Configurations exist (9 Core Worlds + Secret Star World + Candy Kingdom)');
   assert(Object.keys(context.CHARACTERS).length === 5, '5 Playable Character Profiles (Candela, Cayetana, Valentina, Mamá, Papá)');
 
   // ─────────────────────────────────────────────────────────
@@ -541,10 +543,10 @@ async function runAudit() {
   assert(testEnemies.every(e => e.stunTimer > 0), 'Tommy Sonic Bark freezes/stuns all active enemies');
 
   // ─────────────────────────────────────────────────────────
-  // TEST 8: Full 10 World Levels Generation (9 Core + Secret Star World)
+  // TEST 8: Full 11 World Levels Generation (9 Core + 2 Secret Worlds)
   // ─────────────────────────────────────────────────────────
-  console.log('\n--- TEST SUITE 8: 10 World Levels Generation ---');
-  for (let lvl = 0; lvl < 10; lvl++) {
+  console.log('\n--- TEST SUITE 8: 11 World Levels Generation ---');
+  for (let lvl = 0; lvl < context.LEVEL_CONFIGS.length; lvl++) {
     game.currentLevelIdx = lvl;
     game.startSelectedLevel();
     const cfg = context.LEVEL_CONFIGS[lvl];
@@ -901,6 +903,107 @@ async function runAudit() {
   let touchDrawPass = true;
   try { touch.draw(env.mockCtx, 512, 288, 512, 288); } catch(e){ touchDrawPass = false; }
   assert(touchDrawPass, 'TouchController renders responsive virtual controls without errors');
+
+  // ─────────────────────────────────────────────────────────
+  // TEST SUITE 13: World 11: 'Reino de Dulces & Caramelo' (Candy Kingdom / S-2: Valle Dulzón)
+  // ─────────────────────────────────────────────────────────
+  console.log('\n--- TEST SUITE 13: World 11 Candy Kingdom & Donut King Mechanics ---');
+
+  // 1. World 11 Configuration & Unlock Criteria
+  const candyCfg = context.LEVEL_CONFIGS[10];
+  assert(candyCfg && candyCfg.id === 11, 'World 11 is defined in LEVEL_CONFIGS with id: 11');
+  assert(candyCfg.name.includes('Valle Dulzón') || candyCfg.name.includes('Dulces'), 'World 11 name correctly set to S-2: Valle Dulzón');
+  assert(candyCfg.theme === 'candy', 'World 11 theme configured as candy');
+  assert(candyCfg.bossKey === 'donut_king', 'World 11 bossKey configured as donut_king');
+  assert(candyCfg.track === 'candy', 'World 11 BGM track configured as candy');
+  assert(Array.isArray(candyCfg.sky) && candyCfg.sky.length >= 3, 'World 11 defines pastel sky gradient (pink/cyan palette)');
+  assert(candyCfg.mapX === 485 && candyCfg.mapY === 135, 'World 11 mapped with diorama coordinates (485, 135)');
+
+  // 2. Unlock Criteria for World 11
+  const candyLockGame = new context.PlatformerGame();
+  candyLockGame.starCoinsPerLevel = { "0": 3, "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3 }; // 21 coins (< 24)
+  candyLockGame.unlockedLevels = [true, true, true, true, true, true, true, true, false, false, false];
+  assert(candyLockGame.isCandyWorldUnlocked() === false, 'Candy Kingdom locked when starCoins < 24 and World 1-9 / S-1 not beaten');
+  assert(candyLockGame.isLevelUnlocked(10) === false, 'isLevelUnlocked(10) returns false when criteria not met');
+
+  candyLockGame.starCoinsPerLevel["7"] = 3; // total = 24
+  assert(candyLockGame.isCandyWorldUnlocked() === true, 'Candy Kingdom unlocked when totalStarCoins >= 24');
+  assert(candyLockGame.isLevelUnlocked(10) === true, 'isLevelUnlocked(10) returns true with 24 Star Coins');
+
+  // 3. GelatinPlatform Mechanics (Super Bounce & Wobble Physics)
+  const gelatinPlat = new context.GelatinPlatform(380, 205, 75, 16, -13.5, '#FF4081');
+  assert(gelatinPlat.x === 380 && gelatinPlat.y === 205, 'GelatinPlatform properly initialized');
+  assert(gelatinPlat.isGelatin === true, 'GelatinPlatform flagged as isGelatin');
+  assert(gelatinPlat.bounceForce === -13.5, 'GelatinPlatform configured with -13.5 super-bounce force');
+  gelatinPlat.triggerBounce();
+  assert(gelatinPlat.wobble === 1.0, 'triggerBounce sets wobble intensity to 1.0');
+  gelatinPlat.update(100);
+  assert(gelatinPlat.wobble < 1.0 && gelatinPlat.wobblePhase > 0, 'GelatinPlatform wobble damps smoothly over time');
+
+  // Simulation: Player landing on GelatinPlatform triggers super-bounce
+  const bounceGame = new context.PlatformerGame();
+  bounceGame.currentLevelIdx = 10;
+  bounceGame.startSelectedLevel();
+  assert(bounceGame.gelatinPlatforms.length >= 5, 'World 11 generated at least 5 bouncy gelatin platforms');
+  const allCandyPlats = bounceGame.getAllSolidPlatforms();
+  assert(allCandyPlats.some(p => p.isGelatin === true), 'getAllSolidPlatforms includes bouncy Gelatin Platforms');
+
+  bounceGame.player.x = 390;
+  bounceGame.player.y = 207 - bounceGame.player.h;
+  bounceGame.player.vy = 4.5;
+  bounceGame.resolveVertical(bounceGame.player, allCandyPlats);
+  assert(bounceGame.player.vy <= -12.0, 'Landing on GelatinPlatform triggers high super bounce velocity (<= -12.0)');
+
+  // 4. Chocolate Mud Pools (Slowdown Physics)
+  assert(bounceGame.chocolatePools.length >= 4, 'World 11 generated at least 4 chocolate mud pools');
+  bounceGame.player.x = bounceGame.chocolatePools[0].x + 10;
+  bounceGame.player.y = bounceGame.chocolatePools[0].y;
+  bounceGame.player.vx = 4.0;
+  bounceGame.player.vy = 2.0;
+  bounceGame.updateEntities(100, allCandyPlats);
+  assert(bounceGame.player.vx < 3.0, 'Chocolate mud pool dampens horizontal speed (slow movement)');
+  assert(bounceGame.player.vy <= 1.0, 'Chocolate mud pool limits downward sinking velocity (max 1.0)');
+
+  // 5. Unique Boss: 'Donut King / Rey Dulzón'
+  const donutKing = new context.WorldBoss('donut_king', 'REY DULZÓN', 'Monarca del Reino de Caramelo', 3650, 185);
+  assert(donutKing.bossKey === 'donut_king', 'Donut King boss instantiated');
+  assert(donutKing.hp === 3 && donutKing.maxHp === 3, 'Donut King starts with 3 HP');
+  donutKing.active = true;
+  donutKing.arenaLeft = 3420;
+  donutKing.arenaRight = 3920;
+  donutKing.attackTimer = 100;
+  donutKing.update(bounceGame.player, bounceGame);
+  assert(donutKing.projectiles.length > 0, 'Donut King fires projectiles in Phase 1');
+  assert(donutKing.projectiles.some(p => p.type === 'sugar_ball'), 'Donut King Phase 1 launches rolling sugar ball attacks');
+
+  donutKing.takeDamage(bounceGame);
+  assert(donutKing.hp === 2 && donutKing.phase === 2, 'Donut King transitions to Phase 2 on 1st hit');
+  assert(donutKing.jellyShield === true || donutKing.phase >= 2, 'Donut King activates jelly shield in Phase 2');
+
+  donutKing.takeDamage(bounceGame);
+  assert(donutKing.hp === 1 && donutKing.phase === 3, 'Donut King transitions to Phase 3 (Enraged Sugar Frenzy) on 2nd hit');
+
+  // 6. Level Width, 3 Star Coins & Flagpole
+  assert(bounceGame.levelWidth === 4200, 'World 11 stage width is 4200px');
+  assert(bounceGame.starCoins.length === 3, 'World 11 has 3 creative Star Coins hidden along routes');
+  assert(bounceGame.flagPole.x >= 4000, 'World 11 FlagPole positioned at stage climax (4050px)');
+
+  // 7. Visual Parallax & Level Rendering for World 11
+  let candyBgPass = true;
+  try { bounceGame.renderBackground(env.mockCtx, Date.now()); } catch(e){ candyBgPass = false; }
+  assert(candyBgPass, 'renderBackground executes cleanly for World 11 candy theme');
+
+  let candyLvlPass = true;
+  try { bounceGame.renderLevel(env.mockCtx, Date.now()); } catch(e){ candyLvlPass = false; }
+  assert(candyLvlPass, 'renderLevel executes cleanly with candy cane platforms, gelatin blocks, and chocolate pools');
+
+  // 8. World Map Navigation to World 11
+  bounceGame.currentLevelIdx = 9;
+  bounceGame.navigateWorldMap(1);
+  assert(bounceGame.currentLevelIdx === 10, 'navigateWorldMap navigates forward to World 11 (index 10)');
+  let mapRenderPass = true;
+  try { bounceGame.renderWorldMapNSMBWii(env.mockCtx, Date.now()); } catch(e){ mapRenderPass = false; }
+  assert(mapRenderPass, 'renderWorldMapNSMBWii renders S-2 candy node and plaque cleanly');
 
   console.log('\n====================================================');
   console.log(`  AUDIT SUMMARY: ${passed} PASSED | ${failed} FAILED`);

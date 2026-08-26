@@ -816,10 +816,13 @@ async function runTier5StressTests() {
     process.exit(1);
   } else {
     console.log('🟢 ALL TIER 5 ADVERSARIAL STRESS TESTS COMPLETED WITH 100% PASS RATE!\n');
+    process.exit(0);
   }
 }
 
-runTier5StressTests().catch(err => {
+runTier5StressTests().then(() => {
+  process.exit(0);
+}).catch(err => {
   console.error('Fatal execution error in stress test harness:', err);
   process.exit(1);
 });
