@@ -1,4 +1,4 @@
-const CACHE_NAME = 'srpw-v2.2-live';
+const CACHE_NAME = 'srpw-v3.0-ghpages-optimized';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './tommy.png',
   './world_map_diorama.png',
   './master_trophy.png',
+  './boss_donut_king.png',
   './assets/candela.png',
   './assets/cayetana.png',
   './assets/valentina.png',
@@ -18,7 +19,8 @@ const ASSETS_TO_CACHE = [
   './assets/papa.png',
   './assets/tommy.png',
   './assets/world_map_diorama.png',
-  './assets/master_trophy.png'
+  './assets/master_trophy.png',
+  './assets/boss_donut_king.png'
 ];
 
 self.addEventListener('install', (e) => {

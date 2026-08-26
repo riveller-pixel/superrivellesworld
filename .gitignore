@@ -5,3 +5,5 @@ Thumbs.db
 .idea/
 *.log
 node_modules/
+.agents/
+.system_generated/
